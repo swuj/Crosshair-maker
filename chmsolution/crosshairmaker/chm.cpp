@@ -1,6 +1,14 @@
 #include <windows.h>
 #include <tchar.h>
 
+#define FILE_MENU_NEW 1
+#define FILE_MENU_EXIT 2
+#define FILE_MENU_OPEN 3
+#define FILE_MENU_SAVE 4
+#define FILE_MENU_SAVEAS 5
+#define FILE_MENU_EXPORT 6
+
+
 static TCHAR szWindowClass[] = _T("Crosshair Maker");
 static TCHAR szTitle[] = _T("Crosshair Maker");
 
@@ -8,7 +16,9 @@ HINSTANCE hInst;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
+void AddMenus(HWND);
 
+HMENU hMenu;
 
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
@@ -80,6 +90,7 @@ int WINAPI WinMain(
 		nCmdShow);
 	UpdateWindow(hWnd);
 
+
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -118,8 +129,37 @@ LRESULT CALLBACK WndProc(
 	case WM_DESTROY: //check if saved changes
 		PostQuitMessage(0);
 		break;
+	case WM_CREATE:
+		AddMenus(hWnd);
+		break;
+	case WM_COMMAND: //menu selection
+		switch (wParam) {
+		case FILE_MENU_EXIT:
+			DestroyWindow(hWnd);
+			break;
+		}
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 		break;
 	}
+}
+
+void AddMenus(HWND hWnd) {
+	hMenu = CreateMenu();
+
+	HMENU hFileMenu = CreateMenu();
+	AppendMenu(hFileMenu, MF_STRING, FILE_MENU_SAVE, L"Save");
+	AppendMenu(hFileMenu, MF_STRING, FILE_MENU_SAVEAS, L"Save As");
+	AppendMenu(hFileMenu, MF_SEPARATOR, NULL, NULL);
+	AppendMenu(hFileMenu, MF_STRING, FILE_MENU_NEW, L"New crosshair");
+	AppendMenu(hFileMenu, MF_STRING, FILE_MENU_OPEN, L"Open crosshair");
+	AppendMenu(hFileMenu, MF_SEPARATOR, NULL, NULL);
+	AppendMenu(hFileMenu, MF_STRING, FILE_MENU_EXPORT, L"Export as PNG");
+	AppendMenu(hFileMenu, MF_SEPARATOR, NULL, NULL);
+	AppendMenu(hFileMenu, MF_STRING, FILE_MENU_EXIT, L"Exit");
+
+
+	AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
+
+	SetMenu(hWnd, hMenu);
 }
