@@ -7,6 +7,7 @@
 #define FILE_MENU_SAVE 4
 #define FILE_MENU_SAVEAS 5
 #define FILE_MENU_EXPORT 6
+#define NEW_CROSS 7
 
 
 static TCHAR szWindowClass[] = _T("Crosshair Maker");
@@ -17,8 +18,12 @@ HINSTANCE hInst;
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 void AddMenus(HWND);
+void AddControls(HWND);
 
 HMENU hMenu;
+
+HWND dimx;
+HWND dimy;
 
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
@@ -51,8 +56,6 @@ int WINAPI WinMain(
 		return 1;
 	}
 
-	
-
 	// The parameters to CreateWindowEx explained:
 	// WS_EX_OVERLAPPEDWINDOW : An optional extended window style.
 	// szWindowClass: the name of the application
@@ -70,7 +73,7 @@ int WINAPI WinMain(
 		szTitle,
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		500, 100,
+		500, 500,
 		NULL,
 		NULL,
 		hInstance,
@@ -131,6 +134,7 @@ LRESULT CALLBACK WndProc(
 		break;
 	case WM_CREATE:
 		AddMenus(hWnd);
+		AddControls(hWnd);
 		break;
 	case WM_COMMAND: //menu selection
 		switch (wParam) {
@@ -162,4 +166,25 @@ void AddMenus(HWND hWnd) {
 	AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"File");
 
 	SetMenu(hWnd, hMenu);
+}
+
+void AddControls(HWND hWnd) {
+	int dimposx = 45;
+	int dimposy = 45;
+	int dimwidth = 18;
+	int dimheight = 18;
+	int dimtextwidth = 50;
+
+	CreateWindowW(L"Static", L"x: ", WS_VISIBLE | WS_CHILD, 
+		dimposx, dimposy, dimwidth, dimheight, hWnd, NULL,
+		NULL, NULL);
+	CreateWindowW(L"Static", L"y: ", WS_VISIBLE | WS_CHILD,
+		dimposx, dimposy+ dimheight + 5, dimwidth, dimheight, hWnd, NULL,
+		NULL, NULL);
+	dimx = CreateWindowW(L"Edit", L"20", WS_VISIBLE | WS_CHILD | WS_BORDER, 
+		dimposx + dimwidth + 5, dimposy, dimtextwidth, dimheight, hWnd,
+		NULL, NULL, NULL);
+	dimy = CreateWindowW(L"Edit", L"20", WS_VISIBLE | WS_CHILD | WS_BORDER,
+		dimposx + dimwidth + 5, dimposy + dimheight + 5, dimtextwidth, dimheight, hWnd,
+		NULL, NULL, NULL);
 }
