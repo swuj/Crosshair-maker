@@ -8,6 +8,7 @@
 #define FILE_MENU_SAVEAS 5
 #define FILE_MENU_EXPORT 6
 #define NEW_CROSS 7
+#define SAVE_CROSS 8
 
 
 static TCHAR szWindowClass[] = _T("Crosshair Maker");
