@@ -1,5 +1,8 @@
 #include <windows.h>
 #include <tchar.h>
+#include <vector>
+#include <string>
+#include <iostream>
 
 #define FILE_MENU_NEW 1
 #define FILE_MENU_EXIT 2
@@ -10,6 +13,42 @@
 #define NEW_CROSS 7
 #define SAVE_CROSS 8
 
+
+
+
+struct Pixel {
+	uint8_t red, green, blue, alpha;
+};
+
+class Crosshair {
+private:
+	int width;
+	int height;
+	std::vector<std::vector<Pixel>> pixels;
+
+public:
+	Crosshair() : width(0), height(0) {}
+
+	Crosshair(int w, int h) : width(w), height(h), pixels(w, std::vector<Pixel>(h)) {}
+
+	//set pixel color
+	void SetColor(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+		if (x >= 0 && x < width && y >= 0 && y < height) {
+			pixels[x][y] = { r, g, b, a };
+		}
+	}
+
+	//new layer
+
+	//delete layer
+
+	//save as file
+	void SaveAsPng(const std::string& filename) {
+		//save as a png
+	}
+};
+
+Crosshair xhair;
 
 static TCHAR szWindowClass[] = _T("Crosshair Maker");
 static TCHAR szTitle[] = _T("Crosshair Maker");
@@ -137,6 +176,17 @@ LRESULT CALLBACK WndProc(
 		AddMenus(hWnd);
 		AddControls(hWnd);
 		break;
+
+	case NEW_CROSS: {
+		wchar_t tempw[5];
+		wchar_t temph[5];
+		std::wstring xStr(tempw, GetWindowTextW(dimx, tempw, 5));
+		std::wstring yStr(temph, GetWindowTextW(dimy, temph, 5));
+		xhair = Crosshair(std::stoi(xStr),
+			std::stoi(yStr));
+	}
+		break;
+
 	case WM_COMMAND: //menu selection
 		switch (wParam) {
 		case FILE_MENU_EXIT:
@@ -188,4 +238,6 @@ void AddControls(HWND hWnd) {
 	dimy = CreateWindowW(L"Edit", L"20", WS_VISIBLE | WS_CHILD | WS_BORDER,
 		dimposx + dimwidth + 5, dimposy + dimheight + 5, dimtextwidth, dimheight, hWnd,
 		NULL, NULL, NULL);
+	CreateWindowW(L"Button", L"NewCrosshair", WS_VISIBLE | WS_CHILD, 
+		100, 100, 50, dimheight, hWnd, (HMENU)NEW_CROSS, NULL, NULL);
 }
