@@ -83,6 +83,8 @@ HWND dimx;
 HWND dimy;
 
 bool setfn = false;
+bool xhairExists = false;
+
 OPENFILENAME ofn;
 wchar_t szFile[MAX_PATH] = L"";
 
@@ -226,24 +228,30 @@ LRESULT CALLBACK WndProc(
 				xhair = Crosshair(20, 20);
 			}
 
+			xhairExists = true;
 			break;
 
 		}
 		case SAVE_CROSS: {
-			
-			OutputDebugString(L"Save\n");
-			ZeroMemory(&ofn, sizeof(ofn));
-			ofn.lStructSize = sizeof(ofn);
-			ofn.hwndOwner = hWnd;
-			ofn.lpstrFile = szFile;
-			ofn.nMaxFile = sizeof(szFile) / sizeof(*szFile);
-			ofn.lpstrFilter = L"PNG Files (*.png)\0*.png\0All Files (*.*)\0*.*\0";
-			ofn.lpstrDefExt = L"png";
-			ofn.Flags = OFN_OVERWRITEPROMPT;
+			if (xhairExists) {
+				OutputDebugString(L"Save\n");
+				ZeroMemory(&ofn, sizeof(ofn));
+				ofn.lStructSize = sizeof(ofn);
+				ofn.hwndOwner = hWnd;
+				ofn.lpstrFile = szFile;
+				ofn.nMaxFile = sizeof(szFile) / sizeof(*szFile);
+				ofn.lpstrFilter = L"PNG Files (*.png)\0*.png\0All Files (*.*)\0*.*\0";
+				ofn.lpstrDefExt = L"png";
+				ofn.Flags = OFN_OVERWRITEPROMPT;
 
-			if (GetSaveFileName(&ofn)) {
-				xhair.SaveAsPng(szFile);
+				if (GetSaveFileName(&ofn)) {
+					xhair.SaveAsPng(szFile);
+				}
 			}
+			else {
+				MessageBox(hWnd, L"You must load or create a crosshair to save!", L"Umm", MB_OK);
+			}
+			
 			break;
 			
 		}
@@ -295,11 +303,24 @@ void AddControls(HWND hWnd) {
 	dimy = CreateWindowW(L"Edit", L"20", WS_VISIBLE | WS_CHILD | WS_BORDER,
 		dimposx + dimwidth + 5, dimposy + dimheight + 5, dimtextwidth, dimheight, hWnd,
 		NULL, NULL, NULL);
-	CreateWindowW(L"Button", L"NewCrosshair", WS_VISIBLE | WS_CHILD, 
-		100, 100, 50, dimheight, hWnd, (HMENU)NEW_CROSS, NULL, NULL);
+	SendMessage(dimx, EM_SETLIMITTEXT, 4, 0);
+	SendMessage(dimy, EM_SETLIMITTEXT, 4, 0);
 
-	CreateWindowW(L"Button", L"SaveCrosshair", WS_VISIBLE | WS_CHILD,
-		155, 100, 50, dimheight, hWnd, (HMENU)SAVE_CROSS, NULL, NULL);
+	int mainBtnWidth = 100;
+	int mainBtnHeight = 75;
+	int mainBtnSpace = 10;
+
+
+
+
+	CreateWindowW(L"Button", L"New", WS_VISIBLE | WS_CHILD, 
+		100, 100, mainBtnWidth, mainBtnHeight, hWnd, (HMENU)NEW_CROSS, NULL, NULL);
+
+	CreateWindowW(L"Button", L"Load", WS_VISIBLE | WS_CHILD,
+		100 + mainBtnWidth + mainBtnSpace, 100, mainBtnWidth, mainBtnHeight, hWnd, NULL, NULL, NULL);
+
+	CreateWindowW(L"Button", L"Save", WS_VISIBLE | WS_CHILD,
+		100 + mainBtnWidth*2 + mainBtnSpace*2, 100, mainBtnWidth, mainBtnHeight, hWnd, (HMENU)SAVE_CROSS, NULL, NULL);
 	//CreateWindowW(L"Button", L"Test", WS_VISIBLE | WS_CHILD,
 		//155, 100, 50, dimheight, hWnd, (HMENU)DUMMY_CROSS, NULL, NULL);
 }
