@@ -4,6 +4,10 @@
 #include <string>
 #include <iostream>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
+
 #define FILE_MENU_NEW 1
 #define FILE_MENU_EXIT 2
 #define FILE_MENU_OPEN 3
@@ -12,6 +16,7 @@
 #define FILE_MENU_EXPORT 6
 #define NEW_CROSS 7
 #define SAVE_CROSS 8
+#define DUMMY_CROSS 9
 
 
 
@@ -43,8 +48,20 @@ public:
 	//delete layer
 
 	//save as file
-	void SaveAsPng(const std::string& filename) {
-		//save as a png
+	void SaveAsPng(const std::wstring& filePath) {
+		std::vector<uint8_t> flatPixels;  // Flat array to hold the pixel data
+
+		// Flatten the 2D vector into a 1D array
+		for (int y = 0; y < height; ++y) {
+			for (int x = 0; x < width; ++x) {
+				flatPixels.push_back(pixels[x][y].red);
+				flatPixels.push_back(pixels[x][y].green);
+				flatPixels.push_back(pixels[x][y].blue);
+				flatPixels.push_back(pixels[x][y].alpha);
+			}
+		}
+		std::string filePathStr(filePath.begin(), filePath.end());
+		stbi_write_png(filePathStr.c_str(), width, height, 4, flatPixels.data(), width * 4);
 	}
 };
 
@@ -64,6 +81,10 @@ HMENU hMenu;
 
 HWND dimx;
 HWND dimy;
+
+bool setfn = false;
+OPENFILENAME ofn;
+wchar_t szFile[MAX_PATH] = L"";
 
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance,
@@ -86,6 +107,7 @@ int WINAPI WinMain(
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
 
+
 	if (!RegisterClassEx(&wcex))
 	{
 		MessageBox(NULL,
@@ -96,17 +118,6 @@ int WINAPI WinMain(
 		return 1;
 	}
 
-	// The parameters to CreateWindowEx explained:
-	// WS_EX_OVERLAPPEDWINDOW : An optional extended window style.
-	// szWindowClass: the name of the application
-	// szTitle: the text that appears in the title bar
-	// WS_OVERLAPPEDWINDOW: the type of window to create
-	// CW_USEDEFAULT, CW_USEDEFAULT: initial position (x, y)
-	// 500, 100: initial size (width, length)
-	// NULL: the parent of this window
-	// NULL: this application does not have a menu bar
-	// hInstance: the first parameter from WinMain
-	// NULL: not used in this application
 	HWND hWnd = CreateWindowEx(
 		WS_EX_OVERLAPPEDWINDOW,
 		szWindowClass,
@@ -154,9 +165,11 @@ LRESULT CALLBACK WndProc(
 	HDC hdc;
 	TCHAR greeting[] = _T("Crosshairmaker");
 
+
 	switch (message)
 	{
-	case WM_PAINT:
+	case WM_PAINT: {
+		OutputDebugString(L"Painting\n");
 		hdc = BeginPaint(hWnd, &ps);
 
 		// Here your application is laid out.
@@ -169,33 +182,77 @@ LRESULT CALLBACK WndProc(
 
 		EndPaint(hWnd, &ps);
 		break;
-	case WM_DESTROY: //check if saved changes
+	}
+	case WM_DESTROY: { //check if saved changes
 		PostQuitMessage(0);
 		break;
-	case WM_CREATE:
+	}
+	case WM_CREATE: {
+		OutputDebugString(L"Creating\n");
 		AddMenus(hWnd);
 		AddControls(hWnd);
 		break;
-
-	case NEW_CROSS: {
-		wchar_t tempw[5];
-		wchar_t temph[5];
-		std::wstring xStr(tempw, GetWindowTextW(dimx, tempw, 5));
-		std::wstring yStr(temph, GetWindowTextW(dimy, temph, 5));
-		xhair = Crosshair(std::stoi(xStr),
-			std::stoi(yStr));
 	}
-		break;
 
-	case WM_COMMAND: //menu selection
+	case WM_CLOSE: {
+		// Handle the window close event
+		if (MessageBox(hWnd, L"Do you want to save changes?", L"Confirmation", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+			// Save changes or perform other actions
+			//xhair.SaveAsPng(L"changes_saved.png");
+		}
+		DestroyWindow(hWnd);
+		break;
+	}
+
+	case WM_COMMAND: {//menu selection
 		switch (wParam) {
 		case FILE_MENU_EXIT:
 			DestroyWindow(hWnd);
 			break;
+
+		case NEW_CROSS: {
+
+			OutputDebugString(L"New\n");
+			wchar_t tempw[5];
+			wchar_t temph[5];
+			std::wstring xStr(tempw, GetWindowTextW(dimx, tempw, 5));
+			std::wstring yStr(temph, GetWindowTextW(dimy, temph, 5));
+			try {
+				xhair = Crosshair(std::stoi(xStr), std::stoi(yStr));
+			}
+			catch (const std::exception& e) {
+				// Handle the exception (e.g., display an error message)
+				//use default 20x20
+				xhair = Crosshair(20, 20);
+			}
+
+			break;
+
 		}
-	default:
+		case SAVE_CROSS: {
+			
+			OutputDebugString(L"Save\n");
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hWnd;
+			ofn.lpstrFile = szFile;
+			ofn.nMaxFile = sizeof(szFile) / sizeof(*szFile);
+			ofn.lpstrFilter = L"PNG Files (*.png)\0*.png\0All Files (*.*)\0*.*\0";
+			ofn.lpstrDefExt = L"png";
+			ofn.Flags = OFN_OVERWRITEPROMPT;
+
+			if (GetSaveFileName(&ofn)) {
+				xhair.SaveAsPng(szFile);
+			}
+			break;
+			
+		}
+		}
+	}
+	default: {
 		return DefWindowProc(hWnd, message, wParam, lParam);
 		break;
+	}
 	}
 }
 
@@ -240,4 +297,9 @@ void AddControls(HWND hWnd) {
 		NULL, NULL, NULL);
 	CreateWindowW(L"Button", L"NewCrosshair", WS_VISIBLE | WS_CHILD, 
 		100, 100, 50, dimheight, hWnd, (HMENU)NEW_CROSS, NULL, NULL);
+
+	CreateWindowW(L"Button", L"SaveCrosshair", WS_VISIBLE | WS_CHILD,
+		155, 100, 50, dimheight, hWnd, (HMENU)SAVE_CROSS, NULL, NULL);
+	//CreateWindowW(L"Button", L"Test", WS_VISIBLE | WS_CHILD,
+		//155, 100, 50, dimheight, hWnd, (HMENU)DUMMY_CROSS, NULL, NULL);
 }
