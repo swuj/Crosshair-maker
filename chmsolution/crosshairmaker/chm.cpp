@@ -79,8 +79,8 @@ void AddControls(HWND);
 
 HMENU hMenu;
 
-HWND dimx;
-HWND dimy;
+HWND dimx, dimy, newXhairButton, loadXhairButton, saveXhairButton, textx, texty;
+HWND hEditingInterface, hPreview;
 
 bool setfn = false;
 bool xhairExists = false;
@@ -229,6 +229,22 @@ LRESULT CALLBACK WndProc(
 			}
 
 			xhairExists = true;
+
+			DestroyWindow(newXhairButton);
+			DestroyWindow(saveXhairButton);
+			DestroyWindow(loadXhairButton);
+			DestroyWindow(dimx);
+			DestroyWindow(dimy);
+			DestroyWindow(textx);
+			DestroyWindow(texty);
+
+			hEditingInterface = CreateWindowW(L"STATIC", L"This is the new interface!",
+				WS_VISIBLE | WS_CHILD, 10, 10, 200, 50, hWnd, NULL, NULL, NULL);
+
+			hPreview = CreateWindowW(L"STATIC", L"Preview", WS_VISIBLE | WS_CHILD | SS_CENTER,
+				150, 10, 200, 200, hWnd, NULL, NULL, NULL);
+
+
 			break;
 
 		}
@@ -291,10 +307,10 @@ void AddControls(HWND hWnd) {
 	int dimheight = 18;
 	int dimtextwidth = 50;
 
-	CreateWindowW(L"Static", L"x: ", WS_VISIBLE | WS_CHILD, 
+	textx = CreateWindowW(L"Static", L"x: ", WS_VISIBLE | WS_CHILD, 
 		dimposx, dimposy, dimwidth, dimheight, hWnd, NULL,
 		NULL, NULL);
-	CreateWindowW(L"Static", L"y: ", WS_VISIBLE | WS_CHILD,
+	texty = CreateWindowW(L"Static", L"y: ", WS_VISIBLE | WS_CHILD,
 		dimposx, dimposy+ dimheight + 5, dimwidth, dimheight, hWnd, NULL,
 		NULL, NULL);
 	dimx = CreateWindowW(L"Edit", L"20", WS_VISIBLE | WS_CHILD | WS_BORDER, 
@@ -313,13 +329,13 @@ void AddControls(HWND hWnd) {
 
 
 
-	CreateWindowW(L"Button", L"New", WS_VISIBLE | WS_CHILD, 
+	newXhairButton = CreateWindowW(L"Button", L"New", WS_VISIBLE | WS_CHILD, 
 		100, 100, mainBtnWidth, mainBtnHeight, hWnd, (HMENU)NEW_CROSS, NULL, NULL);
 
-	CreateWindowW(L"Button", L"Load", WS_VISIBLE | WS_CHILD,
+	loadXhairButton = CreateWindowW(L"Button", L"Load", WS_VISIBLE | WS_CHILD,
 		100 + mainBtnWidth + mainBtnSpace, 100, mainBtnWidth, mainBtnHeight, hWnd, NULL, NULL, NULL);
 
-	CreateWindowW(L"Button", L"Save", WS_VISIBLE | WS_CHILD,
+	saveXhairButton = CreateWindowW(L"Button", L"Save", WS_VISIBLE | WS_CHILD,
 		100 + mainBtnWidth*2 + mainBtnSpace*2, 100, mainBtnWidth, mainBtnHeight, hWnd, (HMENU)SAVE_CROSS, NULL, NULL);
 	//CreateWindowW(L"Button", L"Test", WS_VISIBLE | WS_CHILD,
 		//155, 100, 50, dimheight, hWnd, (HMENU)DUMMY_CROSS, NULL, NULL);
