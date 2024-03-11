@@ -17,6 +17,7 @@
 #define NEW_CROSS 7
 #define SAVE_CROSS 8
 #define DUMMY_CROSS 9
+#define PREVIEW 10
 
 
 
@@ -43,6 +44,21 @@ public:
 		}
 	}
 
+	void InitializeTest() {
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				pixels[x][y] = { 255,100,100,255};
+			}
+		}
+	}
+
+	int GetWidth() const{
+		return width;
+	}
+	int GetHeight() const{
+		return height;
+	}
+
 	//new layer
 
 	//delete layer
@@ -63,7 +79,35 @@ public:
 		std::string filePathStr(filePath.begin(), filePath.end());
 		stbi_write_png(filePathStr.c_str(), width, height, 4, flatPixels.data(), width * 4);
 	}
+
+	const std::vector<std::vector<Pixel>>& GetPixels() const {
+		return pixels;
+	}
 };
+
+// Function to render the crosshair onto the preview window
+void RenderCrosshairPreview(HDC hdc, const Crosshair& crosshair, int x, int y, int previewSize) {
+	int m = max(crosshair.GetWidth(), crosshair.GetHeight());
+	const int pixelSize = previewSize / m;
+
+	for (size_t i = 0; i < crosshair.GetWidth(); ++i) {
+		for (size_t j = 0; j < crosshair.GetHeight(); ++j) {
+			const Pixel& pixel = crosshair.GetPixels()[i][j];
+
+			COLORREF color = RGB(pixel.red, pixel.green, pixel.blue);
+
+			// Adjust the position based on the pixel size and coordinates
+			int xPos = x + i * pixelSize;
+			int yPos = y + j * pixelSize;
+
+			// Draw a rectangle with the specified color
+			HBRUSH hBrush = CreateSolidBrush(color);
+			RECT rect = { xPos, yPos, xPos + pixelSize, yPos + pixelSize };
+			FillRect(hdc, &rect, hBrush);
+			DeleteObject(hBrush);
+		}
+	}
+}
 
 Crosshair xhair;
 
@@ -76,6 +120,8 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 void AddMenus(HWND);
 void AddControls(HWND);
+void UpdatePreview(Crosshair, HWND);
+void AddEditControls(HWND);
 
 HMENU hMenu;
 
@@ -193,6 +239,7 @@ LRESULT CALLBACK WndProc(
 		OutputDebugString(L"Creating\n");
 		AddMenus(hWnd);
 		AddControls(hWnd);
+		
 		break;
 	}
 
@@ -238,12 +285,12 @@ LRESULT CALLBACK WndProc(
 			DestroyWindow(textx);
 			DestroyWindow(texty);
 
-			hEditingInterface = CreateWindowW(L"STATIC", L"This is the new interface!",
-				WS_VISIBLE | WS_CHILD, 10, 10, 200, 50, hWnd, NULL, NULL, NULL);
+			
 
-			hPreview = CreateWindowW(L"STATIC", L"Preview", WS_VISIBLE | WS_CHILD | SS_CENTER,
-				150, 10, 200, 200, hWnd, NULL, NULL, NULL);
+			AddEditControls(hWnd);
+			xhair.InitializeTest();
 
+			UpdatePreview(xhair, hPreview);
 
 			break;
 
@@ -327,8 +374,6 @@ void AddControls(HWND hWnd) {
 	int mainBtnSpace = 10;
 
 
-
-
 	newXhairButton = CreateWindowW(L"Button", L"New", WS_VISIBLE | WS_CHILD, 
 		100, 100, mainBtnWidth, mainBtnHeight, hWnd, (HMENU)NEW_CROSS, NULL, NULL);
 
@@ -339,4 +384,36 @@ void AddControls(HWND hWnd) {
 		100 + mainBtnWidth*2 + mainBtnSpace*2, 100, mainBtnWidth, mainBtnHeight, hWnd, (HMENU)SAVE_CROSS, NULL, NULL);
 	//CreateWindowW(L"Button", L"Test", WS_VISIBLE | WS_CHILD,
 		//155, 100, 50, dimheight, hWnd, (HMENU)DUMMY_CROSS, NULL, NULL);
+}
+void AddEditControls(HWND hWnd) {
+	//hEditingInterface = CreateWindowW(L"STATIC", L"This is the new interface!",
+	//	WS_VISIBLE | WS_CHILD, 10, 10, 200, 50, hWnd, NULL, NULL, NULL);
+	hPreview = CreateWindowW(L"STATIC", L"", WS_VISIBLE | WS_CHILD | SS_CENTER,
+		250, 50, 0, 0, hWnd, (HMENU)PREVIEW, NULL, NULL);
+
+	saveXhairButton = CreateWindowW(L"Button", L"Save", WS_VISIBLE | WS_CHILD,
+		100, 300, 70, 30, hWnd, (HMENU)SAVE_CROSS, NULL, NULL);
+}
+
+
+void UpdatePreview(Crosshair crosshair, HWND hWnd) {
+	OutputDebugString(L"UpdatePreview called\n");
+	// Get pixel data from the Crosshair object
+	const int previewSize = 200;
+
+	// Get HDC of the preview static control
+	//HWND hPreview = GetDlgItem(hParent, PREVIEW); // Assuming IDC_PREVIEW is the control ID
+	HDC hdcPreview = GetDC(hWnd);
+
+	// Clear the preview window
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	FillRect(hdcPreview, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
+
+	// Render the crosshair onto the preview window
+	RenderCrosshairPreview(hdcPreview, crosshair, 0, 0, previewSize);
+
+	// Release HDC
+	ReleaseDC(hWnd, hdcPreview);
+	OutputDebugString(L"UpdatePreview finished\n");
 }
