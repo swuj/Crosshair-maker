@@ -18,7 +18,7 @@
 #define SAVE_CROSS 8
 #define DUMMY_CROSS 9
 #define PREVIEW 10
-
+#define TEST 100
 
 
 
@@ -126,7 +126,7 @@ void AddEditControls(HWND);
 HMENU hMenu;
 
 HWND dimx, dimy, newXhairButton, loadXhairButton, saveXhairButton, textx, texty;
-HWND hEditingInterface, hPreview;
+HWND hEditingInterface, testButton, hPreview;
 
 bool setfn = false;
 bool xhairExists = false;
@@ -318,6 +318,41 @@ LRESULT CALLBACK WndProc(
 			break;
 			
 		}
+		case TEST: {
+			int armwidth = 2;
+			int armlength = 4;
+			int gap = 2;
+
+			Pixel xcolor = { 0, 255, 0, 255 };
+
+			int xcenter = xhair.GetWidth() / 2;
+			int ycenter = xhair.GetHeight() / 2;
+
+			for (int i = 0; i < armwidth; i++) {
+				for (int j = 0; j < armlength; j++) {
+					xhair.SetColor(xcenter-(armwidth/2)+i, ycenter+gap+j, 0, 255, 0, 255);
+				}
+			}
+			for (int i = 0; i < armwidth; i++) {
+				for (int j = 0; j < armlength; j++) {
+					xhair.SetColor(xcenter - (armwidth / 2) + i, ycenter - gap + j - armlength, 0, 255, 0, 255);
+				}
+			}
+			for (int i = 0; i < armwidth; i++) {
+				for (int j = 0; j < armlength; j++) {
+					xhair.SetColor(xcenter - armlength + j - gap, ycenter - (armwidth/2) +i, 0, 255, 0, 255);
+				}
+			}
+			for (int i = 0; i < armwidth; i++) {
+				for (int j = 0; j < armlength; j++) {
+					xhair.SetColor(xcenter + j + gap, ycenter - (armwidth / 2) + i, 0, 255, 0, 255);
+				}
+			}
+			UpdatePreview(xhair, hPreview);
+
+
+
+		}
 		}
 	}
 	default: {
@@ -393,6 +428,9 @@ void AddEditControls(HWND hWnd) {
 
 	saveXhairButton = CreateWindowW(L"Button", L"Save", WS_VISIBLE | WS_CHILD,
 		100, 300, 70, 30, hWnd, (HMENU)SAVE_CROSS, NULL, NULL);
+
+	testButton = CreateWindowW(L"Button", L"Test", WS_VISIBLE | WS_CHILD,
+		100, 200, 70, 30, hWnd, (HMENU)TEST, NULL, NULL);
 }
 
 
