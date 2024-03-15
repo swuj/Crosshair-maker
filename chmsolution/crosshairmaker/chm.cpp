@@ -23,70 +23,6 @@
 #define TEST 100
 
 
-
-//struct Pixel {
-//	uint8_t red, green, blue, alpha;
-//};
-
-//class Crosshair {
-//private:
-//	int width;
-//	int height;
-//	std::vector<std::vector<Pixel>> pixels;
-//
-//public:
-//	Crosshair() : width(0), height(0) {}
-//
-//	Crosshair(int w, int h) : width(w), height(h), pixels(w, std::vector<Pixel>(h)) {}
-//
-//	//set pixel color
-//	void SetColor(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-//		if (x >= 0 && x < width && y >= 0 && y < height) {
-//			pixels[x][y] = { r, g, b, a };
-//		}
-//	}
-//
-//	void InitializeTest() {
-//		for (int x = 0; x < width; x++) {
-//			for (int y = 0; y < height; y++) {
-//				pixels[x][y] = { 255,100,100,255};
-//			}
-//		}
-//	}
-//
-//	int GetWidth() const{
-//		return width;
-//	}
-//	int GetHeight() const{
-//		return height;
-//	}
-//
-//	//new layer
-//
-//	//delete layer
-//
-//	//save as file
-//	void SaveAsPng(const std::wstring& filePath) {
-//		std::vector<uint8_t> flatPixels;  // Flat array to hold the pixel data
-//
-//		// Flatten the 2D vector into a 1D array
-//		for (int y = 0; y < height; ++y) {
-//			for (int x = 0; x < width; ++x) {
-//				flatPixels.push_back(pixels[x][y].red);
-//				flatPixels.push_back(pixels[x][y].green);
-//				flatPixels.push_back(pixels[x][y].blue);
-//				flatPixels.push_back(pixels[x][y].alpha);
-//			}
-//		}
-//		std::string filePathStr(filePath.begin(), filePath.end());
-//		stbi_write_png(filePathStr.c_str(), width, height, 4, flatPixels.data(), width * 4);
-//	}
-//
-//	const std::vector<std::vector<Pixel>>& GetPixels() const {
-//		return pixels;
-//	}
-//};
-
 // Function to render the crosshair onto the preview window
 void RenderCrosshairPreview(HDC hdc, const Crosshair& crosshair, int x, int y, int previewSize) {
 	int m = max(crosshair.GetWidth(), crosshair.GetHeight());
@@ -124,6 +60,7 @@ void AddMenus(HWND);
 void AddControls(HWND);
 void UpdatePreview(Crosshair, HWND);
 void AddEditControls(HWND);
+void DrawPlus(Plus);
 
 HMENU hMenu;
 
@@ -322,64 +259,11 @@ LRESULT CALLBACK WndProc(
 		}
 		case TEST: {
 			Plus newplus = Plus();
-			int armwidth = 2;
-			int armlength = 4;
-			int gap = 2;
+			newplus.SetGap(4);
 
-			Pixel xcolor = { 0, 255, 0, 255 };
+			DrawPlus(newplus);
 
-			int xcenter = xhair.GetWidth() / 2;
-			int ycenter = xhair.GetHeight() / 2;
-
-			int outline = newplus.GetOutlineThickness();
-
-			for (int i = 0 - outline; i < newplus.GetWidth() + outline; i++) {
-				for (int j = 0 - outline; j < newplus.GetSize() + outline; j++) {
-					if (i < 0 || i >= newplus.GetWidth() || j < 0 || j >= newplus.GetSize()) {
-						xhair.SetColor(xcenter - (newplus.GetWidth() / 2) + i, ycenter + newplus.GetGap() + j, 0, 0, 0, 255);
-					}
-					else {
-						xhair.SetColor(xcenter - (newplus.GetWidth() / 2) + i, ycenter + newplus.GetGap() + j, 0, 255, 0, 255);
-					}
-				}
-			}
-			for (int i = 0 - outline; i < newplus.GetWidth() + outline; i++) {
-				for (int j = 0 - outline; j < newplus.GetSize() + outline; j++) {
-					if (i < 0 || i >= newplus.GetWidth() || j < 0 || j >= newplus.GetSize()) {
-						xhair.SetColor(xcenter - (newplus.GetWidth() / 2) + i, ycenter - newplus.GetGap() + j - newplus.GetSize(), 0, 0, 0, 255);
-					}
-					else {
-						xhair.SetColor(xcenter - (newplus.GetWidth() / 2) + i, ycenter - newplus.GetGap() + j - newplus.GetSize(), 0, 255, 0, 255);
-					}
-					
-				}
-			}
-			for (int i = 0 - outline; i < newplus.GetWidth() + outline; i++) {
-				for (int j = 0 - outline; j < newplus.GetSize() + outline; j++) {
-					if (i < 0 || i >= newplus.GetWidth() || j < 0 || j >= newplus.GetSize()) {
-						xhair.SetColor(xcenter - newplus.GetSize() + j - newplus.GetGap(), ycenter - (newplus.GetWidth() / 2) + i, 0, 0, 0, 255);
-					}
-					else {
-						xhair.SetColor(xcenter - newplus.GetSize() + j - newplus.GetGap(), ycenter - (newplus.GetWidth() / 2) + i, 0, 255, 0, 255);
-					}
-					
-				}
-			}
-			for (int i = 0 - outline; i < newplus.GetWidth() + outline; i++) {
-				for (int j = 0 - outline; j < newplus.GetSize() + outline; j++) {
-					if (i < 0 || i >= newplus.GetWidth() || j < 0 || j >= newplus.GetSize()) {
-						xhair.SetColor(xcenter + j + newplus.GetGap(), ycenter - (newplus.GetWidth() / 2) + i, 0, 0, 0, 255);
-					}
-					else {
-						xhair.SetColor(xcenter + j + newplus.GetGap(), ycenter - (newplus.GetWidth() / 2) + i, 0, 255, 0, 255);
-
-					}
-				}
-			}
 			UpdatePreview(xhair, hPreview);
-
-
-
 		}
 		}
 	}
@@ -448,6 +332,7 @@ void AddControls(HWND hWnd) {
 	//CreateWindowW(L"Button", L"Test", WS_VISIBLE | WS_CHILD,
 		//155, 100, 50, dimheight, hWnd, (HMENU)DUMMY_CROSS, NULL, NULL);
 }
+
 void AddEditControls(HWND hWnd) {
 	//hEditingInterface = CreateWindowW(L"STATIC", L"This is the new interface!",
 	//	WS_VISIBLE | WS_CHILD, 10, 10, 200, 50, hWnd, NULL, NULL, NULL);
@@ -482,4 +367,55 @@ void UpdatePreview(Crosshair crosshair, HWND hWnd) {
 	// Release HDC
 	ReleaseDC(hWnd, hdcPreview);
 	OutputDebugString(L"UpdatePreview finished\n");
+}
+
+void DrawPlus(Plus plus) {
+
+	int xcenter = xhair.GetWidth() / 2;
+	int ycenter = xhair.GetHeight() / 2;
+
+	int outline = plus.GetOutlineThickness();
+
+
+	//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+	for (int i = 0 - outline; i < plus.GetWidth() + outline; i++) {
+		for (int j = 0 - outline; j < plus.GetSize() + outline; j++) {
+			if (i < 0 || i >= plus.GetWidth() || j < 0 || j >= plus.GetSize()) {
+				xhair.SetColor(xcenter - (plus.GetWidth() / 2) + i, ycenter + plus.GetGap() + j, plus.GetOutlineColor());
+			}
+			else {
+				xhair.SetColor(xcenter - (plus.GetWidth() / 2) + i, ycenter + plus.GetGap() + j, plus.GetColor());
+			}
+		}
+	}
+	for (int i = 0 - outline; i < plus.GetWidth() + outline; i++) {
+		for (int j = 0 - outline; j < plus.GetSize() + outline; j++) {
+			if (i < 0 || i >= plus.GetWidth() || j < 0 || j >= plus.GetSize()) {
+				xhair.SetColor(xcenter - (plus.GetWidth() / 2) + i, ycenter - plus.GetGap() + j - plus.GetSize(), plus.GetOutlineColor());
+			}
+			else {
+				xhair.SetColor(xcenter - (plus.GetWidth() / 2) + i, ycenter - plus.GetGap() + j - plus.GetSize(), plus.GetColor());
+			}
+		}
+	}
+	for (int i = 0 - outline; i < plus.GetWidth() + outline; i++) {
+		for (int j = 0 - outline; j < plus.GetSize() + outline; j++) {
+			if (i < 0 || i >= plus.GetWidth() || j < 0 || j >= plus.GetSize()) {
+				xhair.SetColor(xcenter - plus.GetSize() + j - plus.GetGap(), ycenter - (plus.GetWidth() / 2) + i, plus.GetOutlineColor());
+			}
+			else {
+				xhair.SetColor(xcenter - plus.GetSize() + j - plus.GetGap(), ycenter - (plus.GetWidth() / 2) + i, plus.GetColor());
+			}
+		}
+	}
+	for (int i = 0 - outline; i < plus.GetWidth() + outline; i++) {
+		for (int j = 0 - outline; j < plus.GetSize() + outline; j++) {
+			if (i < 0 || i >= plus.GetWidth() || j < 0 || j >= plus.GetSize()) {
+				xhair.SetColor(xcenter + j + plus.GetGap(), ycenter - (plus.GetWidth() / 2) + i, plus.GetOutlineColor());
+			}
+			else {
+				xhair.SetColor(xcenter + j + plus.GetGap(), ycenter - (plus.GetWidth() / 2) + i, plus.GetColor());
+			}
+		}
+	}
 }

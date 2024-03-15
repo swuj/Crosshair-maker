@@ -43,7 +43,13 @@ public:
 		return outline_thickness;
 	}
 
-	
+	Pixel GetOutlineColor() {
+		return outline_color;
+	}
+
+	Pixel GetColor() {
+		return shape_color;
+	}
 
 	void ChangeOutlineColor(Pixel c) {
 		outline_color = c;
@@ -69,6 +75,16 @@ public:
 			inner_outline = true;
 		}
 	}
+
+	int GetRadius() {
+		return GetSize();
+	}
+
+	void SetRadius(int r) {
+		SetSize(r);
+	}
+
+
 };
 
 class Plus : public Shape {
@@ -91,5 +107,9 @@ public:
 	}
 	int GetWidth() {
 		return width;
+	}
+
+	void SetGap(int g) {
+		gap = g;
 	}
 };

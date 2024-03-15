@@ -21,9 +21,9 @@ public:
 	Crosshair(int w, int h) : width(w), height(h), pixels(w, std::vector<Pixel>(h)) {}
 
 	//set pixel color
-	void SetColor(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+	void SetColor(int x, int y, Pixel c) {
 		if (x >= 0 && x < width && y >= 0 && y < height) {
-			pixels[x][y] = { r, g, b, a };
+			pixels[x][y] = { c.red, c.green, c.blue, c.alpha };
 		}
 	}
 
