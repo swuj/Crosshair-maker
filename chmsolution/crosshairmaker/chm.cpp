@@ -1,11 +1,13 @@
 #include <windows.h>
 #include <tchar.h>
-#include <vector>
-#include <string>
+//#include <vector>
+//#include <string>
 #include <iostream>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+//#include "stb_image_write.h"
+
+#include "xhair.h"
 
 
 #define FILE_MENU_NEW 1
@@ -22,68 +24,68 @@
 
 
 
-struct Pixel {
-	uint8_t red, green, blue, alpha;
-};
+//struct Pixel {
+//	uint8_t red, green, blue, alpha;
+//};
 
-class Crosshair {
-private:
-	int width;
-	int height;
-	std::vector<std::vector<Pixel>> pixels;
-
-public:
-	Crosshair() : width(0), height(0) {}
-
-	Crosshair(int w, int h) : width(w), height(h), pixels(w, std::vector<Pixel>(h)) {}
-
-	//set pixel color
-	void SetColor(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-		if (x >= 0 && x < width && y >= 0 && y < height) {
-			pixels[x][y] = { r, g, b, a };
-		}
-	}
-
-	void InitializeTest() {
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				pixels[x][y] = { 255,100,100,255};
-			}
-		}
-	}
-
-	int GetWidth() const{
-		return width;
-	}
-	int GetHeight() const{
-		return height;
-	}
-
-	//new layer
-
-	//delete layer
-
-	//save as file
-	void SaveAsPng(const std::wstring& filePath) {
-		std::vector<uint8_t> flatPixels;  // Flat array to hold the pixel data
-
-		// Flatten the 2D vector into a 1D array
-		for (int y = 0; y < height; ++y) {
-			for (int x = 0; x < width; ++x) {
-				flatPixels.push_back(pixels[x][y].red);
-				flatPixels.push_back(pixels[x][y].green);
-				flatPixels.push_back(pixels[x][y].blue);
-				flatPixels.push_back(pixels[x][y].alpha);
-			}
-		}
-		std::string filePathStr(filePath.begin(), filePath.end());
-		stbi_write_png(filePathStr.c_str(), width, height, 4, flatPixels.data(), width * 4);
-	}
-
-	const std::vector<std::vector<Pixel>>& GetPixels() const {
-		return pixels;
-	}
-};
+//class Crosshair {
+//private:
+//	int width;
+//	int height;
+//	std::vector<std::vector<Pixel>> pixels;
+//
+//public:
+//	Crosshair() : width(0), height(0) {}
+//
+//	Crosshair(int w, int h) : width(w), height(h), pixels(w, std::vector<Pixel>(h)) {}
+//
+//	//set pixel color
+//	void SetColor(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+//		if (x >= 0 && x < width && y >= 0 && y < height) {
+//			pixels[x][y] = { r, g, b, a };
+//		}
+//	}
+//
+//	void InitializeTest() {
+//		for (int x = 0; x < width; x++) {
+//			for (int y = 0; y < height; y++) {
+//				pixels[x][y] = { 255,100,100,255};
+//			}
+//		}
+//	}
+//
+//	int GetWidth() const{
+//		return width;
+//	}
+//	int GetHeight() const{
+//		return height;
+//	}
+//
+//	//new layer
+//
+//	//delete layer
+//
+//	//save as file
+//	void SaveAsPng(const std::wstring& filePath) {
+//		std::vector<uint8_t> flatPixels;  // Flat array to hold the pixel data
+//
+//		// Flatten the 2D vector into a 1D array
+//		for (int y = 0; y < height; ++y) {
+//			for (int x = 0; x < width; ++x) {
+//				flatPixels.push_back(pixels[x][y].red);
+//				flatPixels.push_back(pixels[x][y].green);
+//				flatPixels.push_back(pixels[x][y].blue);
+//				flatPixels.push_back(pixels[x][y].alpha);
+//			}
+//		}
+//		std::string filePathStr(filePath.begin(), filePath.end());
+//		stbi_write_png(filePathStr.c_str(), width, height, 4, flatPixels.data(), width * 4);
+//	}
+//
+//	const std::vector<std::vector<Pixel>>& GetPixels() const {
+//		return pixels;
+//	}
+//};
 
 // Function to render the crosshair onto the preview window
 void RenderCrosshairPreview(HDC hdc, const Crosshair& crosshair, int x, int y, int previewSize) {
@@ -319,6 +321,7 @@ LRESULT CALLBACK WndProc(
 			
 		}
 		case TEST: {
+			//Plus newplus = 
 			int armwidth = 2;
 			int armlength = 4;
 			int gap = 2;
