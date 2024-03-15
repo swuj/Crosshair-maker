@@ -39,6 +39,10 @@ public:
 		}
 	}
 
+	int GetOutlineThickness() {
+		return outline_thickness;
+	}
+
 	
 
 	void ChangeOutlineColor(Pixel c) {
@@ -71,13 +75,21 @@ class Plus : public Shape {
 private:
 	int outline_type; //0 for none, 1 for lazy, 2 for proper
 	int width;
+	int gap;
 
 public:
-	Plus() : Shape({ 255,255,255,255 }, 4, true, 1, { 0,0,0,255 }), width(2), outline_type(1) {}
+	Plus() : Shape({ 255,255,255,255 }, 4, true, 1, { 0,0,0,255 }), width(2), outline_type(1), gap(0){}
 
-	Plus(Pixel c, int l, int w, bool o, Pixel oc, int ot, int otype) : Shape(c, l, o, ot, oc), outline_type(otype), width(w) {}
+	Plus(Pixel c, int l, int w, bool o, Pixel oc, int ot, int otype, int g) : Shape(c, l, o, ot, oc), outline_type(otype), width(w), gap(g) {}
 
 	void ChangeOutlineType(int t) {
 		outline_type = t;
+	}
+
+	int GetGap() {
+		return gap;
+	}
+	int GetWidth() {
+		return width;
 	}
 };
