@@ -1,11 +1,8 @@
 #include <windows.h>
 #include <tchar.h>
-//#include <vector>
-//#include <string>
 #include <iostream>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-//#include "stb_image_write.h"
 
 #include "xhair.h"
 
