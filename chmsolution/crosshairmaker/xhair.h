@@ -2,7 +2,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 #include <string>
-#include "shapes.h"
+#include "component.h"
 
 //struct Pixel {
 //	uint8_t red, green, blue, alpha;
@@ -13,9 +13,17 @@ private:
 	int width;
 	int height;
 	std::vector<std::vector<Pixel>> pixels;
-	std::vector<std::vector<Shape*>> shapes;
+	//std::vector<std::vector<Component*>> layers;
 
 public:
+
+	std::vector<Component*> layers;
+
+	void AddLayer(Component* l) {
+		layers.push_back(l);
+	}
+
+	//std::vector<std::vector<
 	Crosshair() : width(0), height(0) {}
 
 	Crosshair(int w, int h) : width(w), height(h), pixels(w, std::vector<Pixel>(h)) {}

@@ -5,6 +5,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 #include "xhair.h"
+#include "component.h"
 
 
 #define FILE_MENU_NEW 1
@@ -57,7 +58,7 @@ void AddMenus(HWND);
 void AddControls(HWND);
 void UpdatePreview(Crosshair, HWND);
 void AddEditControls(HWND);
-void DrawPlus(Plus);
+void DrawPlus(Component*);
 
 HMENU hMenu;
 
@@ -255,10 +256,24 @@ LRESULT CALLBACK WndProc(
 			
 		}
 		case TEST: {
-			Plus newplus = Plus();
-			newplus.SetGap(4);
+			Plus* newplus = new Plus();
+			Plus* newplus2 = new Plus("OP", {0,255,0,255}, 5, 1, false, {0,0,0,0}, 0, 0, 0);
+			xhair.AddLayer(newplus);
+			xhair.AddLayer(newplus2);
 
-			DrawPlus(newplus);
+			xhair.layers[0]->SetGap(4);
+
+			for (Component* c : xhair.layers) {
+				int type = c->GetType();
+				OutputDebugString(std::to_wstring(type).c_str());
+
+				if (type == 4) {
+					OutputDebugString(L"Drawing a plus\n");
+					DrawPlus(c);
+				}
+			}
+
+			//DrawPlus(xhair.layers[1]);
 
 			UpdatePreview(xhair, hPreview);
 		}
@@ -366,53 +381,70 @@ void UpdatePreview(Crosshair crosshair, HWND hWnd) {
 	OutputDebugString(L"UpdatePreview finished\n");
 }
 
-void DrawPlus(Plus plus) {
+void DrawPlus(Component* c) {
 
-	int xcenter = xhair.GetWidth() / 2;
-	int ycenter = xhair.GetHeight() / 2;
+	Plus* plus = dynamic_cast<Plus*>(c);
+	//Plus plus = &plusp;
 
-	int outline = plus.GetOutlineThickness();
+	if (plus) {
+		int xcenter = xhair.GetWidth() / 2;
+		int ycenter = xhair.GetHeight() / 2;
+
+		int width = plus->GetWidth();
+		int length = plus->GetSize();
+		int gap = plus->GetGap();
+
+		Pixel color = plus->GetColor();
+		Pixel outline_color = plus->GetOutlineColor();
+
+		int outline = plus->GetOutlineThickness();
 
 
-	//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
-	for (int i = 0 - outline; i < plus.GetWidth() + outline; i++) {
-		for (int j = 0 - outline; j < plus.GetSize() + outline; j++) {
-			if (i < 0 || i >= plus.GetWidth() || j < 0 || j >= plus.GetSize()) {
-				xhair.SetColor(xcenter - (plus.GetWidth() / 2) + i, ycenter + plus.GetGap() + j, plus.GetOutlineColor());
+		//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+		for (int i = 0 - outline; i < width + outline; i++) {
+			for (int j = 0 - outline; j < length + outline; j++) {
+				if (i < 0 || i >= width || j < 0 || j >= length) {
+					xhair.SetColor(xcenter - (width / 2) + i, ycenter + gap + j, outline_color);
+				}
+				else {
+					xhair.SetColor(xcenter - (width / 2) + i, ycenter + gap + j, color);
+				}
 			}
-			else {
-				xhair.SetColor(xcenter - (plus.GetWidth() / 2) + i, ycenter + plus.GetGap() + j, plus.GetColor());
+		}
+		for (int i = 0 - outline; i < width + outline; i++) {
+			for (int j = 0 - outline; j < length + outline; j++) {
+				if (i < 0 || i >= width || j < 0 || j >= length) {
+					xhair.SetColor(xcenter - (width / 2) + i, ycenter - gap + j - length, outline_color);
+				}
+				else {
+					xhair.SetColor(xcenter - (width / 2) + i, ycenter - gap + j - length, color);
+				}
+			}
+		}
+		for (int i = 0 - outline; i < width + outline; i++) {
+			for (int j = 0 - outline; j < length + outline; j++) {
+				if (i < 0 || i >= width || j < 0 || j >= length) {
+					xhair.SetColor(xcenter - length + j - gap, ycenter - (width / 2) + i, outline_color);
+				}
+				else {
+					xhair.SetColor(xcenter - length + j - gap, ycenter - (width / 2) + i, color);
+				}
+			}
+		}
+		for (int i = 0 - outline; i < width + outline; i++) {
+			for (int j = 0 - outline; j < length + outline; j++) {
+				if (i < 0 || i >= width || j < 0 || j >= length) {
+					xhair.SetColor(xcenter + j + gap, ycenter - (width / 2) + i, outline_color);
+				}
+				else {
+					xhair.SetColor(xcenter + j + gap, ycenter - (width / 2) + i, color);
+				}
 			}
 		}
 	}
-	for (int i = 0 - outline; i < plus.GetWidth() + outline; i++) {
-		for (int j = 0 - outline; j < plus.GetSize() + outline; j++) {
-			if (i < 0 || i >= plus.GetWidth() || j < 0 || j >= plus.GetSize()) {
-				xhair.SetColor(xcenter - (plus.GetWidth() / 2) + i, ycenter - plus.GetGap() + j - plus.GetSize(), plus.GetOutlineColor());
-			}
-			else {
-				xhair.SetColor(xcenter - (plus.GetWidth() / 2) + i, ycenter - plus.GetGap() + j - plus.GetSize(), plus.GetColor());
-			}
-		}
+	else {
+		OutputDebugString(L"Not a plus\n");
+		//std::cout << "Error: Not a Plus object" << std::endl;
 	}
-	for (int i = 0 - outline; i < plus.GetWidth() + outline; i++) {
-		for (int j = 0 - outline; j < plus.GetSize() + outline; j++) {
-			if (i < 0 || i >= plus.GetWidth() || j < 0 || j >= plus.GetSize()) {
-				xhair.SetColor(xcenter - plus.GetSize() + j - plus.GetGap(), ycenter - (plus.GetWidth() / 2) + i, plus.GetOutlineColor());
-			}
-			else {
-				xhair.SetColor(xcenter - plus.GetSize() + j - plus.GetGap(), ycenter - (plus.GetWidth() / 2) + i, plus.GetColor());
-			}
-		}
-	}
-	for (int i = 0 - outline; i < plus.GetWidth() + outline; i++) {
-		for (int j = 0 - outline; j < plus.GetSize() + outline; j++) {
-			if (i < 0 || i >= plus.GetWidth() || j < 0 || j >= plus.GetSize()) {
-				xhair.SetColor(xcenter + j + plus.GetGap(), ycenter - (plus.GetWidth() / 2) + i, plus.GetOutlineColor());
-			}
-			else {
-				xhair.SetColor(xcenter + j + plus.GetGap(), ycenter - (plus.GetWidth() / 2) + i, plus.GetColor());
-			}
-		}
-	}
+	
 }
