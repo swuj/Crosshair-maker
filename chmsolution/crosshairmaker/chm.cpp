@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <tchar.h>
 #include <iostream>
+#include <fstream>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
@@ -59,6 +60,9 @@ void AddControls(HWND);
 void UpdatePreview(Crosshair, HWND);
 void AddEditControls(HWND);
 void DrawPlus(Component*);
+
+void SaveToFile();
+void LoadFromFile();
 
 HMENU hMenu;
 
@@ -246,6 +250,7 @@ LRESULT CALLBACK WndProc(
 
 				if (GetSaveFileName(&ofn)) {
 					xhair.SaveAsPng(szFile);
+					SaveToFile();
 				}
 			}
 			else {
@@ -267,7 +272,7 @@ LRESULT CALLBACK WndProc(
 				int type = c->GetType();
 				OutputDebugString(std::to_wstring(type).c_str());
 
-				if (type == 4) {
+				if (type == PLUSLAYER) {
 					OutputDebugString(L"Drawing a plus\n");
 					DrawPlus(c);
 				}
@@ -446,5 +451,72 @@ void DrawPlus(Component* c) {
 		OutputDebugString(L"Not a plus\n");
 		//std::cout << "Error: Not a Plus object" << std::endl;
 	}
-	
+}
+
+void SaveToFile() {
+	// Open a file for writing
+	std::ofstream outFile("NewCrosshair.xhair");
+
+	// Check if the file is opened successfully
+	if (outFile.is_open()) {
+
+		// Write xhair dimensions into file
+		outFile << xhair.GetWidth() << std::endl;
+		outFile << xhair.GetHeight() << std::endl;
+
+		//Write layer info to file
+		for (Component* c : xhair.layers) {
+			int type = c->GetType();
+			switch (type) {
+			case PLUSLAYER: {
+				Plus* plus = dynamic_cast<Plus*>(c);
+				Pixel color = plus->GetColor();
+				Pixel outcolor = plus->GetOutlineColor();
+
+				outFile << plus->GetName() << std::endl;
+
+				outFile << plus->GetSize() << std::endl;
+				outFile << plus->GetWidth() << std::endl;
+				outFile << plus->GetGap() << std::endl;
+				outFile << (int)color.red << std::endl;
+				outFile << (int)color.green << std::endl;
+				outFile << (int)color.blue << std::endl;
+				outFile << (int)color.alpha << std::endl;
+
+				outFile << plus->GetOutline() << std::endl;
+				outFile << plus->GetOutlineThickness() << std::endl;
+				outFile << (int)outcolor.red << std::endl;
+				outFile << (int)outcolor.green << std::endl;
+				outFile << (int)outcolor.blue << std::endl;
+				outFile << (int)outcolor.alpha << std::endl;
+				outFile << plus->GetOutlineType() << std::endl;
+
+				outFile << plus->GetSize() << std::endl;
+
+				delete plus;
+			}
+			default: {
+				break;
+
+			}
+			}
+
+
+		}
+
+		// Close the file
+		outFile.close();
+
+		//std::cout << "File saved successfully." << std::endl;
+	}
+	else {
+		//std::cerr << "Error: Unable to open file for writing." << std::endl;
+	}
+
+	//return 0;
+
+}
+
+void LoadFromFile() {
+
 }

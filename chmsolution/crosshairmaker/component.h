@@ -2,6 +2,11 @@
 #include <vector>
 
 //types of structures that a layer can be
+#define DEFAULTLAYER 100
+#define TEXTURELAYER 101
+#define SHAPELAYER 102
+#define CIRCLELAYER 103
+#define PLUSLAYER 104
 
 struct Pixel {
 	uint8_t red, green, blue, alpha;
@@ -21,6 +26,10 @@ public:
 
 	int GetType() {
 		return type;
+	}
+
+	std::string GetName() {
+		return name;
 	}
 
 
@@ -83,6 +92,10 @@ public:
 
 	int GetSize() {
 		return size;
+	}
+
+	bool GetOutline() {
+		return outline;
 	}
 
 	void SetSize(int s) {
@@ -161,17 +174,22 @@ private:
 	int gap;
 
 public:
-	Plus() : Shape("NewPlus", { 255, 255, 255, 255 }, 4, true, 1, {0,0,0,255}, 4), width(2), outline_type(1), gap(0) {}
+	Plus() : Shape("NewPlus", { 255, 255, 255, 255 }, 4, true, 1, {0,0,0,255}, PLUSLAYER), width(2), outline_type(1), gap(0) {}
 
-	Plus(std::string n, Pixel c, int l, int w, bool o, Pixel oc, int ot, int otype, int g) : Shape(n, c, l, o, ot, oc, 4), outline_type(otype), width(w), gap(g) {}
+	Plus(std::string n, Pixel c, int l, int w, bool o, Pixel oc, int ot, int otype, int g) : Shape(n, c, l, o, ot, oc, PLUSLAYER), outline_type(otype), width(w), gap(g) {}
 
 	void ChangeOutlineType(int t) override {
 		outline_type = t;
 	}
 
+	int GetOutlineType() {
+		return outline_type;
+	}
+
 	int GetGap() override {
 		return gap;
 	}
+
 	int GetWidth() override {
 		return width;
 	}
