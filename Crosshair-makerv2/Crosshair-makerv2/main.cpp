@@ -5,7 +5,7 @@
 #include <tchar.h>
 #include <iostream>
 #include <fstream>
-#include "pvimage.h"
+#include "wclasses.h"
 
 Crosshair xhair;
 
@@ -17,7 +17,6 @@ enum
     BUTTON_SAVE = wxID_HIGHEST + 4,
     BUTTON_TEST = wxID_HIGHEST + 5,
 	BUTTON_NEW2 = wxID_HIGHEST + 6
-
 };
 
 
@@ -182,7 +181,6 @@ void MyFrame::LoadButtonClicked(wxCommandEvent& event) {
 	}
 
 }
-
 
 
 void MyFrame::LoadButtonClicked2(wxCommandEvent& event) {
