@@ -99,13 +99,6 @@ public:
         // (if you don't use sizers you will need to manually set the viewport size)
         sizer = new wxBoxSizer(wxVERTICAL);
 
-        // add a series of widgets
-        for (int w = 1; w <= 120; w++)
-        {
-            wxButton* b = new wxButton(this, wxID_ANY, wxString::Format(wxT("Button %i"), w));
-            sizer->Add(b, 0, wxALL, 3);
-        }
-
         this->SetSizer(sizer);
 
         // this part makes the scrollbars show up
@@ -116,10 +109,99 @@ public:
     void PopulateList(Crosshair crosshair) {
         sizer->Clear(true);
 
-        for (int w = 1; w <= 120; w++)
+
+        int id = 0;
+        for (Component* c : crosshair.layers)
         {
-            wxButton* b = new wxButton(this, wxID_ANY, wxString::Format(wxT("Button %i"), w));
+            wxString n = c->GetName();
+            wxButton* b = new wxButton(this, wxID_ANY, wxString::Format(n));
+            c->SetID(id);
+            
+            
+            b->Bind(wxEVT_BUTTON, [&crosshair, c](wxCommandEvent& event) {
+                //Select this layer
+                crosshair.selectedLayer = c->GetID();
+            });
+
             sizer->Add(b, 0, wxALL, 3);
         }
+
+        this->FitInside(); // ask the sizer about the needed size
+        this->SetScrollRate(5, 5);
     }
+};
+
+class ControlPanel : public wxPanel {
+private:
+    int type;
+    wxBoxSizer* sizer;
+
+public:
+    ControlPanel(wxWindow* parent, int t, Component* c) : wxPanel(parent), type(t){
+
+
+        switch (type) {
+        case PLUSLAYER: {
+            CreateCrossControl(c);
+        }
+
+        }
+    }
+
+    void CreateCrossControl(Component* c) {
+
+        sizer = new wxBoxSizer(wxVERTICAL);
+
+        Plus* plus = dynamic_cast<Plus*>(c);
+
+
+        //color
+        wxSlider* redslider = new wxSlider(this, wxID_ANY, plus->GetColor().red, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Red");
+        wxSlider* greenslider = new wxSlider(this, wxID_ANY, plus->GetColor().green, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Green");
+        wxSlider* blueslider = new wxSlider(this, wxID_ANY, plus->GetColor().blue, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Blue");
+
+        sizer->Add(redslider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(greenslider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(blueslider, 1, wxEXPAND | wxALL, 5);
+
+
+        //length
+        wxSlider* lengthslider = new wxSlider(this, wxID_ANY, plus->GetSize(), 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "length");
+
+        sizer->Add(lengthslider, 1, wxEXPAND | wxALL, 5);
+
+        //width
+        wxSlider* widthslider = new wxSlider(this, wxID_ANY, plus->GetWidth(), 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "width");
+
+        sizer->Add(widthslider, 1, wxEXPAND | wxALL, 5);
+
+        //gap
+        wxSlider* gapslider = new wxSlider(this, wxID_ANY, plus->GetGap(), 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "gap");
+
+        sizer->Add(gapslider, 1, wxEXPAND | wxALL, 5);
+
+        //outline checkbox
+
+        //lazy outline checkbox
+
+        //outline color
+        wxSlider* olredslider = new wxSlider(this, wxID_ANY, plus->GetOutlineColor().red, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Red");
+        wxSlider* olgreenslider = new wxSlider(this, wxID_ANY, plus->GetOutlineColor().green, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Green");
+        wxSlider* olblueslider = new wxSlider(this, wxID_ANY, plus->GetOutlineColor().blue, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Blue");
+
+        sizer->Add(olredslider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(olgreenslider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(olblueslider, 1, wxEXPAND | wxALL, 5);
+
+        //outline thickness
+        wxSlider* oltslider = new wxSlider(this, wxID_ANY, plus->GetOutlineThickness(), 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Outline Thickness");
+
+        sizer->Add(oltslider, 1, wxEXPAND | wxALL, 5);
+
+        SetSizer(sizer);
+
+        //return sizer;
+    }
+
+
 };

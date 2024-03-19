@@ -43,3 +43,4 @@ chmsolution/chmsolution.sln
 *.filters
 /Crosshair-makerv2/Crosshair-makerv2/x64
 /Crosshair-makerv2/vcpkg_installed
+/Crosshair-makerv2/enc_temp_folder

@@ -16,7 +16,8 @@ enum
     BUTTON_LOAD = wxID_HIGHEST + 3,
     BUTTON_SAVE = wxID_HIGHEST + 4,
     BUTTON_TEST = wxID_HIGHEST + 5,
-	BUTTON_NEW2 = wxID_HIGHEST + 6
+	BUTTON_NEW2 = wxID_HIGHEST + 6,
+	BUTTON_NEWLAYER = wxID_HIGHEST + 7
 };
 
 
@@ -59,6 +60,8 @@ public:
     void NewButtonClicked(wxCommandEvent& event);
 	void NewButtonClicked2(wxCommandEvent& event);
     void TestButtonClicked(wxCommandEvent& event);
+	void NewLayerButtonClicked(wxCommandEvent& event);
+	void SaveButtonClicked(wxCommandEvent& event);
 
 	void ShowInitialInterface() {
 
@@ -72,54 +75,55 @@ public:
 		//SetSizer(mainsizer);
 	}
 
-	void ShowEditInterface() {
-		mainsizer2->Clear(true);
-
-		wxBoxSizer* previewimgpanelsizer = new wxBoxSizer(wxHORIZONTAL);
-		wxPanel* previewimgpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(250, 250));
-		previewimgpanel->SetBackgroundColour(wxColor(100, 255, 255));
-		wxPanel* previewimgpanel2 = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(250, 250));
-		previewimgpanel2->SetBackgroundColour(wxColor(100, 100, 255));
-		previewimgpanelsizer->Add(previewimgpanel, 1, wxEXPAND | wxALL, 5);
-
-		wxBoxSizer* previewimgsizer = new wxBoxSizer(wxHORIZONTAL);
-		
-		previewimg = new ImagePanel(previewimgpanel2, xhair);
-		previewimgsizer->Add(previewimg, 1, wxEXPAND | wxALL, 5);
-		previewimgpanel2->SetSizer(previewimgsizer);
-		//previewimgpanelsizer->Add(previewimgsizer, 1, wxEXPAND | wxALL, 5);
-		previewimgpanelsizer->Add(previewimgpanel2, 1, wxEXPAND | wxALL, 5);
-
-
-		//previewimgpanel->SetBackgroundColour(wxColor(255, 255, 100, 0));
-
-		mainsizer2->Add(previewimgpanelsizer, 1, wxEXPAND | wxALL, 2);
-
-		//mainpanel->SetSizer(mainsizer2);
-		//previewimg->DoPaint();
-		Layout();
-		Refresh();
-		Update();
-	}
-
-    void ShowEditInterface2() {
+    void ShowEditInterface() {
         // Clear current interface
 		mainsizer2->Clear(true);
 
-		//panel for the scrolling list of layers
+		/*************************************/
+		//LAYER LIST PANE
+		/*************************************/
         wxPanel* layerlistpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 300));
+		wxSizer* layersizer = new wxBoxSizer(wxVERTICAL);
 		layerlistpanel->SetBackgroundColour(wxColor(100, 255, 255));
+
+		//Layer list
 		layerlist = new ScrolledWidgetsPane(layerlistpanel, wxID_ANY);
 		layerlist->PopulateList(xhair);
-		wxBoxSizer* layerlistsizer = new wxBoxSizer(wxHORIZONTAL);
+		wxBoxSizer* layerlistsizer = new wxBoxSizer(wxVERTICAL);
 		layerlistsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
-		layerlistpanel->SetSizer(layerlistsizer);
 
-		//panel for the controls of selected panel
-        wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 300));
+		//Layer Buttons
+		wxBoxSizer* layerbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
+		wxButton* deleteLayer = new wxButton(layerlistpanel, wxID_ANY, "Delete");
+		wxButton* newLayer = new wxButton(layerlistpanel, BUTTON_NEWLAYER, "New Layer");
+		layerbuttonsizer->Add(deleteLayer, 1, wxEXPAND | wxALL, 5);
+		layerbuttonsizer->Add(newLayer, 1, wxEXPAND | wxALL, 5);
+
+		layersizer->Add(layerlistsizer, 1, wxEXPAND | wxALL, 5);
+		layersizer->Add(layerbuttonsizer, 1, wxEXPAND | wxALL, 5);
+
+		layerlistpanel->SetSizer(layersizer);
+
+
+
+		/***************************************/
+		//LAYER CONTROL PANE
+		/***************************************/
+        wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
 		layercontrolpanel->SetBackgroundColour(wxColor(255, 100, 100));
 
-		//overall preview panel
+		if (xhair.selectedLayer > -1) {
+			wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
+			ControlPanel* control = new ControlPanel(layercontrolpanel, 104, xhair.layers[xhair.selectedLayer]);
+			layercontrolsizer->Add(control, 1, wxEXPAND | wxALL, 5);
+			layercontrolpanel->SetSizer(layercontrolsizer);
+		}
+
+
+
+		/***************************************/
+		//PREVIEW PANE
+		/***************************************/
 		wxPanel* parentpreviewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(800, 500));
         wxBoxSizer* previewsizer = new wxBoxSizer(wxVERTICAL);
 		
@@ -151,18 +155,14 @@ public:
         mainsizer2->Add(layerlistpanel, 1, wxEXPAND | wxALL, 2);
         mainsizer2->Add(layercontrolpanel, 1, wxEXPAND | wxALL, 2);
 		mainsizer2->Add(parentpreviewpanel, 1, wxEXPAND | wxALL, 2);
-		//mainsizer2->Add(previewbuttonpanel, 1, wxEXPAND | wxALL, 2);
 
 		Layout();
 		Refresh();
 		Update();
-
-        //this->SetSizerAndFit(mainsizer);
     }
 
 	void ShowNewInterface() {
-		mainsizer->Clear(true);
-		//mainsizer->Clear(true);
+		mainsizer2->Clear(true);
 
 		wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 200));
 
@@ -176,11 +176,7 @@ public:
 		vbox->Add(heightEntry, 1, wxEXPAND | wxALL, 5);
 		vbox->Add(confirmNewButton, 1, wxEXPAND | wxALL, 5);
 		panel->SetSizer(vbox);
-		mainsizer->Add(panel);
-		// Set the sizer for the panel
-		//this->SetSizerAndFit(mainsizer);
-
-		this->SetSizerAndFit(mainsizer);
+		mainsizer2->Add(panel);
 	}
 
     void NewButtonClicked();
@@ -208,8 +204,10 @@ bool MainApp::OnInit()
 
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_BUTTON(BUTTON_LOAD, MyFrame::LoadButtonClicked) // Tell the OS to run MainFrame::OnExit when
+	EVT_BUTTON(BUTTON_SAVE, MyFrame::SaveButtonClicked)
     EVT_BUTTON(BUTTON_NEW, MyFrame::NewButtonClicked)
 	EVT_BUTTON(BUTTON_NEW2, MyFrame::NewButtonClicked2)
+	EVT_BUTTON(BUTTON_NEWLAYER, MyFrame::NewLayerButtonClicked)
     //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
 
@@ -239,10 +237,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize
 void MyFrame::LoadButtonClicked(wxCommandEvent& event) {
 	if (LoadFromFile() == 10) {
 		UpdateCrosshairPixels();
-		ShowEditInterface2();
+		ShowEditInterface();
 	}
-
 }
+
 
 
 void MyFrame::LoadButtonClicked2(wxCommandEvent& event) {
@@ -270,12 +268,18 @@ void MyFrame::NewButtonClicked(wxCommandEvent& event) {
 	//xhair = Crosshair(20, 20);
     //ShowEditInterface();
 }
+
 void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 	int h = wxAtoi(heightEntry->GetValue());
 	int w = wxAtoi(widthEntry->GetValue());
 	xhair = Crosshair(h, w);
 	xhair.InitializeTest();
 	ShowEditInterface();
+
+}
+
+void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
+	xhair.AddLayer(new Plus());
 
 }
 
@@ -397,8 +401,9 @@ int LoadFromFile() {
 
 			xhair.Initialize({ 255, 255, 255, 0 });
 			//xhair.InitializeTest();
-
+			//int selected = -1;
 			while (std::getline(inFile, line)) {
+				
 				int type = std::stoi(line);
 				std::string name;
 				if (std::getline(inFile, line)) {
@@ -431,7 +436,9 @@ int LoadFromFile() {
 
 					Plus* p = new Plus(name, col, length, width, outline, ocol, out_thickness, out_type, gap);
 
+					
 					xhair.AddLayer(p);
+					//xhair.selectedLayer++;
 				}
 				}
 			}
@@ -522,6 +529,31 @@ void UpdateCrosshairPixels() {
 			OutputDebugString(L"Drawing a plus\n");
 			DrawPlus(c);
 		}
+	}
+}
+
+void MyFrame::SaveButtonClicked(wxCommandEvent& event) {
+	OPENFILENAME ofn;       // Structure for the file dialog
+	wchar_t szFile[260];    // Buffer to store the file path
+	ZeroMemory(&ofn, sizeof(ofn));
+
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;   // Handle to the parent window
+	ofn.lpstrFile = szFile; // Buffer to store the selected file path
+	ofn.lpstrFile[0] = L'\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = L"XHAIR Files(*.xhair)\0 * .xhair\0"; // Filter for file types
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+	if (GetSaveFileName(&ofn)) {
+		SaveToFile(szFile);
+	}
+	else {
+		OutputDebugString(L"Save failed\n");
 	}
 }
 

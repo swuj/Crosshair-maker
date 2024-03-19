@@ -18,6 +18,7 @@ protected:
 	bool hidden;
 	std::string name;
 	int type;
+	int id;
 
 public:
 	Component(int t) : name("newcomponent"), hidden(false), type(t) {};
@@ -31,7 +32,6 @@ public:
 	std::string GetName() {
 		return name;
 	}
-
 
 	//PLUS class virtual functions
 	virtual void ChangeOutlineType(int t) {
@@ -47,6 +47,13 @@ public:
 	virtual void SetGap(int g) {
 	}
 
+	void SetID(int i) {
+		id = i;
+	}
+
+	int GetID() {
+		return id;
+	}
 	//duplicate
 
 };

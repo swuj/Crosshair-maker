@@ -18,9 +18,11 @@ private:
 public:
 
 	std::vector<Component*> layers;
+	int selectedLayer = -1;
 
 	void AddLayer(Component* l) {
 		layers.push_back(l);
+		selectedLayer = layers.size()-1;
 	}
 
 	//std::vector<std::vector<
