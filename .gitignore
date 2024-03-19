@@ -35,3 +35,11 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+/chmsolution/.vs
+chmsolution/chmsolution.sln
+/chmsolution/crosshairmaker
+/Crosshair-makerv2/.vs
+*.vcxproj
+*.filters
+/Crosshair-makerv2/Crosshair-makerv2/x64
+/Crosshair-makerv2/vcpkg_installed
