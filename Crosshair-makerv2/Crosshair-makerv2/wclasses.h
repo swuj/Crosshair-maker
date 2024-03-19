@@ -2,6 +2,7 @@
 #include <wx/wx.h>
 #include <wx/wxprec.h>
 #include "xhair.h"
+#include "definitions.h"
 
 class ImagePanel : public wxPanel {
 public:
@@ -73,7 +74,7 @@ private:
 
         int outline = plus->GetOutlineThickness();
 
-        OutputDebugString(L"Rendering a plus\n");
+        //OutputDebugString(L"Rendering a plus\n");
 
         //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
         for (int i = 0 - outline; i < width + outline; i++) {
@@ -81,9 +82,9 @@ private:
                 //pixel to be drawn
                 int pixx = xcenter - (width / 2) + i;
                 int pixy = ycenter + gap + j;
-                OutputDebugString(L"Trying to Draw a Pixel\n");
+                //OutputDebugString(L"Trying to Draw a Pixel\n");
                 if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                    OutputDebugString(L"Drawing a pixel\n");
+                    //OutputDebugString(L"Drawing a pixel\n");
                     dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
                     if (i < 0 || i >= width || j < 0 || j >= length) {
                         dc.SetBrush(wxBrush(wcolor2));
@@ -198,9 +199,11 @@ class ScrolledWidgetsPane : public wxScrolledWindow
 
 private:
     wxBoxSizer* sizer;
+    Crosshair* crosshairptr;
+    //std::vector< wxButton*> buttons;
 
 public:
-    ScrolledWidgetsPane(wxWindow* parent, wxWindowID id) : wxScrolledWindow(parent, id)
+    ScrolledWidgetsPane(wxWindow* parent, wxWindowID id, Crosshair* crosshair) : wxScrolledWindow(parent, id)
     {
         // the sizer will take care of determining the needed scroll size
         // (if you don't use sizers you will need to manually set the viewport size)
@@ -208,27 +211,37 @@ public:
 
         this->SetSizer(sizer);
 
+        crosshairptr = crosshair;
+        PopulateList(crosshairptr);
+       
+
         // this part makes the scrollbars show up
         this->FitInside(); // ask the sizer about the needed size
         this->SetScrollRate(5, 5);
     }
 
-    void PopulateList(Crosshair crosshair) {
+    void PopulateList(Crosshair* crosshair) {
         sizer->Clear(true);
 
 
         int id = 0;
-        for (Component* c : crosshair.layers)
+        for (Component* c : crosshair->layers)
         {
             wxString n = c->GetName();
-            wxButton* b = new wxButton(this, wxID_ANY, wxString::Format(n));
+            wxButton* b = new wxButton(this, BUTTON_LAYER, wxString::Format(n));
+
             c->SetID(id);
             
-            
-            b->Bind(wxEVT_BUTTON, [&crosshair, c](wxCommandEvent& event) {
+            b->Bind(wxEVT_BUTTON, [this, c](wxCommandEvent& event) {
+                OutputDebugString(L"Button Clicked2\n");
                 //Select this layer
-                crosshair.selectedLayer = c->GetID();
+                this->crosshairptr->selectedLayer = c->GetID();
+                wchar_t debugString[200]; // Buffer for the debug string
+                swprintf(debugString, 100, L"%d\n", this->crosshairptr->selectedLayer);
+                OutputDebugString(debugString);
             });
+
+            id++;
 
             sizer->Add(b, 0, wxALL, 3);
         }
@@ -256,6 +269,7 @@ public:
     }
 
     void CreateCrossControl(Component* c) {
+        //sizer->Clear(true);
 
         sizer = new wxBoxSizer(wxVERTICAL);
 

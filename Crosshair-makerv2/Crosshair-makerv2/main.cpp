@@ -7,19 +7,12 @@
 #include <fstream>
 #include "wclasses.h"
 
+wxDECLARE_EVENT(myEVT_PROGRESS, wxCommandEvent);
+wxDEFINE_EVENT(myEVT_PROGRESS, wxCommandEvent);
+
 Crosshair xhair;
 
-enum
-{
-    BUTTON_Hello = wxID_HIGHEST + 1, // declares an id which will be used to call our button
-    BUTTON_NEW = wxID_HIGHEST + 2,
-    BUTTON_LOAD = wxID_HIGHEST + 3,
-    BUTTON_SAVE = wxID_HIGHEST + 4,
-    BUTTON_TEST = wxID_HIGHEST + 5,
-	BUTTON_NEW2 = wxID_HIGHEST + 6,
-	BUTTON_NEWLAYER = wxID_HIGHEST + 7,
-	BUTTON_DELETELAYER = wxID_HIGHEST + 8
-};
+
 
 
 class MainApp : public wxApp // MainApp is the class for our application
@@ -50,6 +43,8 @@ private:
 	wxBoxSizer* controlsizer;
 	wxBoxSizer* previewsizer;
 
+	std::vector<wxButton*> layerlistbuttons;
+
 	int wwidth;
 	int wheight;
 
@@ -69,6 +64,10 @@ public:
 	void UpdateLayerListPane();
 	void UpdateLayerControlPane();
 	void UpdatePreviewPane();
+	void PopulateLayerButtons(Crosshair crosshair);
+	void InsertButton(Crosshair crosshair);
+	void RemoveButton(Crosshair crosshair);
+	void LayerButtonClicked(wxCommandEvent& event);
 
 	void ShowInitialInterface() {
 
@@ -131,6 +130,8 @@ public:
 
     void NewButtonClicked();
 
+	
+
     DECLARE_EVENT_TABLE()
 };
 
@@ -159,6 +160,8 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(BUTTON_NEW2, MyFrame::NewButtonClicked2)
 	EVT_BUTTON(BUTTON_NEWLAYER, MyFrame::NewLayerButtonClicked)
 	EVT_BUTTON(BUTTON_DELETELAYER, MyFrame::DeleteLayerButtonClicked)
+	EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
+	EVT_BUTTON(BUTTON_LAYER, MyFrame::LayerButtonClicked)
     //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
 
@@ -187,6 +190,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 void MyFrame::LoadButtonClicked(wxCommandEvent& event) {
 	if (LoadFromFile() == 10) {
+		PopulateLayerButtons(xhair);
 		UpdateCrosshairPixels();
 		ShowEditInterface();
 	}
@@ -229,6 +233,8 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 
 void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 	xhair.AddLayer(new Plus());
+	InsertButton(xhair);
+
 	//layersizer->Clear(true);
 	UpdateLayerListPane();
 	UpdatePreviewPane();
@@ -236,6 +242,7 @@ void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 
 void MyFrame::DeleteLayerButtonClicked(wxCommandEvent& event) {
 	xhair.DeleteLayer();
+	//RemoveButton(xhair);
 	UpdateLayerListPane();
 	UpdatePreviewPane();
 }
@@ -522,8 +529,8 @@ void MyFrame::UpdateLayerListPane() {
 	llpanel->SetBackgroundColour(wxColor(100, 255, 255));
 
 	//Layer list
-	layerlist = new ScrolledWidgetsPane(llpanel, wxID_ANY);
-	layerlist->PopulateList(xhair);
+	layerlist = new ScrolledWidgetsPane(llpanel, wxID_ANY, &xhair);
+	//layerlist->PopulateList(&xhair);
 	wxBoxSizer* llsizer = new wxBoxSizer(wxVERTICAL);
 	llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
 
@@ -604,5 +611,80 @@ void MyFrame::UpdatePreviewPane() {
 	Update();
 }
 
+void MyFrame::PopulateLayerButtons(Crosshair crosshair) {
 
+	int id = 0;
+	for (Component* c : crosshair.layers)
+	{
+		wxString n = c->GetName();
+		wxButton* b = new wxButton(this, wxID_ANY, wxString::Format(n));
+		c->SetID(id);
+
+
+		b->Bind(wxEVT_BUTTON, [&crosshair, c](wxCommandEvent& event) {
+			//Select this layer
+			crosshair.selectedLayer = c->GetID();
+			});
+
+		layerlistbuttons.push_back(b);
+		id++;
+	}
+}
+
+void MyFrame::InsertButton(Crosshair crosshair) {
+
+
+	//Component* c = crosshair.layers[crosshair.selectedLayer];
+
+	wxString n = crosshair.layers[crosshair.selectedLayer]->GetName();
+	wxButton* b = new wxButton(this, wxID_ANY, wxString::Format(n));
+
+	wchar_t debugString[200]; // Buffer for the debug string
+	swprintf(debugString, 100, L"%d\n", crosshair.layers[crosshair.selectedLayer]->GetID());
+	OutputDebugString(debugString);
+
+	crosshair.layers[crosshair.selectedLayer]->SetID(crosshair.selectedLayer);
+
+	swprintf(debugString, 100, L"%d\n", crosshair.layers[crosshair.selectedLayer]->GetID());
+	OutputDebugString(debugString);
+
+
+	b->Bind(wxEVT_BUTTON, [=](wxCommandEvent& event) {
+		//Select this layer
+		OutputDebugString(L"Button Clicked2\n");
+
+		//crosshair.selectedLayer = crosshair.layers[crosshair.selectedLayer]->GetID();
+		});
+
+	auto insertPosition = layerlistbuttons.begin();
+	if (crosshair.selectedLayer >= 0 && crosshair.selectedLayer < layerlistbuttons.size()) {
+		insertPosition += crosshair.selectedLayer + 1;
+	}
+	else {
+		// If selectedLayer is out of range, simply insert at the end
+		insertPosition = layerlistbuttons.end();
+	}
+
+	layerlistbuttons.insert(insertPosition, b);
+	swprintf(debugString, 100, L"%d\n", layerlistbuttons.size());
+	OutputDebugString(debugString);
+}
+
+void MyFrame::RemoveButton(Crosshair crosshair) {
+	int oldindex = crosshair.selectedLayer;
+	if (oldindex >= 0) {
+		layerlistbuttons.erase(layerlistbuttons.begin() + oldindex);
+		xhair.DeleteLayer();
+	}
+}
+
+void MyFrame::TestButtonClicked(wxCommandEvent& event){
+	wchar_t debugString[200]; // Buffer for the debug string
+	swprintf(debugString, 100, L"%d\n", xhair.selectedLayer);
+	OutputDebugString(debugString);
+}
+
+void MyFrame::LayerButtonClicked(wxCommandEvent& event) {
+	UpdateLayerControlPane();
+}
 

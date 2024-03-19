@@ -21,13 +21,30 @@ public:
 	int selectedLayer = -1;
 
 	void AddLayer(Component* l) {
-		layers.push_back(l);
-		selectedLayer = layers.size()-1;
+
+		OutputDebugString(L"Adding layer\n");
+		auto insertPosition = layers.begin();
+		if (selectedLayer >= 0 && selectedLayer < layers.size()) {
+			insertPosition += selectedLayer + 1;
+		}
+		else {
+			// If selectedLayer is out of range, simply insert at the end
+			insertPosition = layers.end();
+		}
+		layers.insert(insertPosition, l);
+		selectedLayer++;
+
+		for (int i = selectedLayer; i < layers.size(); i++) {
+			layers[i]->SetID(i);
+		}
 	}
 
 	void DeleteLayer() {
 		if (selectedLayer >= 0) {
 			layers.erase(layers.begin() + selectedLayer);
+			for (int i = selectedLayer; i < layers.size(); i++) {
+				layers[i]->SetID(i);
+			}
 			selectedLayer--;
 		}
 	}
@@ -66,10 +83,6 @@ public:
 	int GetHeight() const {
 		return height;
 	}
-
-	//new layer
-
-	//delete layer
 
 	//save as file
 	void SaveAsPng(const std::wstring& filePath) {
