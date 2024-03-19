@@ -31,43 +31,21 @@ private:
             case PLUSLAYER: {
                 RenderPlus(c, dc);
             }
+            case CIRCLELAYER: {
+                RenderCirlce(c, dc);
+            }
+            case TEXTURELAYER: {
+                RenderTexture(c, dc);
+            }
             }
         }
+    }
 
+    void RenderCirlce(Component* c, wxDC& dc) {
 
-        //int width = crosshair.GetWidth();
-        //if (width == 0) return;
+    }
+    void RenderTexture(Component* c, wxDC& dc) {
 
-        //int height = crosshair.GetHeight();
-
-        //// Calculate the size of each pixel in the panel
-        //int pixelWidth = GetSize().GetWidth() / width;
-        //int pixelHeight = GetSize().GetHeight() / height;
-
-        //int xcenter = crosshair.GetWidth() / 2;
-        //int ycenter = crosshair.GetHeight() / 2;
-
-        //for (size_t i = 0; i < width; ++i) {
-        //    for (size_t j = 0; j < height; ++j) {
-        //        const Pixel& pixel = crosshair.GetPixels()[i][j];
-        //        // Calculate position and size of the rectangle representing the pixel
-        //        int x = i * pixelWidth;
-        //        int y = j * pixelHeight;
-        //        int w = pixelWidth;
-        //        int h = pixelHeight;
-
-        //        // Create a wxColour based on the pixel's color
-        //        wxColour color(pixel.red, pixel.green, pixel.blue, pixel.alpha);
-        //        wxColour color2(0,0,0,0);
-
-        //        // Set the brush color to the pixel's color
-        //        dc.SetBrush(wxBrush(color));
-        //        dc.SetPen(wxPen(color2, 0, wxPENSTYLE_TRANSPARENT));
-
-        //        // Draw the filled rectangle representing the pixel
-        //        dc.DrawRectangle(x, y, w, h);
-        //    }
-        //}
     }
 
     void RenderPlus(Component* c, wxDC& dc) {

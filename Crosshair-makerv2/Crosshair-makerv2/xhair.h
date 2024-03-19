@@ -25,6 +25,13 @@ public:
 		selectedLayer = layers.size()-1;
 	}
 
+	void DeleteLayer() {
+		if (selectedLayer >= 0) {
+			layers.erase(layers.begin() + selectedLayer);
+			selectedLayer--;
+		}
+	}
+
 	//std::vector<std::vector<
 	Crosshair() : width(0), height(0) {}
 

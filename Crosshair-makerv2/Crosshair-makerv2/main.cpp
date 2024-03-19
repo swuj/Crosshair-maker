@@ -17,7 +17,8 @@ enum
     BUTTON_SAVE = wxID_HIGHEST + 4,
     BUTTON_TEST = wxID_HIGHEST + 5,
 	BUTTON_NEW2 = wxID_HIGHEST + 6,
-	BUTTON_NEWLAYER = wxID_HIGHEST + 7
+	BUTTON_NEWLAYER = wxID_HIGHEST + 7,
+	BUTTON_DELETELAYER = wxID_HIGHEST + 8
 };
 
 
@@ -64,6 +65,7 @@ public:
     void TestButtonClicked(wxCommandEvent& event);
 	void NewLayerButtonClicked(wxCommandEvent& event);
 	void SaveButtonClicked(wxCommandEvent& event);
+	void DeleteLayerButtonClicked(wxCommandEvent& event);
 	void UpdateLayerListPane();
 	void UpdateLayerControlPane();
 	void UpdatePreviewPane();
@@ -156,6 +158,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_BUTTON(BUTTON_NEW, MyFrame::NewButtonClicked)
 	EVT_BUTTON(BUTTON_NEW2, MyFrame::NewButtonClicked2)
 	EVT_BUTTON(BUTTON_NEWLAYER, MyFrame::NewLayerButtonClicked)
+	EVT_BUTTON(BUTTON_DELETELAYER, MyFrame::DeleteLayerButtonClicked)
     //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
 
@@ -227,6 +230,12 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 	xhair.AddLayer(new Plus());
 	//layersizer->Clear(true);
+	UpdateLayerListPane();
+	UpdatePreviewPane();
+}
+
+void MyFrame::DeleteLayerButtonClicked(wxCommandEvent& event) {
+	xhair.DeleteLayer();
 	UpdateLayerListPane();
 	UpdatePreviewPane();
 }
@@ -520,7 +529,7 @@ void MyFrame::UpdateLayerListPane() {
 
 	//Layer Buttons
 	wxBoxSizer* lbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
-	wxButton* deleteLayer = new wxButton(llpanel, wxID_ANY, "Delete");
+	wxButton* deleteLayer = new wxButton(llpanel, BUTTON_DELETELAYER, "Delete");
 	wxButton* newLayer = new wxButton(llpanel, BUTTON_NEWLAYER, "New Layer");
 	lbuttonsizer->Add(deleteLayer, 1, wxEXPAND | wxALL, 5);
 	lbuttonsizer->Add(newLayer, 1, wxEXPAND | wxALL, 5);
