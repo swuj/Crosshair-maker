@@ -14,13 +14,15 @@ public:
         RenderPixels(dc);
     }
 
+    void DoPaint() {
+        wxPaintDC dc(this);
+        RenderPixels(dc);
+    }
 
 
 private:
     //std::vector<std::vector<Pixel>>& pixels;
     Crosshair crosshair;
-
-    
 
     void RenderPixels(wxDC& dc) {
         int width = crosshair.GetWidth();
@@ -41,11 +43,6 @@ private:
                 int w = pixelWidth;
                 int h = pixelHeight;
 
-                //if (i < width - 1)
-                   //w += 1;
-                //if (j < height - 1)
-                   // h += 1;
-
                 // Create a wxColour based on the pixel's color
                 wxColour color(pixel.red, pixel.green, pixel.blue, pixel.alpha);
                 wxColour color2(0,0,0,0);
@@ -59,7 +56,6 @@ private:
             }
         }
     }
-
     DECLARE_EVENT_TABLE()
 };
 
@@ -92,12 +88,16 @@ public:
 
 class ScrolledWidgetsPane : public wxScrolledWindow
 {
+
+private:
+    wxBoxSizer* sizer;
+
 public:
     ScrolledWidgetsPane(wxWindow* parent, wxWindowID id) : wxScrolledWindow(parent, id)
     {
         // the sizer will take care of determining the needed scroll size
         // (if you don't use sizers you will need to manually set the viewport size)
-        wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+        sizer = new wxBoxSizer(wxVERTICAL);
 
         // add a series of widgets
         for (int w = 1; w <= 120; w++)
@@ -113,4 +113,13 @@ public:
         this->SetScrollRate(5, 5);
     }
 
+    void PopulateList(Crosshair crosshair) {
+        sizer->Clear(true);
+
+        for (int w = 1; w <= 120; w++)
+        {
+            wxButton* b = new wxButton(this, wxID_ANY, wxString::Format(wxT("Button %i"), w));
+            sizer->Add(b, 0, wxALL, 3);
+        }
+    }
 };
