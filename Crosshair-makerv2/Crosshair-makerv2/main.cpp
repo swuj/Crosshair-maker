@@ -43,13 +43,15 @@ private:
 	NumericTextCtrl* heightEntry;
 	wxButton* confirmNewButton;
 	ScrolledWidgetsPane* layerlist;
-	//wxPanel* mainpanel;
-	//wxBoxSizer* mainsizer;
+
+	//Edit Interface
+	wxBoxSizer* layersizer;
+	wxBoxSizer* controlsizer;
+	wxBoxSizer* previewsizer;
+
 	int wwidth;
 	int wheight;
-	//wxButton*
 
-    // It contains the window and all objects in it
 public:
     MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     
@@ -62,9 +64,11 @@ public:
     void TestButtonClicked(wxCommandEvent& event);
 	void NewLayerButtonClicked(wxCommandEvent& event);
 	void SaveButtonClicked(wxCommandEvent& event);
+	void UpdateLayerListPane();
+	void UpdateLayerControlPane();
+	void UpdatePreviewPane();
 
 	void ShowInitialInterface() {
-
 
 		NewCrosshairButton = new wxButton(mainpanel, BUTTON_NEW, ("New"));
 		LoadCrosshairButton = new wxButton(mainpanel, BUTTON_LOAD, ("Load"));
@@ -82,79 +86,23 @@ public:
 		/*************************************/
 		//LAYER LIST PANE
 		/*************************************/
-        wxPanel* layerlistpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 300));
-		wxSizer* layersizer = new wxBoxSizer(wxVERTICAL);
-		layerlistpanel->SetBackgroundColour(wxColor(100, 255, 255));
-
-		//Layer list
-		layerlist = new ScrolledWidgetsPane(layerlistpanel, wxID_ANY);
-		layerlist->PopulateList(xhair);
-		wxBoxSizer* layerlistsizer = new wxBoxSizer(wxVERTICAL);
-		layerlistsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
-
-		//Layer Buttons
-		wxBoxSizer* layerbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
-		wxButton* deleteLayer = new wxButton(layerlistpanel, wxID_ANY, "Delete");
-		wxButton* newLayer = new wxButton(layerlistpanel, BUTTON_NEWLAYER, "New Layer");
-		layerbuttonsizer->Add(deleteLayer, 1, wxEXPAND | wxALL, 5);
-		layerbuttonsizer->Add(newLayer, 1, wxEXPAND | wxALL, 5);
-
-		layersizer->Add(layerlistsizer, 1, wxEXPAND | wxALL, 5);
-		layersizer->Add(layerbuttonsizer, 1, wxEXPAND | wxALL, 5);
-
-		layerlistpanel->SetSizer(layersizer);
-
-
+		layersizer = new wxBoxSizer(wxHORIZONTAL);
+		UpdateLayerListPane();
+		mainsizer2->Add(layersizer, 1, wxEXPAND | wxALL, 2);
 
 		/***************************************/
 		//LAYER CONTROL PANE
 		/***************************************/
-        wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
-		layercontrolpanel->SetBackgroundColour(wxColor(255, 100, 100));
-
-		if (xhair.selectedLayer > -1) {
-			wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
-			ControlPanel* control = new ControlPanel(layercontrolpanel, 104, xhair.layers[xhair.selectedLayer]);
-			layercontrolsizer->Add(control, 1, wxEXPAND | wxALL, 5);
-			layercontrolpanel->SetSizer(layercontrolsizer);
-		}
-
-
+		controlsizer = new wxBoxSizer(wxHORIZONTAL);
+		UpdateLayerControlPane();
+		mainsizer2->Add(controlsizer, 1, wxEXPAND | wxALL, 2);
 
 		/***************************************/
 		//PREVIEW PANE
 		/***************************************/
-		wxPanel* parentpreviewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(800, 500));
-        wxBoxSizer* previewsizer = new wxBoxSizer(wxVERTICAL);
-		
-		parentpreviewpanel->SetSizer(previewsizer);
-
-		//panel for preview image
-		wxPanel* previewimgpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
-		//previewimgpanel->SetBackgroundColour(wxColor(255, 255, 100));
-		previewimg = new ImagePanel(previewimgpanel, xhair);
-		wxBoxSizer* previewimgsizer = new wxBoxSizer(wxHORIZONTAL);
-		previewimgsizer->Add(previewimg, 1, wxSHAPED, 5);
-		previewimgpanel->SetSizer(previewimgsizer);
-
-		//panel for preview buttons
-		wxPanel* previewbuttonpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 150));
-		previewbuttonpanel->SetBackgroundColour(wxColor(255, 100, 255));
-		saveButton = new wxButton(previewbuttonpanel, BUTTON_SAVE, "Save");
-		testButton = new wxButton(previewbuttonpanel, BUTTON_TEST, "Test");
-
-		wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
-		previewbuttonsizer->Add(saveButton, 1, wxEXPAND | wxALL, 5);
-		previewbuttonsizer->Add(testButton, 1, wxEXPAND | wxALL, 5);
-		previewbuttonpanel->SetSizer(previewbuttonsizer);
-
-		previewsizer->Add(previewimgpanel, 1, wxEXPAND | wxALL, 5);
-		previewsizer->Add(previewbuttonpanel, 1, wxEXPAND | wxALL, 5);
-
-
-        mainsizer2->Add(layerlistpanel, 1, wxEXPAND | wxALL, 2);
-        mainsizer2->Add(layercontrolpanel, 1, wxEXPAND | wxALL, 2);
-		mainsizer2->Add(parentpreviewpanel, 1, wxEXPAND | wxALL, 2);
+		previewsizer = new wxBoxSizer(wxHORIZONTAL);
+		UpdatePreviewPane();
+		mainsizer2->Add(previewsizer, 1, wxEXPAND | wxALL, 2);
 
 		Layout();
 		Refresh();
@@ -241,8 +189,6 @@ void MyFrame::LoadButtonClicked(wxCommandEvent& event) {
 	}
 }
 
-
-
 void MyFrame::LoadButtonClicked2(wxCommandEvent& event) {
     // Define file types to be displayed
     wxString wildcard = "xhair files (*xhair)|*.xhair";
@@ -280,7 +226,8 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 
 void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 	xhair.AddLayer(new Plus());
-
+	//layersizer->Clear(true);
+	UpdateLayerListPane();
 }
 
 void SaveToFile(const std::wstring& filePath) {
@@ -557,6 +504,95 @@ void MyFrame::SaveButtonClicked(wxCommandEvent& event) {
 	}
 }
 
+void MyFrame::UpdateLayerListPane() {
+	layersizer->Clear(true);
+
+	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 300));
+	wxSizer* lsizer = new wxBoxSizer(wxVERTICAL);
+	llpanel->SetBackgroundColour(wxColor(100, 255, 255));
+
+	//Layer list
+	layerlist = new ScrolledWidgetsPane(llpanel, wxID_ANY);
+	layerlist->PopulateList(xhair);
+	wxBoxSizer* llsizer = new wxBoxSizer(wxVERTICAL);
+	llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
+
+	//Layer Buttons
+	wxBoxSizer* lbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
+	wxButton* deleteLayer = new wxButton(llpanel, wxID_ANY, "Delete");
+	wxButton* newLayer = new wxButton(llpanel, BUTTON_NEWLAYER, "New Layer");
+	lbuttonsizer->Add(deleteLayer, 1, wxEXPAND | wxALL, 5);
+	lbuttonsizer->Add(newLayer, 1, wxEXPAND | wxALL, 5);
+
+	lsizer->Add(llsizer, 1, wxEXPAND | wxALL, 5);
+	lsizer->Add(lbuttonsizer, 1, wxEXPAND | wxALL, 5);
+
+	llpanel->SetSizer(lsizer);
+
+	//MyFrame private member layzersizer
+	layersizer->Add(llpanel, 1, wxEXPAND | wxALL, 5);
+
+	Layout();
+	Refresh();
+	Update();
+}
+
+void MyFrame::UpdateLayerControlPane() {
+	controlsizer->Clear(true);
+
+	wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
+	layercontrolpanel->SetBackgroundColour(wxColor(255, 100, 100));
+	wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
+
+	if (xhair.selectedLayer > -1) {
+		ControlPanel* control = new ControlPanel(layercontrolpanel, 104, xhair.layers[xhair.selectedLayer]);
+		layercontrolsizer->Add(control, 1, wxEXPAND | wxALL, 5);
+	}
+	layercontrolpanel->SetSizer(layercontrolsizer);
+
+	controlsizer->Add(layercontrolpanel, 1, wxEXPAND | wxALL, 5);
+
+	Layout();
+	Refresh();
+	Update();
+}
+
+void MyFrame::UpdatePreviewPane() {
+	previewsizer->Clear(true);
+
+	wxPanel* parentpreviewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(800, 500));
+	wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
+
+	parentpreviewpanel->SetSizer(pvsizer);
+
+	//panel for preview image
+	wxPanel* previewimgpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
+	//previewimgpanel->SetBackgroundColour(wxColor(255, 255, 100));
+	previewimg = new ImagePanel(previewimgpanel, xhair);
+	wxBoxSizer* previewimgsizer = new wxBoxSizer(wxHORIZONTAL);
+	previewimgsizer->Add(previewimg, 1, wxSHAPED, 5);
+	previewimgpanel->SetSizer(previewimgsizer);
+
+	//panel for preview buttons
+	wxPanel* previewbuttonpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 150));
+	previewbuttonpanel->SetBackgroundColour(wxColor(255, 100, 255));
+	saveButton = new wxButton(previewbuttonpanel, BUTTON_SAVE, "Save");
+	testButton = new wxButton(previewbuttonpanel, BUTTON_TEST, "Test");
+
+	wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
+	previewbuttonsizer->Add(saveButton, 1, wxEXPAND | wxALL, 5);
+	previewbuttonsizer->Add(testButton, 1, wxEXPAND | wxALL, 5);
+	previewbuttonpanel->SetSizer(previewbuttonsizer);
+
+	pvsizer->Add(previewimgpanel, 1, wxEXPAND | wxALL, 5);
+	pvsizer->Add(previewbuttonpanel, 1, wxEXPAND | wxALL, 5);
+
+	previewsizer->Add(parentpreviewpanel, 1, wxEXPAND | wxALL, 5);
+
+	Layout();
+	Refresh();
+	Update();
+}
 
 
 
