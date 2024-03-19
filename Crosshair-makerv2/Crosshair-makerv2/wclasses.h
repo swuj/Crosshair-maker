@@ -232,14 +232,18 @@ public:
 
             c->SetID(id);
             
-            b->Bind(wxEVT_BUTTON, [this, c](wxCommandEvent& event) {
+            auto lambdaEventHandler = [this, c](wxCommandEvent& event) {
                 OutputDebugString(L"Button Clicked2\n");
-                //Select this layer
                 this->crosshairptr->selectedLayer = c->GetID();
+
                 wchar_t debugString[200]; // Buffer for the debug string
                 swprintf(debugString, 100, L"%d\n", this->crosshairptr->selectedLayer);
                 OutputDebugString(debugString);
-            });
+
+                event.Skip();
+                };
+
+            b->Bind(wxEVT_BUTTON, lambdaEventHandler);
 
             id++;
 
@@ -258,7 +262,7 @@ private:
 
 public:
     ControlPanel(wxWindow* parent, int t, Component* c) : wxPanel(parent), type(t){
-
+        sizer = new wxBoxSizer(wxVERTICAL);
 
         switch (type) {
         case PLUSLAYER: {
@@ -269,9 +273,11 @@ public:
     }
 
     void CreateCrossControl(Component* c) {
-        //sizer->Clear(true);
+        sizer->Clear(true);
 
-        sizer = new wxBoxSizer(wxVERTICAL);
+
+        OutputDebugString(L"Updating Controls\n");
+
 
         Plus* plus = dynamic_cast<Plus*>(c);
 

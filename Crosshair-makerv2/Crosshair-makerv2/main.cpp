@@ -561,6 +561,8 @@ void MyFrame::UpdateLayerControlPane() {
 	layercontrolpanel->SetBackgroundColour(wxColor(255, 100, 100));
 	wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
 
+	OutputDebugString(L"Entering UpdateLayerControlPane\n");
+
 	if (xhair.selectedLayer > -1) {
 		ControlPanel* control = new ControlPanel(layercontrolpanel, 104, xhair.layers[xhair.selectedLayer]);
 		layercontrolsizer->Add(control, 1, wxEXPAND | wxALL, 5);
@@ -685,6 +687,7 @@ void MyFrame::TestButtonClicked(wxCommandEvent& event){
 }
 
 void MyFrame::LayerButtonClicked(wxCommandEvent& event) {
+	OutputDebugString(L"LayerButtonClicked\n");
 	UpdateLayerControlPane();
 }
 
