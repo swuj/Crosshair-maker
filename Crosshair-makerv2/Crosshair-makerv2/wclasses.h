@@ -25,34 +25,163 @@ private:
     Crosshair crosshair;
 
     void RenderPixels(wxDC& dc) {
-        int width = crosshair.GetWidth();
-        if (width == 0) return;
 
-        int height = crosshair.GetHeight();
+        for (Component* c : crosshair.layers) {
+            switch (c->GetType()) {
+            case PLUSLAYER: {
+                RenderPlus(c, dc);
+            }
+            }
+        }
 
-        // Calculate the size of each pixel in the panel
-        int pixelWidth = GetSize().GetWidth() / width;
-        int pixelHeight = GetSize().GetHeight() / height;
 
-        for (size_t i = 0; i < width; ++i) {
-            for (size_t j = 0; j < height; ++j) {
-                const Pixel& pixel = crosshair.GetPixels()[i][j];
-                // Calculate position and size of the rectangle representing the pixel
-                int x = i * pixelWidth;
-                int y = j * pixelHeight;
-                int w = pixelWidth;
-                int h = pixelHeight;
+        //int width = crosshair.GetWidth();
+        //if (width == 0) return;
 
-                // Create a wxColour based on the pixel's color
-                wxColour color(pixel.red, pixel.green, pixel.blue, pixel.alpha);
-                wxColour color2(0,0,0,0);
+        //int height = crosshair.GetHeight();
 
-                // Set the brush color to the pixel's color
-                dc.SetBrush(wxBrush(color));
-                dc.SetPen(wxPen(color2, 0, wxPENSTYLE_TRANSPARENT));
+        //// Calculate the size of each pixel in the panel
+        //int pixelWidth = GetSize().GetWidth() / width;
+        //int pixelHeight = GetSize().GetHeight() / height;
 
-                // Draw the filled rectangle representing the pixel
-                dc.DrawRectangle(x, y, w, h);
+        //int xcenter = crosshair.GetWidth() / 2;
+        //int ycenter = crosshair.GetHeight() / 2;
+
+        //for (size_t i = 0; i < width; ++i) {
+        //    for (size_t j = 0; j < height; ++j) {
+        //        const Pixel& pixel = crosshair.GetPixels()[i][j];
+        //        // Calculate position and size of the rectangle representing the pixel
+        //        int x = i * pixelWidth;
+        //        int y = j * pixelHeight;
+        //        int w = pixelWidth;
+        //        int h = pixelHeight;
+
+        //        // Create a wxColour based on the pixel's color
+        //        wxColour color(pixel.red, pixel.green, pixel.blue, pixel.alpha);
+        //        wxColour color2(0,0,0,0);
+
+        //        // Set the brush color to the pixel's color
+        //        dc.SetBrush(wxBrush(color));
+        //        dc.SetPen(wxPen(color2, 0, wxPENSTYLE_TRANSPARENT));
+
+        //        // Draw the filled rectangle representing the pixel
+        //        dc.DrawRectangle(x, y, w, h);
+        //    }
+        //}
+    }
+
+    void RenderPlus(Component* c, wxDC& dc) {
+        Plus* plus = dynamic_cast<Plus*>(c);
+
+        int chwidth = crosshair.GetWidth();
+
+        int chheight = crosshair.GetHeight();
+
+        int xcenter = chwidth / 2;
+        int ycenter = chheight / 2;
+
+        int pixelWidth = GetSize().GetWidth() / chwidth;
+        int pixelHeight = GetSize().GetHeight() / chheight;
+
+        int width = plus->GetWidth();
+        int length = plus->GetSize();
+        int gap = plus->GetGap();
+
+        Pixel color = plus->GetColor();
+        Pixel outline_color = plus->GetOutlineColor();
+
+        wxColour wcolor(color.red, color.green, color.blue, color.alpha);
+        wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
+
+        int outline = plus->GetOutlineThickness();
+
+        OutputDebugString(L"Rendering a plus\n");
+
+        //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+        for (int i = 0 - outline; i < width + outline; i++) {
+            for (int j = 0 - outline; j < length + outline; j++) {
+                //pixel to be drawn
+                int pixx = xcenter - (width / 2) + i;
+                int pixy = ycenter + gap + j;
+                OutputDebugString(L"Trying to Draw a Pixel\n");
+                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                    OutputDebugString(L"Drawing a pixel\n");
+                    dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+                    if (i < 0 || i >= width || j < 0 || j >= length) {
+                        dc.SetBrush(wxBrush(wcolor2));
+                        //crosshair.SetColor(pixx, pixy, outline_color);
+                    }
+                    else {
+                        dc.SetBrush(wxBrush(wcolor));
+                        //crosshair.SetColor(pixx, pixy, color);
+                    }
+                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                }
+
+            }
+        }
+
+        for (int i = 0 - outline; i < width + outline; i++) {
+            for (int j = 0 - outline; j < length + outline; j++) {
+                //pixel to be drawn
+                int pixx = xcenter - (width / 2) + i;
+                int pixy = ycenter - gap + j - length;
+
+                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                    dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+                    if (i < 0 || i >= width || j < 0 || j >= length) {
+                        dc.SetBrush(wxBrush(wcolor2));
+                        //crosshair.SetColor(pixx, pixy, outline_color);
+                    }
+                    else {
+                        dc.SetBrush(wxBrush(wcolor));
+                        //crosshair.SetColor(pixx, pixy, color);
+                    }
+                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                }
+
+            }
+        }
+
+        for (int i = 0 - outline; i < width + outline; i++) {
+            for (int j = 0 - outline; j < length + outline; j++) {
+                //pixel to be drawn
+                int pixx = xcenter - length + j - gap;
+                int pixy = ycenter - (width / 2) + i;
+
+                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                    dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+                    if (i < 0 || i >= width || j < 0 || j >= length) {
+                        dc.SetBrush(wxBrush(wcolor2));
+                        //crosshair.SetColor(pixx, pixy, outline_color);
+                    }
+                    else {
+                        dc.SetBrush(wxBrush(wcolor));
+                        //crosshair.SetColor(pixx, pixy, color);
+                    }
+                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                }
+            }
+        }
+
+        for (int i = 0 - outline; i < width + outline; i++) {
+            for (int j = 0 - outline; j < length + outline; j++) {
+                //pixel to be drawn
+                int pixx = xcenter + j + gap;
+                int pixy = ycenter - (width / 2) + i;
+
+                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                    dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+                    if (i < 0 || i >= width || j < 0 || j >= length) {
+                        dc.SetBrush(wxBrush(wcolor2));
+                        //crosshair.SetColor(pixx, pixy, outline_color);
+                    }
+                    else {
+                        dc.SetBrush(wxBrush(wcolor));
+                        //crosshair.SetColor(pixx, pixy, color);
+                    }
+                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                }
             }
         }
     }

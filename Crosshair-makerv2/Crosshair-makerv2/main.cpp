@@ -228,6 +228,7 @@ void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 	xhair.AddLayer(new Plus());
 	//layersizer->Clear(true);
 	UpdateLayerListPane();
+	UpdatePreviewPane();
 }
 
 void SaveToFile(const std::wstring& filePath) {
