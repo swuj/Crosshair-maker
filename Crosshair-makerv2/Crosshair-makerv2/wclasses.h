@@ -225,7 +225,6 @@ public:
     void PopulateList(Crosshair* crosshair) {
         sizer->Clear(true);
 
-
         int id = 0;
         for (Component* c : crosshair->layers)
         {
@@ -257,17 +256,76 @@ public:
     }
 };
 
-class ColorSlider : public wxPanel{};
+class ColorSlider : public wxPanel {
+private:
+    wxBoxSizer* sizer;
+    uint8_t* color;
+
+public:
+    ColorSlider(wxWindow* parent, uint8_t* color, wxString label) : wxPanel(parent), color(color) {
+
+        sizer = new wxBoxSizer(wxHORIZONTAL);
+        this->SetSizer(sizer);
+        BuildSlider(label);
+    }
+
+    void BuildSlider(wxString label) {
+        sizer->Clear(true);
+        //wxBoxSizer* mainColorSizerRed = new wxBoxSizer(wxHORIZONTAL);
+        wxStaticText* clabel = new wxStaticText(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize, 0);
+        wxSlider* cslider = new wxSlider(this, wxID_ANY, *color, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator);
+        NumericTextCtrl* cvalue = new NumericTextCtrl(this, wxID_ANY, wxString::Format(wxT("%d"), *color), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+        sizer->Add(clabel, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(cslider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(cvalue, 1, wxEXPAND | wxALL, 5);
+    }
+};
+
+class ColorControl : public wxPanel {
+private:
+    wxBoxSizer* sizer;
+    Pixel* color;
+
+public:
+    ColorControl(wxWindow* parent, Pixel* color) : wxPanel(parent), color(color) {
+        sizer = new wxBoxSizer(wxVERTICAL);
+        this->SetSizer(sizer);
+
+        Build();
+    }
+
+    void Build() {
+        sizer->Clear(true);
+        wxBoxSizer* rs = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new ColorSlider(this, &(color->red), "R"), 1, wxEXPAND | wxALL, 5);
+
+        wxBoxSizer* gs = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new ColorSlider(this, &(color->green), "G"), 1, wxEXPAND | wxALL, 5);
+
+        wxBoxSizer* bs = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new ColorSlider(this, &(color->blue), "B"), 1, wxEXPAND | wxALL, 5);
+
+        wxBoxSizer* as = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new ColorSlider(this, &(color->alpha), "A"), 1, wxEXPAND | wxALL, 5);
+
+    }
+
+};
+
+
 
 //Controls for all the layer attributes
 class ControlPanel : public wxPanel {
 private:
     int type;
     wxBoxSizer* sizer;
+    //Component* componentPtr;
 
 public:
     ControlPanel(wxWindow* parent, int t, Component* c) : wxPanel(parent), type(t){
         sizer = new wxBoxSizer(wxVERTICAL);
+
+        //componentPtr = c;
 
         switch (type) {
         case PLUSLAYER: {
@@ -287,25 +345,8 @@ public:
 
         //Main Color
         wxBoxSizer* parentMainColorSizer = new wxBoxSizer(wxVERTICAL);
-
-        wxBoxSizer* mainColorSizerRed = new wxBoxSizer(wxHORIZONTAL);
-        wxStaticText* mainColorLabelRed = new wxStaticText(this, wxID_ANY, "R", wxDefaultPosition, wxDefaultSize, 0, "R");
-        wxSlider* redslider = new wxSlider(this, wxID_ANY, plus->GetColor().red, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Red");
-        NumericTextCtrl* mainColorValueRed = new NumericTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-        mainColorSizerRed->Add(mainColorLabelRed, 1, wxEXPAND | wxALL, 5);
-        mainColorSizerRed->Add(redslider, 1, wxEXPAND | wxALL, 5);
-        mainColorSizerRed->Add(mainColorValueRed, 1, wxEXPAND | wxALL, 5);
-
-
-
-
-        wxSlider* greenslider = new wxSlider(this, wxID_ANY, plus->GetColor().green, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Green");
-        wxSlider* blueslider = new wxSlider(this, wxID_ANY, plus->GetColor().blue, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Blue");
-
-        sizer->Add(mainColorSizerRed, 1, wxEXPAND | wxALL, 5);
-        sizer->Add(greenslider, 1, wxEXPAND | wxALL, 5);
-        sizer->Add(blueslider, 1, wxEXPAND | wxALL, 5);
-
+        ColorControl* mainColorControl = new ColorControl(this, &(plus->GetColor()));
+        sizer->Add(mainColorControl, 1, wxEXPAND | wxALL, 5);
 
         //length
         wxSlider* lengthslider = new wxSlider(this, wxID_ANY, plus->GetSize(), 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "length");

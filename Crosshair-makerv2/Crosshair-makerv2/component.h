@@ -130,7 +130,11 @@ public:
 		return outline_color;
 	}
 
-	Pixel GetColor() {
+	Pixel& GetColor() {
+		return shape_color;
+	}
+
+	Pixel& GetColorStruct() {
 		return shape_color;
 	}
 
@@ -169,8 +173,6 @@ public:
 	void SetRadius(int r) {
 		SetSize(r);
 	}
-
-
 };
 
 //traditional plus/cross shaped crosshair
