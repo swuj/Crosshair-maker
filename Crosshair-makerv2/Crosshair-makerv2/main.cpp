@@ -182,19 +182,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 void MyFrame::LoadButtonClicked(wxCommandEvent& event) {
 	if (LoadFromFile() == 10) {
-		//PopulateLayerButtons(xhair);
 		UpdateCrosshairPixels();
 		ShowEditInterface();
 	}
 }
 
 void MyFrame::NewButtonClicked(wxCommandEvent& event) {
-
-	//open window to ask for dimensions
-
 	ShowNewInterface();
-	//xhair = Crosshair(20, 20);
-    //ShowEditInterface();
 }
 
 void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
@@ -203,21 +197,16 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 	xhair = Crosshair(h, w);
 	xhair.InitializeTest();
 	ShowEditInterface();
-
 }
 
 void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 	xhair.AddLayer(new Plus());
-	//InsertButton(xhair);
-
-	//layersizer->Clear(true);
 	UpdateLayerListPane();
 	UpdatePreviewPane();
 }
 
 void MyFrame::DeleteLayerButtonClicked(wxCommandEvent& event) {
 	xhair.DeleteLayer();
-	//RemoveButton(xhair);
 	UpdateLayerListPane();
 	UpdatePreviewPane();
 }
@@ -505,7 +494,6 @@ void MyFrame::UpdateLayerListPane() {
 
 	//Layer list
 	layerlist = new ScrolledWidgetsPane(llpanel, wxID_ANY, &xhair);
-	//layerlist->PopulateList(&xhair);
 	wxBoxSizer* llsizer = new wxBoxSizer(wxVERTICAL);
 	llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
 
@@ -587,7 +575,6 @@ void MyFrame::UpdatePreviewPane() {
 	Refresh();
 	Update();
 }
-
 
 void MyFrame::TestButtonClicked(wxCommandEvent& event){
 	wchar_t debugString[200]; // Buffer for the debug string

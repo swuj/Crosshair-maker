@@ -4,6 +4,8 @@
 #include "xhair.h"
 #include "definitions.h"
 
+
+//Panel to show a preview of the crosshair
 class ImagePanel : public wxPanel {
 public:
     ImagePanel(wxWindow* parent, Crosshair c)
@@ -167,7 +169,7 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
-
+//Text box that only takes digits
 class NumericTextCtrl : public wxTextCtrl {
 public:
     NumericTextCtrl(wxWindow* parent, wxWindowID id = wxID_ANY,
@@ -193,7 +195,7 @@ public:
     }
 };
 
-
+//Scrolling list container for the layers
 class ScrolledWidgetsPane : public wxScrolledWindow
 {
 
@@ -255,6 +257,9 @@ public:
     }
 };
 
+class ColorSlider : public wxPanel{};
+
+//Controls for all the layer attributes
 class ControlPanel : public wxPanel {
 private:
     int type;
@@ -275,19 +280,29 @@ public:
     void CreateCrossControl(Component* c) {
         sizer->Clear(true);
 
-
         OutputDebugString(L"Updating Controls\n");
 
-
+        //Cast component to cross to access Plus members
         Plus* plus = dynamic_cast<Plus*>(c);
 
+        //Main Color
+        wxBoxSizer* parentMainColorSizer = new wxBoxSizer(wxVERTICAL);
 
-        //color
+        wxBoxSizer* mainColorSizerRed = new wxBoxSizer(wxHORIZONTAL);
+        wxStaticText* mainColorLabelRed = new wxStaticText(this, wxID_ANY, "R", wxDefaultPosition, wxDefaultSize, 0, "R");
         wxSlider* redslider = new wxSlider(this, wxID_ANY, plus->GetColor().red, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Red");
+        NumericTextCtrl* mainColorValueRed = new NumericTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+        mainColorSizerRed->Add(mainColorLabelRed, 1, wxEXPAND | wxALL, 5);
+        mainColorSizerRed->Add(redslider, 1, wxEXPAND | wxALL, 5);
+        mainColorSizerRed->Add(mainColorValueRed, 1, wxEXPAND | wxALL, 5);
+
+
+
+
         wxSlider* greenslider = new wxSlider(this, wxID_ANY, plus->GetColor().green, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Green");
         wxSlider* blueslider = new wxSlider(this, wxID_ANY, plus->GetColor().blue, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "Blue");
 
-        sizer->Add(redslider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(mainColorSizerRed, 1, wxEXPAND | wxALL, 5);
         sizer->Add(greenslider, 1, wxEXPAND | wxALL, 5);
         sizer->Add(blueslider, 1, wxEXPAND | wxALL, 5);
 
