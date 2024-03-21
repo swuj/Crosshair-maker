@@ -19,6 +19,8 @@ protected:
 	std::string name;
 	int type;
 	int id;
+	int gap = -1;
+	int width = -1;
 
 public:
 	Component(int t) : name("newcomponent"), hidden(false), type(t) {};
@@ -37,11 +39,12 @@ public:
 	virtual void ChangeOutlineType(int t) {
 	}
 
-	virtual int GetGap() {
-		return -1;
+	virtual int& GetGap() {
+		return gap;
 	}
-	virtual int GetWidth() {
-		return -1;
+
+	virtual int& GetWidth() {
+		return width;
 	}
 
 	virtual void SetGap(int g) {
@@ -97,11 +100,11 @@ public:
 
 	Shape(std::string n, Pixel c, int s, bool o, int ot, Pixel oc, int t) : Component(t), shape_color(c), size(s), outline(o), outline_thickness(ot), outline_color(oc) {}
 
-	int GetSize() {
+	int& GetSize() {
 		return size;
 	}
 
-	bool GetOutline() {
+	bool& GetOutline() {
 		return outline;
 	}
 
@@ -126,7 +129,7 @@ public:
 		return outline_thickness;
 	}
 
-	Pixel GetOutlineColor() {
+	Pixel& GetOutlineColor() {
 		return outline_color;
 	}
 
@@ -166,7 +169,7 @@ public:
 		}
 	}
 
-	int GetRadius() {
+	int& GetRadius() {
 		return GetSize();
 	}
 
@@ -191,15 +194,15 @@ public:
 		outline_type = t;
 	}
 
-	int GetOutlineType() {
+	int& GetOutlineType() {
 		return outline_type;
 	}
 
-	int GetGap() override {
+	int& GetGap() override {
 		return gap;
 	}
 
-	int GetWidth() override {
+	int& GetWidth() override {
 		return width;
 	}
 

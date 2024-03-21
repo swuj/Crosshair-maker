@@ -273,16 +273,13 @@ public:
         sizer = new wxBoxSizer(wxHORIZONTAL);
         this->SetSizer(sizer);
 
-        //wxBoxSizer* mainColorSizerRed = new wxBoxSizer(wxHORIZONTAL);
         wxStaticText* clabel = new wxStaticText(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize, 0);
         wxSlider* cslider = new wxSlider(this, SLIDER_UPDATE, *color, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator);
         NumericTextCtrl* cvalue = new NumericTextCtrl(this, TEXT_UPDATE, wxString::Format(wxT("%d"), *color), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 
 
-        //auto lambdaEventHandler1 = 
-
+        //Slider and text box update eachother
         cslider->Bind(wxEVT_SCROLL_CHANGED, [this, color, cvalue, cslider](wxScrollEvent& event) {
-            // Update the value of the integer pointer
             *color = cslider->GetValue();
             cvalue->SetValue(wxString::Format(wxT("%d"), cslider->GetValue()));
 
@@ -290,20 +287,56 @@ public:
             ProcessEvent(evt);
             //event.Skip();
             });
-
-        //auto lambdaEventHandler2 = 
             
         cvalue->Bind(wxEVT_TEXT_ENTER, [this, color, cvalue, cslider](wxCommandEvent& event) {
-            // Update the value of the integer pointer
             cslider->SetValue(wxAtoi(cvalue->GetValue()));
             *color = cslider->GetValue();
 
             wxCommandEvent evt(wxEVT_COMMAND_TEXT_UPDATED, TEXT_UPDATE);
             ProcessEvent(evt);
+            });
+
+        sizer->Add(clabel, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(cslider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(cvalue, 1, wxEXPAND | wxALL, 5);
+    }
+};
+
+class IntSlider : public wxPanel {
+private:
+    wxBoxSizer* sizer;
+    int* val;
+    int max;
+
+public:
+    IntSlider(wxWindow* parent, int* val, wxString label, int x, int y) : wxPanel(parent), val(val) {
+        max = std::max(x, y);
+
+        sizer = new wxBoxSizer(wxHORIZONTAL);
+        this->SetSizer(sizer);
+
+        wxStaticText* clabel = new wxStaticText(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize, 0);
+        wxSlider* cslider = new wxSlider(this, SLIDER_UPDATE, *val, 0, max, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator);
+        NumericTextCtrl* cvalue = new NumericTextCtrl(this, TEXT_UPDATE, wxString::Format(wxT("%d"), *val), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+
+
+        //Slider and text box update eachother
+        cslider->Bind(wxEVT_SCROLL_CHANGED, [this, val, cvalue, cslider](wxScrollEvent& event) {
+            *val = cslider->GetValue();
+            cvalue->SetValue(wxString::Format(wxT("%d"), cslider->GetValue()));
+
+            wxCommandEvent evt(wxEVT_SCROLL_CHANGED, SLIDER_UPDATE);
+            ProcessEvent(evt);
             //event.Skip();
             });
 
-        //cvalue->Bind(wxEVT_TEXT_ENTER, lambdaEventHandler2);
+        cvalue->Bind(wxEVT_TEXT_ENTER, [this, val, cvalue, cslider](wxCommandEvent& event) {
+            cslider->SetValue(wxAtoi(cvalue->GetValue()));
+            *val = cslider->GetValue();
+
+            wxCommandEvent evt(wxEVT_COMMAND_TEXT_UPDATED, TEXT_UPDATE);
+            ProcessEvent(evt);
+            });
 
         sizer->Add(clabel, 1, wxEXPAND | wxALL, 5);
         sizer->Add(cslider, 1, wxEXPAND | wxALL, 5);
@@ -317,15 +350,13 @@ private:
     Pixel* color;
 
 public:
-    ColorControl(wxWindow* parent, Pixel* color) : wxPanel(parent), color(color) {
+    ColorControl(wxWindow* parent, Pixel* color, wxString label) : wxPanel(parent), color(color) {
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        Build();
-    }
+        wxStaticText* lab = new wxStaticText(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize, 0);
+        sizer->Add(lab, 1, wxEXPAND | wxALL, 5);
 
-    void Build() {
-        sizer->Clear(true);
         wxBoxSizer* rs = new wxBoxSizer(wxHORIZONTAL);
         sizer->Add(new ColorSlider(this, &(color->red), "R"), 1, wxEXPAND | wxALL, 5);
 
@@ -337,7 +368,31 @@ public:
 
         wxBoxSizer* as = new wxBoxSizer(wxHORIZONTAL);
         sizer->Add(new ColorSlider(this, &(color->alpha), "A"), 1, wxEXPAND | wxALL, 5);
+    }
 
+};
+
+class PlusControl : public wxPanel {
+private:
+    wxBoxSizer* sizer;
+    Plus* p;
+
+public:
+    PlusControl(wxWindow* parent, Plus* plus, int x, int y) : wxPanel(parent), p(plus) {
+        sizer = new wxBoxSizer(wxVERTICAL);
+        this->SetSizer(sizer);
+
+        wxStaticText* lab = new wxStaticText(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize, 0);
+        sizer->Add(lab, 1, wxEXPAND | wxALL, 5);
+
+        wxBoxSizer* lengths = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new IntSlider(this, &(p->GetSize()), "Length", x, y), 1, wxEXPAND | wxALL, 5);
+
+        wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new IntSlider(this, &(p->GetWidth()), "Width", x, y), 1, wxEXPAND | wxALL, 5);
+
+        wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new IntSlider(this, &(p->GetGap()), "Gap", x, y), 1, wxEXPAND | wxALL, 5);
     }
 
 };
@@ -347,17 +402,24 @@ class ControlPanel : public wxPanel {
 private:
     int type;
     wxBoxSizer* sizer;
+    int x;
+    int y;
     //Component* componentPtr;
 
 public:
-    ControlPanel(wxWindow* parent, int t, Component* c) : wxPanel(parent), type(t){
+    ControlPanel(wxWindow* parent, Crosshair* c, int layer) : wxPanel(parent){
         sizer = new wxBoxSizer(wxVERTICAL);
+        x = c->GetWidth();
+        y = c->GetHeight();
 
         //componentPtr = c;
 
+        Component* component = c->layers[layer];
+        type = component->GetType();
+
         switch (type) {
         case PLUSLAYER: {
-            CreateCrossControl(c);
+            CreateCrossControl(component);
         }
 
         }
@@ -373,8 +435,12 @@ public:
 
         //Main Color
         wxBoxSizer* parentMainColorSizer = new wxBoxSizer(wxVERTICAL);
-        ColorControl* mainColorControl = new ColorControl(this, &(plus->GetColor()));
+        ColorControl* mainColorControl = new ColorControl(this, &(plus->GetColor()), "Color");
         sizer->Add(mainColorControl, 1, wxEXPAND | wxALL, 5);
+
+        //Dimensions
+        PlusControl* dimensionControl = new PlusControl(this, plus, x, y);
+        sizer->Add(dimensionControl, 1, wxEXPAND | wxALL, 5);
 
         //length
         wxSlider* lengthslider = new wxSlider(this, wxID_ANY, plus->GetSize(), 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator, "length");

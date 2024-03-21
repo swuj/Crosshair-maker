@@ -26,8 +26,6 @@ class MyFrame : public wxFrame // MainFrame is the class for our window,
 {
 private:
 	wxPanel* mainpanel;
-    wxButton* NewCrosshairButton;
-    wxButton* LoadCrosshairButton;
     wxBoxSizer* mainsizer;
 	wxBoxSizer* mainsizer2;
     wxButton* saveButton;
@@ -72,12 +70,13 @@ public:
 	void OnNumericTextEnter(wxCommandEvent& event);
 
 	void ShowInitialInterface() {
+		mainsizer2->Clear(true);
 
-		NewCrosshairButton = new wxButton(mainpanel, BUTTON_NEW, ("New"));
-		LoadCrosshairButton = new wxButton(mainpanel, BUTTON_LOAD, ("Load"));
+		wxButton* newCrosshairButton = new wxButton(mainpanel, BUTTON_NEW, ("New"));
+		wxButton* loadCrosshairButton = new wxButton(mainpanel, BUTTON_LOAD, ("Load"));
 
-		mainsizer2->Add(NewCrosshairButton, 1, wxEXPAND | wxALL, 5);
-		mainsizer2->Add(LoadCrosshairButton, 1, wxEXPAND | wxALL, 5);
+		mainsizer2->Add(newCrosshairButton, 1, wxEXPAND | wxALL, 5);
+		mainsizer2->Add(loadCrosshairButton, 1, wxEXPAND | wxALL, 5);
 
 		//SetSizer(mainsizer);
 	}
@@ -115,22 +114,25 @@ public:
 	void ShowNewInterface() {
 		mainsizer2->Clear(true);
 
-		wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 200));
+		//wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(200, 200));
 
 		//text boxes for height and width dimensions
-		widthEntry = new NumericTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-		heightEntry = new NumericTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-		confirmNewButton = new wxButton(panel, BUTTON_NEW2, "Save");
-
 		wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
+		widthEntry = new NumericTextCtrl(mainpanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+		heightEntry = new NumericTextCtrl(mainpanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+		confirmNewButton = new wxButton(mainpanel, BUTTON_NEW2, "Save");
+
+		
 		vbox->Add(widthEntry, 1, wxEXPAND | wxALL, 5);
 		vbox->Add(heightEntry, 1, wxEXPAND | wxALL, 5);
 		vbox->Add(confirmNewButton, 1, wxEXPAND | wxALL, 5);
-		panel->SetSizer(vbox);
-		mainsizer2->Add(panel);
-	}
+		//panel->SetSizer(vbox);
+		mainsizer2->Add(vbox);
 
-    void NewButtonClicked();
+		Layout();
+		Refresh();
+		Update();
+	}
 
     DECLARE_EVENT_TABLE()
 };
@@ -192,10 +194,12 @@ void MyFrame::LoadButtonClicked(wxCommandEvent& event) {
 }
 
 void MyFrame::NewButtonClicked(wxCommandEvent& event) {
+	OutputDebugString(L"New Button Clicked\n");
 	ShowNewInterface();
 }
 
 void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
+	OutputDebugString(L"New Button2 Clicked\n");
 	int h = wxAtoi(heightEntry->GetValue());
 	int w = wxAtoi(widthEntry->GetValue());
 	xhair = Crosshair(h, w);
@@ -206,12 +210,14 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 	xhair.AddLayer(new Plus());
 	UpdateLayerListPane();
+	UpdateLayerControlPane();
 	UpdatePreviewPane();
 }
 
 void MyFrame::DeleteLayerButtonClicked(wxCommandEvent& event) {
 	xhair.DeleteLayer();
 	UpdateLayerListPane();
+	UpdateLayerControlPane();
 	UpdatePreviewPane();
 }
 
@@ -531,7 +537,7 @@ void MyFrame::UpdateLayerControlPane() {
 	OutputDebugString(L"Entering UpdateLayerControlPane\n");
 
 	if (xhair.selectedLayer > -1) {
-		ControlPanel* control = new ControlPanel(layercontrolpanel, 104, xhair.layers[xhair.selectedLayer]);
+		ControlPanel* control = new ControlPanel(layercontrolpanel, &xhair, xhair.selectedLayer);
 		layercontrolsizer->Add(control, 1, wxEXPAND | wxALL, 5);
 	}
 	layercontrolpanel->SetSizer(layercontrolsizer);
