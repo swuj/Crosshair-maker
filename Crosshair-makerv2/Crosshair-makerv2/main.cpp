@@ -12,8 +12,9 @@ wxDEFINE_EVENT(myEVT_PROGRESS, wxCommandEvent);
 
 Crosshair xhair;
 
-
-
+int LoadFromFile();
+void DrawPlus(Component* c);
+void UpdateCrosshairPixels();
 
 class MainApp : public wxApp // MainApp is the class for our application
 {
@@ -130,23 +131,14 @@ public:
 
     void NewButtonClicked();
 
-	
-
     DECLARE_EVENT_TABLE()
 };
 
-
-int LoadFromFile();
-void DrawPlus(Component* c);
-void UpdateCrosshairPixels();
-
-
 wxIMPLEMENT_APP(MainApp);
-
 
 bool MainApp::OnInit()
 {
-    MyFrame* frame = new MyFrame("Three Buttons Example", wxPoint(1, 1), wxSize(800, 500));
+    MyFrame* frame = new MyFrame("Crosshair Maker", wxPoint(1, 1), wxSize(800, 500));
     frame->Show(true);
     SetTopWindow(frame);
 
@@ -190,27 +182,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize
 
 void MyFrame::LoadButtonClicked(wxCommandEvent& event) {
 	if (LoadFromFile() == 10) {
-		PopulateLayerButtons(xhair);
+		//PopulateLayerButtons(xhair);
 		UpdateCrosshairPixels();
 		ShowEditInterface();
 	}
-}
-
-void MyFrame::LoadButtonClicked2(wxCommandEvent& event) {
-    // Define file types to be displayed
-    wxString wildcard = "xhair files (*xhair)|*.xhair";
-
-    // Open a file dialog with the defined file types
-    wxFileDialog openFileDialog(this, _("Open File"), "", "",
-        wildcard, wxFD_OPEN | wxFD_FILE_MUST_EXIST);
-
-    if (openFileDialog.ShowModal() == wxID_CANCEL)
-        return;     // the user changed their mind
-
-    // Proceed loading the file chosen by the user;
-    // this can be done with e.g. wxWidgets input streams:
-    wxString filename = openFileDialog.GetPath();
-    wxMessageBox(filename, "File Selected", wxOK | wxICON_INFORMATION);
 }
 
 void MyFrame::NewButtonClicked(wxCommandEvent& event) {
@@ -233,7 +208,7 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 
 void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 	xhair.AddLayer(new Plus());
-	InsertButton(xhair);
+	//InsertButton(xhair);
 
 	//layersizer->Clear(true);
 	UpdateLayerListPane();
@@ -613,72 +588,6 @@ void MyFrame::UpdatePreviewPane() {
 	Update();
 }
 
-void MyFrame::PopulateLayerButtons(Crosshair crosshair) {
-
-	int id = 0;
-	for (Component* c : crosshair.layers)
-	{
-		wxString n = c->GetName();
-		wxButton* b = new wxButton(this, wxID_ANY, wxString::Format(n));
-		c->SetID(id);
-
-
-		b->Bind(wxEVT_BUTTON, [&crosshair, c](wxCommandEvent& event) {
-			//Select this layer
-			crosshair.selectedLayer = c->GetID();
-			});
-
-		layerlistbuttons.push_back(b);
-		id++;
-	}
-}
-
-void MyFrame::InsertButton(Crosshair crosshair) {
-
-
-	//Component* c = crosshair.layers[crosshair.selectedLayer];
-
-	wxString n = crosshair.layers[crosshair.selectedLayer]->GetName();
-	wxButton* b = new wxButton(this, wxID_ANY, wxString::Format(n));
-
-	wchar_t debugString[200]; // Buffer for the debug string
-	swprintf(debugString, 100, L"%d\n", crosshair.layers[crosshair.selectedLayer]->GetID());
-	OutputDebugString(debugString);
-
-	crosshair.layers[crosshair.selectedLayer]->SetID(crosshair.selectedLayer);
-
-	swprintf(debugString, 100, L"%d\n", crosshair.layers[crosshair.selectedLayer]->GetID());
-	OutputDebugString(debugString);
-
-
-	b->Bind(wxEVT_BUTTON, [=](wxCommandEvent& event) {
-		//Select this layer
-		OutputDebugString(L"Button Clicked2\n");
-
-		//crosshair.selectedLayer = crosshair.layers[crosshair.selectedLayer]->GetID();
-		});
-
-	auto insertPosition = layerlistbuttons.begin();
-	if (crosshair.selectedLayer >= 0 && crosshair.selectedLayer < layerlistbuttons.size()) {
-		insertPosition += crosshair.selectedLayer + 1;
-	}
-	else {
-		// If selectedLayer is out of range, simply insert at the end
-		insertPosition = layerlistbuttons.end();
-	}
-
-	layerlistbuttons.insert(insertPosition, b);
-	swprintf(debugString, 100, L"%d\n", layerlistbuttons.size());
-	OutputDebugString(debugString);
-}
-
-void MyFrame::RemoveButton(Crosshair crosshair) {
-	int oldindex = crosshair.selectedLayer;
-	if (oldindex >= 0) {
-		layerlistbuttons.erase(layerlistbuttons.begin() + oldindex);
-		xhair.DeleteLayer();
-	}
-}
 
 void MyFrame::TestButtonClicked(wxCommandEvent& event){
 	wchar_t debugString[200]; // Buffer for the debug string
