@@ -63,8 +63,13 @@ private:
         int xcenter = chwidth / 2;
         int ycenter = chheight / 2;
 
-        int pixelWidth = GetSize().GetWidth() / chwidth;
-        int pixelHeight = GetSize().GetHeight() / chheight;
+
+        //if 1 it will draw true size
+        /*int pixelWidth = GetSize().GetWidth() / chwidth;
+        int pixelHeight = GetSize().GetHeight() / chheight;*/
+        int pixelWidth = 1;
+        int pixelHeight = 1;
+
 
         int width = plus->GetWidth();
         int length = plus->GetSize();
@@ -297,9 +302,9 @@ public:
             ProcessEvent(evt);
             });
 
-        sizer->Add(clabel, 1, wxEXPAND | wxALL, 5);
-        sizer->Add(cslider, 1, wxEXPAND | wxALL, 5);
-        sizer->Add(cvalue, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(clabel, 1, 0, 1);
+        sizer->Add(cslider, 2, 0, 1);
+        sizer->Add(cvalue, 1, 0, 1);
     }
 };
 
@@ -339,9 +344,9 @@ public:
             ProcessEvent(evt);
             });
 
-        sizer->Add(clabel, 1, wxEXPAND | wxALL, 5);
-        sizer->Add(cslider, 1, wxEXPAND | wxALL, 5);
-        sizer->Add(cvalue, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(clabel, 1, 0, 1);
+        sizer->Add(cslider, 2, 0, 1);
+        sizer->Add(cvalue, 1, 0, 1);
     }
 };
 
@@ -356,27 +361,33 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize);
-        wxWindow* win = pane->GetPane();
+        //wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize);
+        //wxWindow* win = pane->GetPane();
 
-        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+        wxWindow* win = this;
+        
+
+        //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+
+        sizer->Add(new wxStaticText(this, wxID_ANY, "Color"), 1, 0, 5);
 
         ColorSlider* redSlider = new ColorSlider(win, &(color->red), "R");
-        sizer2->Add(redSlider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(redSlider, 1, 0, 1);
 
         ColorSlider* greenSlider = new ColorSlider(win, &(color->green), "G");
-        sizer2->Add(greenSlider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(greenSlider, 1, 0, 1);
 
         ColorSlider* blueSlider = new ColorSlider(win, &(color->blue), "B");
-        sizer2->Add(blueSlider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(blueSlider, 1, 0, 1);
 
         ColorSlider* alphaSlider = new ColorSlider(win, &(color->alpha), "A");
-        sizer2->Add(alphaSlider, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(alphaSlider, 1, 0, 1);
         
-        win->SetSizer(sizer2);
-        sizer->Add(pane, 0);
+        //win->SetSizer(sizer2);
+        //sizer->Add(pane, 0);
 
-        pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &ColorControl::OnPaneChanged, this);
+        //pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &ColorControl::OnPaneChanged, this);
+        //pane->Collapse(false);
     }
 
     void OnPaneChanged(wxCollapsiblePaneEvent& event) {
@@ -414,24 +425,29 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
-        wxWindow* win = pane->GetPane();
+        //wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
+        //wxWindow* win = pane->GetPane();
+        wxWindow* win = this;
 
-        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
+        //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+
+        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 1, 0, 1);
         wxBoxSizer* lengths = new wxBoxSizer(wxHORIZONTAL);
-        sizer2->Add(new IntSlider(win, &(p->GetSize()), "Length", x, y), 1, wxEXPAND | wxALL, 5);
+
+        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", x, y), 1, 0, 1);
 
         wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
-        sizer2->Add(new IntSlider(win, &(p->GetWidth()), "Width", x, y), 1, wxEXPAND | wxALL, 5);
+        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", x, y), 1, 0, 1);
 
         wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
-        sizer2->Add(new IntSlider(win, &(p->GetGap()), "Gap", x, y), 1, wxEXPAND | wxALL, 5);
+        sizer->Add(new IntSlider(win, &(p->GetGap()), "Gap", x, y), 1, 0, 1);
 
-        win->SetSizer(sizer2);
+        /*win->SetSizer(sizer2);
         sizer->Add(pane, 0);
 
         pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &PlusControl::OnPaneChanged, this);
+        pane->Collapse(false);*/
     }
 
     void OnPaneChanged(wxCollapsiblePaneEvent& event) {
@@ -470,10 +486,12 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        wxCollapsiblePane* pane = new wxCollapsiblePane(this, CHECKBOX_HASOUTLINE, "OutLine", wxDefaultPosition, wxDefaultSize);
+        /*wxCollapsiblePane* pane = new wxCollapsiblePane(this, CHECKBOX_HASOUTLINE, "OutLine", wxDefaultPosition, wxDefaultSize);
         wxWindow* win = pane->GetPane();
-        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);*/
 
+        wxWindow* win = this;
+        sizer->Add(new wxStaticText(this, wxID_ANY, "Outline"), 1, wxEXPAND | wxALL, 5);
 
         wxCheckBox* check = new wxCheckBox(win, wxID_ANY, "Show outline");
         check->SetValue(&(plus->GetOutline()));
@@ -488,22 +506,23 @@ public:
             });
 
 
-        sizer2->Add(check, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(check, 1, wxEXPAND | wxALL, 5);
 
-        sizer2->Add(new wxStaticText(win, wxID_ANY, "Thickness"));
-        sizer2->Add(new IntSlider(win, &(p->GetOutlineThickness()), "", x, y), 1, wxEXPAND | wxALL, 5);
+        sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Thickness"));
+        sizer->Add(new IntSlider(win, &(p->GetOutlineThickness()), "", x, y), 1, 0, 1);
 
         Pixel* color = &(plus->GetOutlineColor());
-        sizer2->Add(new wxStaticText(win, wxID_ANY, "Color"));
-        sizer2->Add(new ColorSlider(win, &(color->red), "R"), 1, wxEXPAND | wxALL, 5);
-        sizer2->Add(new ColorSlider(win, &(color->green), "G"), 1, wxEXPAND | wxALL, 5);
-        sizer2->Add(new ColorSlider(win, &(color->blue), "B"), 1, wxEXPAND | wxALL, 5);
-        sizer2->Add(new ColorSlider(win, &(color->alpha), "A"), 1, wxEXPAND | wxALL, 5);
+        sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Color"));
+        sizer->Add(new ColorSlider(win, &(color->red), "R"), 1, 0, 1);
+        sizer->Add(new ColorSlider(win, &(color->green), "G"), 1, 0, 1);
+        sizer->Add(new ColorSlider(win, &(color->blue), "B"), 1, 0, 1);
+        sizer->Add(new ColorSlider(win, &(color->alpha), "A"), 1, 0, 1);
 
-        win->SetSizer(sizer2);
+        /*win->SetSizer(sizer2);
         sizer->Add(pane, 0);
 
         pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &OutLineControl::OnPaneChanged, this);
+        pane->Collapse(false);*/
     }
 
     void OnPaneChanged(wxCollapsiblePaneEvent& event) {
@@ -535,6 +554,8 @@ class ControlPanel : public wxPanel {
 private:
     int type;
     wxBoxSizer* sizer;
+    wxBoxSizer* sizer2;
+    wxScrolledWindow* scrolledWindow;
     int x;
     int y;
     //Component* componentPtr;
@@ -542,9 +563,7 @@ private:
 public:
     ControlPanel(wxWindow* parent, int id, Crosshair* c, int layer) : wxPanel(parent){
         sizer = new wxBoxSizer(wxVERTICAL);
-
-        //wxScrolledWindow* controlWindow = new wxScrolledWindow(this, wxID_ANY);
-        //controlWindow->SetSizer(sizer);
+        SetSizer(sizer);
         x = c->GetWidth();
         y = c->GetHeight();
 
@@ -559,8 +578,6 @@ public:
         }
 
         }
-        //this->FitInside(); // ask the sizer about the needed size
-        //this->SetScrollRate(5, 5);
     }
 
     void CreateCrossControl(Component* c) {
@@ -572,19 +589,110 @@ public:
         Plus* plus = dynamic_cast<Plus*>(c);
 
         //Main Color
+        OutputDebugString(L"Creating Color Control\n");
         ColorControl* mainColorControl = new ColorControl(this, &(plus->GetColor()), "Color");
-        sizer->Add(mainColorControl, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(mainColorControl,  1, 0, 1);
 
         //Dimensions
+        OutputDebugString(L"Creating Plus Control\n");
         PlusControl* dimensionControl = new PlusControl(this, plus, x, y);
-        sizer->Add(dimensionControl, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(dimensionControl, 1, 0, 1);
 
         //outline checkbox
+        OutputDebugString(L"Creating Outline Control\n");
         OutLineControl* outlineControl = new OutLineControl(this, plus, x, y);
-        sizer->Add(outlineControl, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(outlineControl, 1, 0, 1);
 
-        SetSizer(sizer);
+        //SetSizer(sizer);
+        OutputDebugString(L"Controls Updated\n");
 
         //return sizer;
     }
 };
+
+class LayerListPane : public wxPanel {
+private:
+    wxSizer* sizer;
+    wxBoxSizer* sizer2;
+    wxBoxSizer* llsizer;
+    wxBoxSizer* buttonsizer;
+    Crosshair* crosshair;
+    wxPanel* panel;
+
+public:
+    LayerListPane(wxWindow* parent, Crosshair* c) :wxPanel(parent), crosshair(c){
+        sizer = new wxBoxSizer(wxVERTICAL);
+        this->SetSizer(sizer);
+
+        sizer2 = new wxBoxSizer(wxVERTICAL);
+
+        //Layer list
+        ScrolledWidgetsPane* layerlist = new ScrolledWidgetsPane(this, wxID_ANY, crosshair);
+        llsizer = new wxBoxSizer(wxVERTICAL);
+        llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
+
+        //Layer Buttons
+        buttonsizer = new wxBoxSizer(wxHORIZONTAL);
+        wxButton* deleteLayer = new wxButton(this, BUTTON_DELETELAYER, "Delete");
+        wxButton* newLayer = new wxButton(this, BUTTON_NEWLAYER, "New Layer");
+        buttonsizer->Add(deleteLayer, 1, 0, 5);
+        buttonsizer->Add(newLayer, 1, 0, 5);
+
+        sizer2->Add(llsizer, 1, wxEXPAND | wxALL, 5);
+        sizer2->Add(buttonsizer, 1, wxEXPAND | wxALL, 5);
+
+        //panel->SetSizer(sizer2);
+        sizer->Add(sizer2, 1, wxEXPAND | wxALL, 5);
+    }
+
+    void Update() {
+        OutputDebugString(L"Updating Layer Pane\n");
+        llsizer->Clear(true);
+        ScrolledWidgetsPane* layerlist = new ScrolledWidgetsPane(this, wxID_ANY, crosshair);
+        //llsizer = new wxBoxSizer(wxVERTICAL);
+        llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
+        OutputDebugString(L"Updated Layer Pane\n");
+    }
+
+};
+
+class ControlPanelPane : public wxPanel {
+private:
+    wxSizer* sizer;
+    wxBoxSizer* sizer2;
+    wxBoxSizer* llsizer;
+    wxBoxSizer* buttonsizer;
+    Crosshair* crosshair;
+    wxPanel* panel;
+public:
+    ControlPanelPane(wxWindow* parent, int id, Crosshair* c, int layer) : wxPanel(parent), crosshair(c){
+        sizer = new wxBoxSizer(wxVERTICAL);
+        this->SetSizer(sizer);
+
+        if (crosshair->selectedLayer > -1) {
+            ControlPanel* control = new ControlPanel(this, wxID_ANY, crosshair, crosshair->selectedLayer);
+            sizer->Add(control, 1, wxEXPAND | wxALL, 5);
+        }
+
+    }
+    void Update() {
+        OutputDebugString(L"Updating Control Pane\n");
+        sizer->Clear(true);
+
+        if (crosshair->selectedLayer > -1) {
+            ControlPanel* control = new ControlPanel(this, wxID_ANY, crosshair, crosshair->selectedLayer);
+            sizer->Add(control, 1, wxEXPAND | wxALL, 5);
+        }
+        OutputDebugString(L"Updated Control Pane\n");
+    }
+};
+
+class PreviewPanelPane : public wxPanel {
+    PreviewPanelPane(wxWindow* parent) :wxPanel(parent) {
+
+    }
+    void Update() {
+
+    }
+};
+
