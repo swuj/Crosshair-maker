@@ -68,6 +68,7 @@ public:
 	void LayerButtonClicked(wxCommandEvent& event);
 	void SliderChanged(wxCommandEvent& event);
 	void OnNumericTextEnter(wxCommandEvent& event);
+	void OutlineCheckboxClicked(wxCommandEvent& event);
 
 	void ShowInitialInterface() {
 		mainsizer2->Clear(true);
@@ -159,6 +160,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(BUTTON_LAYER, MyFrame::LayerButtonClicked)
 	EVT_COMMAND(TEXT_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::SliderChanged)
 	EVT_COMMAND(SLIDER_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::OnNumericTextEnter)
+	EVT_COMMAND(CHECKBOX_HASOUTLINE, wxEVT_CHECKBOX, MyFrame::OutlineCheckboxClicked)
 	//EVT_SCROLL(SLIDER_CONTROLZ, MyFrame::SliderChanged)
     //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
@@ -537,7 +539,7 @@ void MyFrame::UpdateLayerControlPane() {
 	OutputDebugString(L"Entering UpdateLayerControlPane\n");
 
 	if (xhair.selectedLayer > -1) {
-		ControlPanel* control = new ControlPanel(layercontrolpanel, &xhair, xhair.selectedLayer);
+		ControlPanel* control = new ControlPanel(layercontrolpanel, wxID_ANY, &xhair, xhair.selectedLayer);
 		layercontrolsizer->Add(control, 1, wxEXPAND | wxALL, 5);
 	}
 	layercontrolpanel->SetSizer(layercontrolsizer);
@@ -604,6 +606,11 @@ void MyFrame::SliderChanged(wxCommandEvent& event) {
 
 void MyFrame::OnNumericTextEnter(wxCommandEvent& event) {
 	OutputDebugString(L"Text Changed\n");
+	UpdatePreviewPane();
+}
+
+void MyFrame::OutlineCheckboxClicked(wxCommandEvent& event) {
+	OutputDebugString(L"Outline Checkbox Clicked\n");
 	UpdatePreviewPane();
 }
 

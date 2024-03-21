@@ -125,7 +125,7 @@ public:
 		}
 	}
 
-	int GetOutlineThickness() {
+	int& GetOutlineThickness() {
 		return outline_thickness;
 	}
 
