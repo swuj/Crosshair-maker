@@ -1,6 +1,7 @@
 #pragma once
 #include <wx/wx.h>
 #include <wx/wxprec.h>
+#include <wx/slider.h>
 #include "xhair.h"
 #include "definitions.h"
 
@@ -171,6 +172,10 @@ private:
 
 //Text box that only takes digits
 class NumericTextCtrl : public wxTextCtrl {
+    int min; 
+    int max;
+
+
 public:
     NumericTextCtrl(wxWindow* parent, wxWindowID id = wxID_ANY,
         const wxString& value = wxEmptyString,
@@ -193,6 +198,7 @@ public:
             SetValue(GetValue() + wxString::FromAscii("."));
         }
     }
+
 };
 
 //Scrolling list container for the layers
@@ -266,15 +272,39 @@ public:
 
         sizer = new wxBoxSizer(wxHORIZONTAL);
         this->SetSizer(sizer);
-        BuildSlider(label);
-    }
 
-    void BuildSlider(wxString label) {
-        sizer->Clear(true);
         //wxBoxSizer* mainColorSizerRed = new wxBoxSizer(wxHORIZONTAL);
         wxStaticText* clabel = new wxStaticText(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize, 0);
-        wxSlider* cslider = new wxSlider(this, wxID_ANY, *color, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator);
-        NumericTextCtrl* cvalue = new NumericTextCtrl(this, wxID_ANY, wxString::Format(wxT("%d"), *color), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+        wxSlider* cslider = new wxSlider(this, SLIDER_UPDATE, *color, 0, 255, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator);
+        NumericTextCtrl* cvalue = new NumericTextCtrl(this, TEXT_UPDATE, wxString::Format(wxT("%d"), *color), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+
+
+        //auto lambdaEventHandler1 = 
+
+        cslider->Bind(wxEVT_SCROLL_CHANGED, [this, color, cvalue, cslider](wxScrollEvent& event) {
+            // Update the value of the integer pointer
+            *color = cslider->GetValue();
+            cvalue->SetValue(wxString::Format(wxT("%d"), cslider->GetValue()));
+
+            wxCommandEvent evt(wxEVT_SCROLL_CHANGED, SLIDER_UPDATE);
+            ProcessEvent(evt);
+            //event.Skip();
+            });
+
+        //auto lambdaEventHandler2 = 
+            
+        cvalue->Bind(wxEVT_TEXT_ENTER, [this, color, cvalue, cslider](wxCommandEvent& event) {
+            // Update the value of the integer pointer
+            cslider->SetValue(wxAtoi(cvalue->GetValue()));
+            *color = cslider->GetValue();
+
+            wxCommandEvent evt(wxEVT_COMMAND_TEXT_UPDATED, TEXT_UPDATE);
+            ProcessEvent(evt);
+            //event.Skip();
+            });
+
+        //cvalue->Bind(wxEVT_TEXT_ENTER, lambdaEventHandler2);
+
         sizer->Add(clabel, 1, wxEXPAND | wxALL, 5);
         sizer->Add(cslider, 1, wxEXPAND | wxALL, 5);
         sizer->Add(cvalue, 1, wxEXPAND | wxALL, 5);
@@ -311,8 +341,6 @@ public:
     }
 
 };
-
-
 
 //Controls for all the layer attributes
 class ControlPanel : public wxPanel {

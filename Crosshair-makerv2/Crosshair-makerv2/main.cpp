@@ -7,8 +7,7 @@
 #include <fstream>
 #include "wclasses.h"
 
-wxDECLARE_EVENT(myEVT_PROGRESS, wxCommandEvent);
-wxDEFINE_EVENT(myEVT_PROGRESS, wxCommandEvent);
+
 
 Crosshair xhair;
 
@@ -69,6 +68,8 @@ public:
 	void InsertButton(Crosshair crosshair);
 	void RemoveButton(Crosshair crosshair);
 	void LayerButtonClicked(wxCommandEvent& event);
+	void SliderChanged(wxCommandEvent& event);
+	void OnNumericTextEnter(wxCommandEvent& event);
 
 	void ShowInitialInterface() {
 
@@ -154,6 +155,9 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(BUTTON_DELETELAYER, MyFrame::DeleteLayerButtonClicked)
 	EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 	EVT_BUTTON(BUTTON_LAYER, MyFrame::LayerButtonClicked)
+	EVT_COMMAND(TEXT_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::SliderChanged)
+	EVT_COMMAND(SLIDER_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::OnNumericTextEnter)
+	//EVT_SCROLL(SLIDER_CONTROLZ, MyFrame::SliderChanged)
     //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
 
@@ -585,5 +589,15 @@ void MyFrame::TestButtonClicked(wxCommandEvent& event){
 void MyFrame::LayerButtonClicked(wxCommandEvent& event) {
 	OutputDebugString(L"LayerButtonClicked\n");
 	UpdateLayerControlPane();
+}
+
+void MyFrame::SliderChanged(wxCommandEvent& event) {
+	OutputDebugString(L"Slider Changed\n");
+	UpdatePreviewPane();
+}
+
+void MyFrame::OnNumericTextEnter(wxCommandEvent& event) {
+	OutputDebugString(L"Text Changed\n");
+	UpdatePreviewPane();
 }
 
