@@ -964,7 +964,108 @@ void DrawPlus(Component* c) {
 	}
 }
 
-void DrawCircle(Component* c){}
+void circleBres(int r, std::vector<int>* vec)
+{
+	int x = 0, y = r;
+	int d = 3 - 2 * r;
+	while (y >= x)
+	{
+		x++;
+
+		if (d > 0)
+		{
+			y--;
+			d = d + 4 * (x - y) + 10;
+		}
+		else
+			d = d + 4 * x + 6;
+		vec->push_back(y);
+	}
+}
+
+void DrawCircle(Component* comp) {
+	Circle* circle = dynamic_cast<Circle*>(comp);
+
+	int chwidth = xhair.GetWidth();
+	int chheight = xhair.GetHeight();
+
+	int xcenter = chwidth / 2;
+	int ycenter = chheight / 2;
+
+	int radius = circle->GetRadius();
+	int inner_radius = circle->GetInnerRadius();
+	int gap = circle->GetGap();
+
+	Pixel color = circle->GetColor();
+	Pixel outline_color = circle->GetOutlineColor();
+	//Pixel inner_outline_color = circle->GetInnerOutlineColor();
+	Pixel inner_outline_color = circle->GetOutlineColor();
+
+	int outline = circle->GetOutlineThickness() * circle->GetOutline();
+	int inner_outline = std::min(inner_radius, circle->GetInnerOutlineThickness()) * circle->GetInnerOutline();
+
+	//split into sub circles for each section: outline, main, inner outline, empty
+	//based on the outermost edge of each section
+
+	int total_radius = radius + outline;
+	int empty_radius = gap - inner_outline;
+
+	std::vector<int> olBoundry;
+	std::vector<int> mainBoundry;
+	std::vector<int> iolBoundry;
+	std::vector<int> emptyBoundry;
+
+	circleBres(total_radius, &olBoundry);
+	circleBres(radius, &mainBoundry);
+	circleBres(gap, &iolBoundry);
+	circleBres(empty_radius, &emptyBoundry);
+
+	for (int a = 0; a < olBoundry.size(); a++) {
+		int i = a;
+		if (a < emptyBoundry.size()) {
+			for (i; i < emptyBoundry[a]; i++) {
+
+			}
+		}
+		if (a < iolBoundry.size()) {
+			for (i; i < iolBoundry[a]; i++) {
+				xhair.SetColor((xcenter + a), (ycenter + i), inner_outline_color);
+				xhair.SetColor((xcenter + a), (ycenter - i - 1), inner_outline_color);
+				xhair.SetColor((xcenter - a - 1), (ycenter + i), inner_outline_color);
+				xhair.SetColor((xcenter - a - 1), (ycenter - i - 1), inner_outline_color);
+				xhair.SetColor((xcenter + i), (ycenter + a), inner_outline_color);
+				xhair.SetColor((xcenter + i), (ycenter - a - 1), inner_outline_color);
+				xhair.SetColor((xcenter - i - 1), (ycenter + a), inner_outline_color);
+				xhair.SetColor((xcenter - i - 1), (ycenter - a - 1), inner_outline_color);
+			}
+		}
+		if (a < mainBoundry.size()) {
+			for (i; i < mainBoundry[a]; i++) {
+					xhair.SetColor((xcenter + a), (ycenter + i), color);
+					xhair.SetColor((xcenter + a), (ycenter - i - 1), color);
+					xhair.SetColor((xcenter - a - 1), (ycenter + i), color);
+					xhair.SetColor((xcenter - a - 1), (ycenter - i - 1), color);
+					xhair.SetColor((xcenter + i), (ycenter + a), color);
+					xhair.SetColor((xcenter + i), (ycenter - a - 1), color);
+					xhair.SetColor((xcenter - i - 1), (ycenter + a), color);
+					xhair.SetColor((xcenter - i - 1), (ycenter - a - 1), color);
+			}
+		}
+		if (a < olBoundry.size()) {
+			for (i; i < olBoundry[a]; i++) {
+					xhair.SetColor((xcenter + a), (ycenter + i), outline_color);
+					xhair.SetColor((xcenter + a), (ycenter - i - 1), outline_color);
+					xhair.SetColor((xcenter - a - 1), (ycenter + i), outline_color);
+					xhair.SetColor((xcenter - a - 1), (ycenter - i - 1), outline_color);
+					xhair.SetColor((xcenter + i), (ycenter + a), outline_color);
+					xhair.SetColor((xcenter + i), (ycenter - a - 1), outline_color);
+					xhair.SetColor((xcenter - i - 1), (ycenter + a), outline_color);
+					xhair.SetColor((xcenter - i - 1), (ycenter - a - 1), outline_color);
+			}
+		}
+	}
+}
+
 
 void UpdateCrosshairPixels() {
 	for (Component* c : xhair.layers) {
