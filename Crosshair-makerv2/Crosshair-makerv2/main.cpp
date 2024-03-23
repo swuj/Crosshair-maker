@@ -13,6 +13,7 @@ int LoadFromFile();
 void SaveToFile(const std::wstring& filePath);
 void DrawPlus(Component* c);
 void UpdateCrosshairPixels();
+void ExportToFile();
 
 class MainApp : public wxApp // MainApp is the class for our application
 {
@@ -80,6 +81,7 @@ public:
 	void OutlineCheckboxClicked(wxCommandEvent& event);
 	void VisibilityButtonClicked(wxCommandEvent& event);
 	void LayerNameChanged(wxCommandEvent& event);
+	void ExportButtonClicked(wxCommandEvent& event);
 
 	void ShowInitialInterface() {
 		mainsizer2->Clear(true);
@@ -179,9 +181,10 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(BUTTON_NEW2, MyFrame::NewButtonClicked2)
 	EVT_BUTTON(BUTTON_NEWLAYER, MyFrame::NewLayerButtonClicked)
 	EVT_BUTTON(BUTTON_DELETELAYER, MyFrame::DeleteLayerButtonClicked)
-	EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
+	//EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 	EVT_BUTTON(BUTTON_LAYER, MyFrame::LayerButtonClicked)
 	EVT_BUTTON(BUTTON_VISIBLE, MyFrame::VisibilityButtonClicked)
+	EVT_BUTTON(BUTTON_EXPORT, MyFrame::ExportButtonClicked)
 	EVT_COMMAND(TEXT_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::SliderChanged)
 	EVT_COMMAND(SLIDER_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::OnNumericTextEnter)
 	EVT_COMMAND(CHECKBOX_HASOUTLINE, wxEVT_CHECKBOX, MyFrame::OutlineCheckboxClicked)
@@ -498,10 +501,32 @@ void MyFrame::SaveButtonClicked(wxCommandEvent& event) {
 	}
 }
 
-void MyFrame::TestButtonClicked(wxCommandEvent& event){
-	wchar_t debugString[200]; // Buffer for the debug string
-	swprintf(debugString, 100, L"%d\n", xhair.selectedLayer);
-	OutputDebugString(debugString);
+void MyFrame::ExportButtonClicked(wxCommandEvent& event){
+	OutputDebugString(L"Export button clicked\n");
+	UpdateCrosshairPixels();
+
+	OPENFILENAME ofn;       // Structure for the file dialog
+	wchar_t szFile[260];    // Buffer to store the file path
+	ZeroMemory(&ofn, sizeof(ofn));
+
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;   // Handle to the parent window
+	ofn.lpstrFile = szFile; // Buffer to store the selected file path
+	ofn.lpstrFile[0] = L'\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = L"PNG Files(*.png)\0 * .png\0"; // Filter for file types
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+	if (GetSaveFileName(&ofn)) {
+		xhair.SaveAsPng(szFile);
+	}
+	else {
+		OutputDebugString(L"Save failed\n");
+	}
 }
 
 
@@ -657,7 +682,7 @@ int LoadFromFile() {
 
 			OutputDebugString(L"Initializing crosshair\n");
 
-			xhair.Initialize({ 255, 255, 255, 0 });
+			xhair.Initialize({ 0, 0, 0, 0});
 			//xhair.InitializeTest();
 			//int selected = -1;
 			while (std::getline(inFile, line)) {
@@ -777,78 +802,191 @@ int LoadFromFile() {
 void DrawPlus(Component* c) {
 
 	Plus* plus = dynamic_cast<Plus*>(c);
-	//Plus plus = &plusp;
 
-	if (plus) {
-		int xcenter = xhair.GetWidth() / 2;
-		int ycenter = xhair.GetHeight() / 2;
+	int chwidth = xhair.GetWidth();
 
-		int width = plus->GetWidth();
-		int length = plus->GetSize();
-		int gap = plus->GetGap();
+	int chheight = xhair.GetHeight();
 
-		Pixel color = plus->GetColor();
-		Pixel outline_color = plus->GetOutlineColor();
-
-		int outline = plus->GetOutlineThickness();
+	int xcenter = chwidth / 2;
+	int ycenter = chheight / 2;
 
 
+	//if 1 it will draw true size
+	/*int pixelWidth = GetSize().GetWidth() / chwidth;
+	int pixelHeight = GetSize().GetHeight() / chheight;*/
+	int pixelWidth = 1;
+	int pixelHeight = 1;
+
+
+	int width = plus->GetWidth();
+	int length = plus->GetSize();
+	int gap = plus->GetGap();
+
+	Pixel color = plus->GetColor();
+	Pixel outline_color = plus->GetOutlineColor();
+
+	int outline = plus->GetOutlineThickness() * plus->GetOutline();
+
+	if (plus->GetOutlineType()) {
 		//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
 		for (int i = 0 - outline; i < width + outline; i++) {
 			for (int j = 0 - outline; j < length + outline; j++) {
-				if (i < 0 || i >= width || j < 0 || j >= length) {
-					xhair.SetColor(xcenter - (width / 2) + i, ycenter + gap + j, outline_color);
+				//pixel to be drawn
+				int pixx = xcenter - (width / 2) + i;
+				int pixy = ycenter + gap + j;
+				//OutputDebugString(L"Trying to Draw a Pixel\n");
+				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+					//OutputDebugString(L"Drawing a pixel\n");
+					if (i < 0 || i >= width || j < 0 || j >= length) {
+						xhair.SetColor(pixx, pixy, outline_color);
+					}
+					else {
+						xhair.SetColor(pixx, pixy, color);
+					}
 				}
-				else {
-					xhair.SetColor(xcenter - (width / 2) + i, ycenter + gap + j, color);
-				}
+
 			}
 		}
+
 		for (int i = 0 - outline; i < width + outline; i++) {
 			for (int j = 0 - outline; j < length + outline; j++) {
-				if (i < 0 || i >= width || j < 0 || j >= length) {
-					xhair.SetColor(xcenter - (width / 2) + i, ycenter - gap + j - length, outline_color);
+				//pixel to be drawn
+				int pixx = xcenter - (width / 2) + i;
+				int pixy = ycenter - gap + j - length;
+
+				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+					if (i < 0 || i >= width || j < 0 || j >= length) {
+						xhair.SetColor(pixx, pixy, outline_color);
+					}
+					else {
+						xhair.SetColor(pixx, pixy, color);
+					}
 				}
-				else {
-					xhair.SetColor(xcenter - (width / 2) + i, ycenter - gap + j - length, color);
-				}
+
 			}
 		}
+
 		for (int i = 0 - outline; i < width + outline; i++) {
 			for (int j = 0 - outline; j < length + outline; j++) {
-				if (i < 0 || i >= width || j < 0 || j >= length) {
-					xhair.SetColor(xcenter - length + j - gap, ycenter - (width / 2) + i, outline_color);
-				}
-				else {
-					xhair.SetColor(xcenter - length + j - gap, ycenter - (width / 2) + i, color);
+				//pixel to be drawn
+				int pixx = xcenter - length + j - gap;
+				int pixy = ycenter - (width / 2) + i;
+
+				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+					if (i < 0 || i >= width || j < 0 || j >= length) {
+						xhair.SetColor(pixx, pixy, outline_color);
+					}
+					else {
+						xhair.SetColor(pixx, pixy, color);
+					}
 				}
 			}
 		}
+
 		for (int i = 0 - outline; i < width + outline; i++) {
 			for (int j = 0 - outline; j < length + outline; j++) {
-				if (i < 0 || i >= width || j < 0 || j >= length) {
-					xhair.SetColor(xcenter + j + gap, ycenter - (width / 2) + i, outline_color);
-				}
-				else {
-					xhair.SetColor(xcenter + j + gap, ycenter - (width / 2) + i, color);
+				//pixel to be drawn
+				int pixx = xcenter + j + gap;
+				int pixy = ycenter - (width / 2) + i;
+
+				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+					if (i < 0 || i >= width || j < 0 || j >= length) {
+						xhair.SetColor(pixx, pixy, outline_color);
+					}
+					else {
+						xhair.SetColor(pixx, pixy, color);
+					}
 				}
 			}
 		}
+
 	}
 	else {
-		OutputDebugString(L"Not a plus\n");
-		//std::cout << "Error: Not a Plus object" << std::endl;
+		Pixel col = plus->GetOutlineColor();
+		for (int pass = 1; pass >= 0; pass--) {
+			if (!pass) {
+				col = plus->GetColor();
+				
+			}
+
+			//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+			for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+				for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+					//pixel to be drawn
+					int pixx = xcenter - (width / 2) + i;
+					int pixy = ycenter + gap + j;
+					//OutputDebugString(L"Trying to Draw a Pixel\n");
+					if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+						//OutputDebugString(L"Drawing a pixel\n");
+						xhair.SetColor(pixx, pixy, col);
+					}
+
+				}
+			}
+
+			for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+				for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+					//pixel to be drawn
+					int pixx = xcenter - (width / 2) + i;
+					int pixy = ycenter - gap + j - length;
+
+					if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+						xhair.SetColor(pixx, pixy, col);
+					}
+
+				}
+			}
+
+			for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+				for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+					//pixel to be drawn
+					int pixx = xcenter - length + j - gap;
+					int pixy = ycenter - (width / 2) + i;
+
+					if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+						xhair.SetColor(pixx, pixy, col);
+					}
+				}
+			}
+
+			for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+				for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+					//pixel to be drawn
+					int pixx = xcenter + j + gap;
+					int pixy = ycenter - (width / 2) + i;
+
+					if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+						xhair.SetColor(pixx, pixy, col);
+					}
+				}
+			}
+		}
 	}
 }
+
+void DrawCircle(Component* c){}
 
 void UpdateCrosshairPixels() {
 	for (Component* c : xhair.layers) {
 		int type = c->GetType();
 		OutputDebugString(std::to_wstring(type).c_str());
+		if (!c->GetVisibility()) {
+			continue;
+		}
 
-		if (type == PLUSLAYER) {
+		switch(type){
+		case PLUSLAYER: {
 			OutputDebugString(L"Drawing a plus\n");
 			DrawPlus(c);
+			break;
+		}
+		case CIRCLELAYER: {
+			OutputDebugString(L"Drawing a circle\n");
+			DrawCircle(c);
+			break;
+		}
+
+			
 		}
 	}
 }

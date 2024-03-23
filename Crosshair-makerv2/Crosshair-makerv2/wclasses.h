@@ -1113,9 +1113,9 @@ public:
         // Save and Test buttons
         wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
         wxButton* saveButton = new wxButton(this, BUTTON_SAVE, "Save");
-        wxButton* testButton = new wxButton(this, BUTTON_TEST, "Test");
+        wxButton* exportButton = new wxButton(this, BUTTON_EXPORT, "Export");
         previewbuttonsizer->Add(saveButton, 1, 0, 5);
-        previewbuttonsizer->Add(testButton, 1, 0, 5);
+        previewbuttonsizer->Add(exportButton, 1, 0, 5);
 
         sizer->Add(previewbuttonsizer, 1, 0, 5);
     }
