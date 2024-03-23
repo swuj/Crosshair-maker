@@ -118,8 +118,8 @@ private:
 
         //see center pixel
 
-        dc.SetBrush(wxBrush({255, 0, 255, 255}));
-        dc.DrawRectangle((xcenter) * pixelWidth, (ycenter) * pixelHeight, pixelWidth, pixelHeight);
+        //dc.SetBrush(wxBrush({255, 0, 255, 255}));
+        //dc.DrawRectangle((xcenter) * pixelWidth, (ycenter) * pixelHeight, pixelWidth, pixelHeight);
 
 
         for (int a = 0; a < olBoundry.size(); a++) {
@@ -183,14 +183,8 @@ private:
         int d = 3 - 2 * r;
         while (y >= x)
         {
-            // for each pixel we will 
-            // draw all eight pixels 
-
             x++;
 
-            // check for decision parameter 
-            // and correspondingly  
-            // update d, x, y 
             if (d > 0)
             {
                 y--;

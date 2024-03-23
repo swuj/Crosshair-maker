@@ -166,8 +166,8 @@ protected:
 public:
 	Circle() : Shape("newCircle", {255, 255, 255, 255}, 20, 3, true, 1, {0,0,0,255}, CIRCLELAYER, true), inner_outline(true) {}
 
-	Circle(std::string name, Pixel color, int radius, int gap, bool outline, int outline_thickness, Pixel outline_color, bool inner_outline, bool visible) :
-		Shape(name, color, radius, gap, outline, outline_thickness, outline_color, CIRCLELAYER, visible), inner_outline(inner_outline) {}
+	Circle(std::string name, Pixel color, int radius, int gap, bool outline, int outline_thickness, Pixel outline_color, bool inner_outline, int inner_outline_thickness, Pixel iocol, bool visible) :
+		Shape(name, color, radius, gap, outline, outline_thickness, outline_color, CIRCLELAYER, visible), inner_outline(inner_outline), inner_outline_thickness(inner_outline_thickness), inner_outline_color(iocol) {}
 
 	void ToggleInnerOutline() {
 		inner_outline = !inner_outline;

@@ -554,7 +554,37 @@ void SaveToFile(const std::wstring& filePath) {
 				//outFile << plus->GetSize() << std::endl;
 
 				delete plus;
+				break;
 			}
+			case CIRCLELAYER: {
+				Circle* ptr = dynamic_cast<Circle*>(c);
+				Pixel color = ptr->GetColor();
+				Pixel outcolor = ptr->GetOutlineColor();
+				Pixel inneroutcolor = ptr->GetInnerOutlineColor();
+
+				outFile << type << std::endl;
+				outFile << ptr->GetName() << std::endl;
+				outFile << (int)color.red << std::endl;
+				outFile << (int)color.green << std::endl;
+				outFile << (int)color.blue << std::endl;
+				outFile << (int)color.alpha << std::endl;
+				outFile << ptr->GetRadius() << std::endl;
+				outFile << ptr->GetInnerRadius() << std::endl;
+				outFile << ptr->GetOutline() << std::endl;
+				outFile << ptr->GetOutlineThickness() << std::endl;
+				outFile << (int)outcolor.red << std::endl;
+				outFile << (int)outcolor.green << std::endl;
+				outFile << (int)outcolor.blue << std::endl;
+				outFile << (int)outcolor.alpha << std::endl;
+				outFile << ptr->GetInnerOutline() << std::endl;
+				outFile << ptr->GetInnerOutlineThickness() << std::endl;
+				outFile << (int)inneroutcolor.red << std::endl;
+				outFile << (int)inneroutcolor.green << std::endl;
+				outFile << (int)inneroutcolor.blue << std::endl;
+				outFile << (int)inneroutcolor.alpha << std::endl;
+				outFile << ptr->GetVisibility() << std::endl;
+			}
+
 			default: {
 				break;
 
@@ -641,6 +671,50 @@ int LoadFromFile() {
 					return 4;
 				}
 				switch (type) {
+				case CIRCLELAYER: {
+					OutputDebugString(L"Creating circle layer\n");
+					int d[21];
+					for (int i = 0; i < 19; i++) { //19 pieces of data to get from
+						if (std::getline(inFile, line)) {
+							d[i] = std::stoi(line);
+						}
+						else {
+							return 5;
+						}
+					}
+					OutputDebugString(L"Data read to array\n");
+					Pixel col = { d[0], d[1], d[2], d[3] };
+					OutputDebugString(L"Set color\n");
+					Pixel ocol = { d[8], d[9],d[10], d[11] };
+					OutputDebugString(L"Set outline color\n");
+					int radius = d[4];
+					OutputDebugString(L"Set radius\n");
+					int innerradius = d[5];
+					OutputDebugString(L"Set inner radius\n");
+					bool outline = d[6];
+					OutputDebugString(L"Set outline\n");
+					int out_thickness = d[7];
+					OutputDebugString(L"Set outline thickness\n");
+					bool inner_outline = d[12];
+					OutputDebugString(L"Set outline type\n");
+					int inner_outline_thickness = d[13];
+					OutputDebugString(L"Set inner outline thickness\n");
+					Pixel iocol = { d[14], d[15], d[16], d[17] };
+					bool visible = d[18];
+					OutputDebugString(L"Set visibility\n");
+
+
+					Circle* c = new Circle(name, col, radius, innerradius, outline, out_thickness, ocol, inner_outline, inner_outline_thickness, iocol, visible);
+					OutputDebugString(L"Created circle\n");
+
+					OutputDebugString(L"Adding circle to crosshair\n");
+					xhair.AddLayer(c);
+					/*xhair.selectedLayer++;
+					OutputDebugString(L"setting ID\n");
+					p->SetID(xhair.selectedLayer);*/
+					OutputDebugString(L"Layer successfully added\n");
+					break;
+				}
 				case PLUSLAYER: {
 					OutputDebugString(L"Creating plus layer\n");
 					int d[17];
