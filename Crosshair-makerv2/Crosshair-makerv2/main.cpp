@@ -382,7 +382,10 @@ int LoadFromFile() {
 					int gap = d[6];
 					bool outline = d[7];
 					int out_thickness = d[8];
-					int out_type = d[13];
+					bool out_type = false;
+					if (d[13] > 0) {
+						out_type = true;
+					}
 
 
 					Plus* p = new Plus(name, col, length, width, outline, ocol, out_thickness, out_type, gap);

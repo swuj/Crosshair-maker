@@ -36,7 +36,7 @@ public:
 	}
 
 	//PLUS class virtual functions
-	virtual void ChangeOutlineType(int t) {
+	virtual void ChangeOutlineType() {
 	}
 
 	virtual int& GetGap() {
@@ -181,20 +181,20 @@ public:
 //traditional plus/cross shaped crosshair
 class Plus : public Shape {
 private:
-	int outline_type; //0 for none, 1 for lazy, 2 for proper
+	bool outline_type; //0 for none, 1 for lazy, 2 for proper
 	int width;
 	int gap;
 
 public:
 	Plus() : Shape("NewPlus", { 255, 255, 255, 255 }, 4, true, 1, {0,0,0,255}, PLUSLAYER), width(2), outline_type(1), gap(0) {}
 
-	Plus(std::string n, Pixel c, int l, int w, bool o, Pixel oc, int ot, int otype, int g) : Shape(n, c, l, o, ot, oc, PLUSLAYER), outline_type(otype), width(w), gap(g) {}
+	Plus(std::string n, Pixel c, int l, int w, bool o, Pixel oc, int ot, bool otype, int g) : Shape(n, c, l, o, ot, oc, PLUSLAYER), outline_type(otype), width(w), gap(g) {}
 
-	void ChangeOutlineType(int t) override {
-		outline_type = t;
+	void ChangeOutlineType() override {
+		outline_type = !outline_type;
 	}
 
-	int& GetOutlineType() {
+	bool& GetOutlineType() {
 		return outline_type;
 	}
 

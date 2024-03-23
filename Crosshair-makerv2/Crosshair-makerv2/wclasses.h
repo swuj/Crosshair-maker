@@ -85,93 +85,160 @@ private:
 
         //OutputDebugString(L"Rendering a plus\n");
 
-        //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
-        for (int i = 0 - outline; i < width + outline; i++) {
-            for (int j = 0 - outline; j < length + outline; j++) {
-                //pixel to be drawn
-                int pixx = xcenter - (width / 2) + i;
-                int pixy = ycenter + gap + j;
-                //OutputDebugString(L"Trying to Draw a Pixel\n");
-                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                    //OutputDebugString(L"Drawing a pixel\n");
-                    dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
-                    if (i < 0 || i >= width || j < 0 || j >= length) {
-                        dc.SetBrush(wxBrush(wcolor2));
-                        //crosshair.SetColor(pixx, pixy, outline_color);
+        dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+
+        if (plus->GetOutlineType()) {
+            //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+            for (int i = 0 - outline; i < width + outline; i++) {
+                for (int j = 0 - outline; j < length + outline; j++) {
+                    //pixel to be drawn
+                    int pixx = xcenter - (width / 2) + i;
+                    int pixy = ycenter + gap + j;
+                    //OutputDebugString(L"Trying to Draw a Pixel\n");
+                    if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                        //OutputDebugString(L"Drawing a pixel\n");
+                        if (i < 0 || i >= width || j < 0 || j >= length) {
+                            dc.SetBrush(wxBrush(wcolor2));
+                            //crosshair.SetColor(pixx, pixy, outline_color);
+                        }
+                        else {
+                            dc.SetBrush(wxBrush(wcolor));
+                            //crosshair.SetColor(pixx, pixy, color);
+                        }
+                        dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
                     }
-                    else {
-                        dc.SetBrush(wxBrush(wcolor));
-                        //crosshair.SetColor(pixx, pixy, color);
+
+                }
+            }
+
+            for (int i = 0 - outline; i < width + outline; i++) {
+                for (int j = 0 - outline; j < length + outline; j++) {
+                    //pixel to be drawn
+                    int pixx = xcenter - (width / 2) + i;
+                    int pixy = ycenter - gap + j - length;
+
+                    if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                        if (i < 0 || i >= width || j < 0 || j >= length) {
+                            dc.SetBrush(wxBrush(wcolor2));
+                            //crosshair.SetColor(pixx, pixy, outline_color);
+                        }
+                        else {
+                            dc.SetBrush(wxBrush(wcolor));
+                            //crosshair.SetColor(pixx, pixy, color);
+                        }
+                        dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
                     }
-                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+
+                }
+            }
+
+            for (int i = 0 - outline; i < width + outline; i++) {
+                for (int j = 0 - outline; j < length + outline; j++) {
+                    //pixel to be drawn
+                    int pixx = xcenter - length + j - gap;
+                    int pixy = ycenter - (width / 2) + i;
+
+                    if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                        if (i < 0 || i >= width || j < 0 || j >= length) {
+                            dc.SetBrush(wxBrush(wcolor2));
+                            //crosshair.SetColor(pixx, pixy, outline_color);
+                        }
+                        else {
+                            dc.SetBrush(wxBrush(wcolor));
+                            //crosshair.SetColor(pixx, pixy, color);
+                        }
+                        dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                    }
+                }
+            }
+
+            for (int i = 0 - outline; i < width + outline; i++) {
+                for (int j = 0 - outline; j < length + outline; j++) {
+                    //pixel to be drawn
+                    int pixx = xcenter + j + gap;
+                    int pixy = ycenter - (width / 2) + i;
+
+                    if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                        if (i < 0 || i >= width || j < 0 || j >= length) {
+                            dc.SetBrush(wxBrush(wcolor2));
+                            //crosshair.SetColor(pixx, pixy, outline_color);
+                        }
+                        else {
+                            dc.SetBrush(wxBrush(wcolor));
+                            //crosshair.SetColor(pixx, pixy, color);
+                        }
+                        dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                    }
+                }
+            }
+
+        }
+        else {
+            for (int pass = 1; pass >= 0; pass--) {
+                if (pass) {
+                    dc.SetBrush(wxBrush(wcolor2));
+                }
+                else {
+                    dc.SetBrush(wxBrush(wcolor));
+                }
+
+                //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+                for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+                    for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+                        //pixel to be drawn
+                        int pixx = xcenter - (width / 2) + i;
+                        int pixy = ycenter + gap + j;
+                        //OutputDebugString(L"Trying to Draw a Pixel\n");
+                        if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                            //OutputDebugString(L"Drawing a pixel\n");
+                            dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                        }
+
+                    }
+                }
+
+                for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+                    for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+                        //pixel to be drawn
+                        int pixx = xcenter - (width / 2) + i;
+                        int pixy = ycenter - gap + j - length;
+
+                        if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                            dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                        }
+
+                    }
+                }
+
+                for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+                    for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+                        //pixel to be drawn
+                        int pixx = xcenter - length + j - gap;
+                        int pixy = ycenter - (width / 2) + i;
+
+                        if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                            dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                        }
+                    }
+                }
+
+                for (int i = 0 - (outline*pass); i < width + (outline * pass); i++) {
+                    for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+                        //pixel to be drawn
+                        int pixx = xcenter + j + gap;
+                        int pixy = ycenter - (width / 2) + i;
+
+                        if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                            dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                        }
+                    }
                 }
 
             }
+
         }
 
-        for (int i = 0 - outline; i < width + outline; i++) {
-            for (int j = 0 - outline; j < length + outline; j++) {
-                //pixel to be drawn
-                int pixx = xcenter - (width / 2) + i;
-                int pixy = ycenter - gap + j - length;
-
-                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                    dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
-                    if (i < 0 || i >= width || j < 0 || j >= length) {
-                        dc.SetBrush(wxBrush(wcolor2));
-                        //crosshair.SetColor(pixx, pixy, outline_color);
-                    }
-                    else {
-                        dc.SetBrush(wxBrush(wcolor));
-                        //crosshair.SetColor(pixx, pixy, color);
-                    }
-                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
-                }
-
-            }
-        }
-
-        for (int i = 0 - outline; i < width + outline; i++) {
-            for (int j = 0 - outline; j < length + outline; j++) {
-                //pixel to be drawn
-                int pixx = xcenter - length + j - gap;
-                int pixy = ycenter - (width / 2) + i;
-
-                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                    dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
-                    if (i < 0 || i >= width || j < 0 || j >= length) {
-                        dc.SetBrush(wxBrush(wcolor2));
-                        //crosshair.SetColor(pixx, pixy, outline_color);
-                    }
-                    else {
-                        dc.SetBrush(wxBrush(wcolor));
-                        //crosshair.SetColor(pixx, pixy, color);
-                    }
-                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
-                }
-            }
-        }
-
-        for (int i = 0 - outline; i < width + outline; i++) {
-            for (int j = 0 - outline; j < length + outline; j++) {
-                //pixel to be drawn
-                int pixx = xcenter + j + gap;
-                int pixy = ycenter - (width / 2) + i;
-
-                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                    dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
-                    if (i < 0 || i >= width || j < 0 || j >= length) {
-                        dc.SetBrush(wxBrush(wcolor2));
-                        //crosshair.SetColor(pixx, pixy, outline_color);
-                    }
-                    else {
-                        dc.SetBrush(wxBrush(wcolor));
-                        //crosshair.SetColor(pixx, pixy, color);
-                    }
-                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
-                }
-            }
-        }
+        
     }
     DECLARE_EVENT_TABLE()
 };
@@ -478,11 +545,11 @@ public:
 class OutLineControl : public wxPanel {
 private:
     wxBoxSizer* sizer;
-    Plus* p;
+    Shape* s;
     wxWindow* parent;
 
 public:
-    OutLineControl(wxWindow* parent, Plus* plus, int x, int y) : wxPanel(parent), p(plus), parent(parent) {
+    OutLineControl(wxWindow* parent, Shape* shape, int x, int y) : wxPanel(parent), s(shape), parent(parent) {
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
@@ -494,24 +561,43 @@ public:
         sizer->Add(new wxStaticText(this, wxID_ANY, "Outline"), 1, wxEXPAND | wxALL, 5);
 
         wxCheckBox* check = new wxCheckBox(win, wxID_ANY, "Show outline");
-        check->SetValue(&(plus->GetOutline()));
-        check->Bind(wxEVT_CHECKBOX, [this, plus, check](wxCommandEvent& event) {
+        check->SetValue(&(shape->GetOutline()));
+
+        check->Bind(wxEVT_CHECKBOX, [this, shape, check](wxCommandEvent& event) {
             // Toggle the value of showoutline
-            plus->ToggleOutline();
+            shape->ToggleOutline();
 
             // Update the state of the checkbox
-            check->SetValue(plus->GetOutline());
+            check->SetValue(shape->GetOutline());
             wxCommandEvent evt(wxEVT_CHECKBOX, CHECKBOX_HASOUTLINE);
             ProcessEvent(evt);
             });
 
-
         sizer->Add(check, 1, wxEXPAND | wxALL, 5);
 
-        sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Thickness"));
-        sizer->Add(new IntSlider(win, &(p->GetOutlineThickness()), "", x, y), 1, 0, 1);
+        if (shape->GetType()==PLUSLAYER) {
+            Plus* plus = dynamic_cast<Plus*>(shape);
 
-        Pixel* color = &(plus->GetOutlineColor());
+            wxCheckBox* check2 = new wxCheckBox(win, wxID_ANY, "Lazy Outline");
+            check2->SetValue(&(plus->GetOutlineType()));
+
+            check2->Bind(wxEVT_CHECKBOX, [this, plus, check2](wxCommandEvent& event) {
+                // Toggle the value of showoutline
+                plus->ChangeOutlineType();
+
+                // Update the state of the checkbox
+                check2->SetValue(plus->GetOutline());
+                wxCommandEvent evt(wxEVT_CHECKBOX, CHECKBOX_HASOUTLINE);
+                ProcessEvent(evt);
+                });
+
+            sizer->Add(check2, 1, wxEXPAND | wxALL, 5);
+        }
+
+        sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Thickness"));
+        sizer->Add(new IntSlider(win, &(s->GetOutlineThickness()), "", x, y), 1, 0, 1);
+
+        Pixel* color = &(s->GetOutlineColor());
         sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Color"));
         sizer->Add(new ColorSlider(win, &(color->red), "R"), 1, 0, 1);
         sizer->Add(new ColorSlider(win, &(color->green), "G"), 1, 0, 1);
