@@ -37,23 +37,160 @@ private:
                 OutputDebugString(L"layer not visible\n");
                 continue;
             }
-            switch (c->GetType()) {
+            int type = c->GetType();
+            OutputDebugString(L"Entering Render switch\n");
+            switch (type) {
             case PLUSLAYER: {
+                OutputDebugString(L"Rendering a Plus\n");
                 RenderPlus(c, dc);
+                break;
             }
             case CIRCLELAYER: {
+                OutputDebugString(L"Rendering a Circle\n");
                 RenderCirlce(c, dc);
+                break;
             }
             case TEXTURELAYER: {
+                OutputDebugString(L"Rendering a Texture\n");
                 RenderTexture(c, dc);
+                break;
             }
+
             }
         }
     }
 
-    void RenderCirlce(Component* c, wxDC& dc) {
+    void RenderCirlce(Component* comp, wxDC& dc) {
 
+        Circle* circle = dynamic_cast<Circle*>(comp);
+
+        int chwidth = crosshair->GetWidth();
+        int chheight = crosshair->GetHeight();
+
+        int xcenter = chwidth / 2;
+        int ycenter = chheight / 2;
+
+        //if 1 it will draw true size
+        /*int pixelWidth = GetSize().GetWidth() / chwidth;
+        int pixelHeight = GetSize().GetHeight() / chheight;
+        */
+        int pixelWidth = 1;
+        int pixelHeight = 1;
+
+        int radius = circle->GetRadius();
+        int inner_radius = circle->GetInnerRadius();
+        int gap = circle->GetGap();
+
+        Pixel color = circle->GetColor();
+        Pixel outline_color = circle->GetOutlineColor();
+        Pixel inner_outline_color = circle->GetInnerOutlineColor();
+
+        wxColour wcolor(color.red, color.green, color.blue, color.alpha);
+        wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
+        wxColour wcolor3(inner_outline_color.red, inner_outline_color.green, inner_outline_color.blue, inner_outline_color.alpha);
+
+        int outline = circle->GetOutlineThickness() * circle->GetOutline();
+        int inner_outline = std::min(inner_radius, circle->GetInnerOutlineThickness()) * circle->GetInnerOutline();
+
+        //split into sub circles for each section: outline, main, inner outline, empty
+        //based on the outermost edge of each section
+
+        int total_radius = radius + outline;
+        int empty_radius = gap - inner_outline;
+
+        /*std::vector<int> olBoundry(total_radius);
+        std::vector<int> mainBoundry(radius);
+        std::vector<int> iolBoundry(gap);
+        std::vector<int> emptyBoundry(empty_radius);*/
+
+        std::vector<int> olBoundry;
+        std::vector<int> mainBoundry;
+        std::vector<int> iolBoundry;
+        std::vector<int> emptyBoundry;
+
+        circleBres(total_radius, &olBoundry);
+        circleBres(radius, &mainBoundry);
+        circleBres(gap, &iolBoundry);
+        circleBres(empty_radius, &emptyBoundry);
+
+        dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+        //dc.SetBrush(wxBrush(wcolor2, 0, wxBRUSHSTYLE_TRANSPARENT));
+
+
+        for (int a = 0; a < olBoundry.size(); a++) {
+            int i = a;
+            if (a<emptyBoundry.size()) {
+                for (i; i < emptyBoundry[a]; i++) {
+                    //dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                }
+            }
+            if (a < iolBoundry.size()) {
+                dc.SetBrush(wxBrush(wcolor3));
+                for (i; i < iolBoundry[a]; i++) {
+                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
+                }
+            }
+            if (a < mainBoundry.size()) {
+                dc.SetBrush(wxBrush(wcolor));
+                for (i; i < mainBoundry[a]; i++) {
+                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
+                }
+            }
+            if (a < olBoundry.size()) {
+                dc.SetBrush(wxBrush(wcolor2));
+                for (i; i < olBoundry[a]; i++) {
+                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
+                }
+            }
+        }
     }
+
+    void circleBres(int r, std::vector<int>* vec)
+    {
+        int x = 0, y = r;
+        int d = 3 - 2 * r;
+        while (y >= x)
+        {
+            // for each pixel we will 
+            // draw all eight pixels 
+
+            x++;
+
+            // check for decision parameter 
+            // and correspondingly  
+            // update d, x, y 
+            if (d > 0)
+            {
+                y--;
+                d = d + 4 * (x - y) + 10;
+            }
+            else
+                d = d + 4 * x + 6;
+            vec->push_back(y);
+        }
+    }
+
     void RenderTexture(Component* c, wxDC& dc) {
 
     }
@@ -714,6 +851,7 @@ public:
         switch (type) {
         case PLUSLAYER: {
             CreateCrossControl(component);
+            break;
         }
 
         }
@@ -849,30 +987,20 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        //panel for preview image
+        // Preview window
         panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(c->GetWidth(), c->GetHeight()));
         panel->SetBackgroundColour(wxColor(100, 90, 90));
-
         sizer2 = new wxBoxSizer(wxHORIZONTAL);
         panel->SetSizer(sizer2);
-        
-        
-        ImagePanel* previewimg = new ImagePanel(panel, c);
-        //previewimgsizer->AddStretchSpacer();
-        //sizer2->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
-        sizer2->Add(previewimg, 1, wxEXPAND | wxALL, 5);
-        //previewimgsizer->AddStretchSpacer();
-        //previewimgpanel->SetSizer(previewimgsizer);
 
+        ImagePanel* previewimg = new ImagePanel(panel, c);
+        sizer2->Add(previewimg, 1, wxEXPAND | wxALL, 5);
         sizer->Add(panel, 1, 0, 5);
 
-        //panel for preview buttons
-        //wxPanel* previewbuttonpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 150));
-        //previewbuttonpanel->SetBackgroundColour(wxColor(90, 90, 90));
+        // Save and Test buttons
+        wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
         wxButton* saveButton = new wxButton(this, BUTTON_SAVE, "Save");
         wxButton* testButton = new wxButton(this, BUTTON_TEST, "Test");
-
-        wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
         previewbuttonsizer->Add(saveButton, 1, 0, 5);
         previewbuttonsizer->Add(testButton, 1, 0, 5);
 

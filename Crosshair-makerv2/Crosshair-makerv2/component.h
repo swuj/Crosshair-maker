@@ -43,7 +43,7 @@ public:
 
 	virtual int& GetGap() = 0;
 
-	virtual int& GetWidth() = 0;
+	//virtual int& GetWidth() = 0;
 
 	virtual void SetGap(int g) {
 	}
@@ -158,15 +158,15 @@ public:
 //Circle shaped layer
 class Circle : public Shape {
 protected:
-	bool inner_outline;			// does the opening have an outline
-	int inner_outline_thickness;
+	bool inner_outline = true;			// does the opening have an outline
+	int inner_outline_thickness = 1;
 	Pixel inner_outline_color = {0, 0, 0, 255};
 
 
 public:
-	Circle() : Shape("newCircle", {255, 255, 255, 255}, 2, 0, true, 1, {0,0,0,255}, CIRCLELAYER, true), inner_outline(true) {}
+	Circle() : Shape("newCircle", {255, 255, 255, 255}, 20, 3, true, 1, {0,0,0,255}, CIRCLELAYER, true), inner_outline(true) {}
 
-	Circle(std::string name, Pixel color, int radius, int gap, bool outline, Pixel outline_color, int outline_thickness, bool inner_outline, bool visible) :
+	Circle(std::string name, Pixel color, int radius, int gap, bool outline, int outline_thickness, Pixel outline_color, bool inner_outline, bool visible) :
 		Shape(name, color, radius, gap, outline, outline_thickness, outline_color, CIRCLELAYER, visible), inner_outline(inner_outline) {}
 
 	void ToggleInnerOutline() {
@@ -175,6 +175,18 @@ public:
 
 	int& GetRadius() {
 		return GetSize();
+	}
+
+	bool& GetInnerOutline() {
+		return inner_outline;
+	}
+
+	int& GetInnerOutlineThickness() {
+		return inner_outline_thickness;
+	}
+
+	Pixel& GetInnerOutlineColor() {
+		return inner_outline_color;
 	}
 
 	void SetRadius(int r) {
@@ -211,7 +223,7 @@ public:
 		return outline_type;
 	}
 
-	int& GetWidth() override {
+	int& GetWidth() {
 		return width;
 	}
 

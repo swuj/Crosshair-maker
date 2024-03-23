@@ -7,11 +7,10 @@
 #include <fstream>
 #include "wclasses.h"
 
-
-
 Crosshair xhair;
 
 int LoadFromFile();
+void SaveToFile(const std::wstring& filePath);
 void DrawPlus(Component* c);
 void UpdateCrosshairPixels();
 
@@ -214,6 +213,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize
 	ShowInitialInterface();
 }
 
+
+// INITIAL INTERFACE
 void MyFrame::LoadButtonClicked(wxCommandEvent& event) {
 	if (LoadFromFile() == 10) {
 		UpdateCrosshairPixels();
@@ -235,20 +236,276 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 	ShowEditInterface();
 }
 
+
+// LAYER LIST PANE
 void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
-	xhair.AddLayer(new Plus());
+	//xhair.AddLayer(new Plus());
+	xhair.AddLayer(new Circle());
 	UpdateLayerListPane2();
 	UpdateLayerControlPane2();
-	UpdatePreviewPane();
+	UpdatePreviewPane2();
 }
 
 void MyFrame::DeleteLayerButtonClicked(wxCommandEvent& event) {
 	xhair.DeleteLayer();
 	UpdateLayerListPane2();
 	UpdateLayerControlPane2();
-	UpdatePreviewPane();
+	UpdatePreviewPane2();
 }
 
+void MyFrame::VisibilityButtonClicked(wxCommandEvent& event) {
+	OutputDebugString(L"Visibility Button Clicked\n");
+	UpdatePreviewPane2();
+}
+
+void MyFrame::UpdateLayerListPane() {
+	layersizer->Clear(true);
+
+	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 300));
+	wxSizer* lsizer = new wxBoxSizer(wxVERTICAL);
+	llpanel->SetBackgroundColour(wxColor(100, 100, 100));
+
+	//Layer list
+	layerlist = new ScrolledWidgetsPane(llpanel, wxID_ANY, &xhair);
+	wxBoxSizer* llsizer = new wxBoxSizer(wxVERTICAL);
+	llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
+
+	//Layer Buttons
+	wxBoxSizer* lbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
+	wxButton* deleteLayer = new wxButton(llpanel, BUTTON_DELETELAYER, "Delete");
+	wxButton* newLayer = new wxButton(llpanel, BUTTON_NEWLAYER, "New Layer");
+	lbuttonsizer->Add(deleteLayer, 1, wxEXPAND | wxALL, 5);
+	lbuttonsizer->Add(newLayer, 1, wxEXPAND | wxALL, 5);
+
+	lsizer->Add(llsizer, 1, wxEXPAND | wxALL, 5);
+	lsizer->Add(lbuttonsizer, 1, wxEXPAND | wxALL, 5);
+
+	llpanel->SetSizer(lsizer);
+
+	//MyFrame private member layzersizer
+	layersizer->Add(llpanel, 1, wxEXPAND | wxALL, 5);
+
+	Layout();
+	Refresh();
+	Update();
+}
+
+void MyFrame::UpdateLayerListPane2() {
+	layerListPane->Update();
+	Layout();
+	//Refresh();
+	//Update();
+}
+
+void MyFrame::CreateLayerListPane() {
+	layersizer->Clear(true);
+
+	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 300));
+	wxSizer* lsizer = new wxBoxSizer(wxVERTICAL);
+	llpanel->SetBackgroundColour(wxColor(100, 100, 100));
+
+	layerListPane = new LayerListPane(llpanel, &xhair);
+
+	lsizer->Add(layerListPane, 1, wxEXPAND | wxALL, 5);
+	llpanel->SetSizer(lsizer);
+	layersizer->Add(llpanel, 1, wxEXPAND | wxALL, 5);
+
+
+	Layout();
+	Refresh();
+	Update();
+}
+
+void MyFrame::LayerButtonClicked(wxCommandEvent& event) {
+	OutputDebugString(L"LayerButtonClicked\n");
+	UpdateLayerListPane2();
+	UpdateLayerControlPane2();
+}
+
+
+// CONTROL PANE
+void MyFrame::UpdateLayerControlPane() {
+	OutputDebugString(L"Entering UpdateLayerControlPane\n");
+	//controlsizer->Clear(true);
+	wxLogDebug(wxT("mainpanel pointer: %p"), mainpanel);
+	wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
+	layercontrolpanel->SetBackgroundColour(wxColor(255, 100, 100));
+	wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
+
+	OutputDebugString(L"Attempting to Create control panel\n");
+
+	if (xhair.selectedLayer > -1) {
+		ControlPanel* control = new ControlPanel(layercontrolpanel, wxID_ANY, &xhair, xhair.selectedLayer);
+		OutputDebugString(L"Adding control panel to sizer\n");
+		layercontrolsizer->Add(control, 1, wxEXPAND | wxALL, 5);
+	}
+	OutputDebugString(L"setting sizer\n");
+	layercontrolpanel->SetSizer(layercontrolsizer);
+
+	OutputDebugString(L"adding to controlsizer\n");
+	controlsizer->Add(layercontrolpanel, 1, wxEXPAND | wxALL, 5);
+
+	OutputDebugString(L"Attempting Layout()\n");
+	wxLogDebug(wxT("mainpanel pointer: %p"), mainpanel);
+	Layout();
+	OutputDebugString(L"Attempting Refresh()\n");
+	Refresh();
+	OutputDebugString(L"Attempting Update()\n");
+	Update();
+	OutputDebugString(L"Exiting UpdateLayerControlPane\n");
+}
+
+void MyFrame::UpdateLayerControlPane2() {
+	controlPanelPane->Update();
+	Layout();
+	//Refresh();
+	//Update();
+}
+
+void MyFrame::CreateLayerControlPane() {
+	controlsizer->Clear(true);
+
+	wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
+	//wxScrolledWindow* layercontrolpanel = new wxScrolledWindow(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 200));
+	layercontrolpanel->SetBackgroundColour(wxColor(90, 90, 90));
+
+	controlPanelPane = new ControlPanelPane(layercontrolpanel, wxID_ANY, &xhair, xhair.selectedLayer);
+	wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
+	layercontrolsizer->Add(controlPanelPane, 0, wxEXPAND | wxALL, 5);
+	layercontrolpanel->SetSizer(layercontrolsizer);
+
+	OutputDebugString(L"Entering UpdateLayerControlPane\n");
+
+	controlsizer->Add(layercontrolpanel, 0, wxEXPAND | wxALL, 5);
+	//layercontrolpanel->FitInside(); // ask the sizer about the needed size
+	//layercontrolpanel->SetScrollRate(5, 5);
+
+	Layout();
+	Refresh();
+	Update();
+}
+
+void MyFrame::SliderChanged(wxCommandEvent& event) {
+	OutputDebugString(L"Slider Changed\n");
+	UpdatePreviewPane2();
+}
+
+void MyFrame::OnNumericTextEnter(wxCommandEvent& event) {
+	OutputDebugString(L"Text Changed\n");
+	UpdatePreviewPane2();
+}
+
+void MyFrame::OutlineCheckboxClicked(wxCommandEvent& event) {
+	OutputDebugString(L"Outline Checkbox Clicked\n");
+	UpdatePreviewPane2();
+}
+
+void MyFrame::LayerNameChanged(wxCommandEvent& event) {
+	OutputDebugString(L"Layer name changed\n");
+	UpdateLayerListPane2();
+}
+
+
+// PREVIEW PANE
+void MyFrame::UpdatePreviewPane() {
+	previewsizer->Clear(true);
+
+	wxPanel* parentpreviewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 500));
+	wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
+
+	parentpreviewpanel->SetSizer(pvsizer);
+
+	//panel for preview image
+	wxPanel* previewimgpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
+	previewimgpanel->SetBackgroundColour(wxColor(90, 90, 90));
+	previewimg = new ImagePanel(previewimgpanel, &xhair);
+	wxBoxSizer* previewimgsizer = new wxBoxSizer(wxHORIZONTAL);
+	//previewimgsizer->AddStretchSpacer();
+	previewimgsizer->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
+	//previewimgsizer->AddStretchSpacer();
+	previewimgpanel->SetSizer(previewimgsizer);
+
+	//panel for preview buttons
+	wxPanel* previewbuttonpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 150));
+	previewbuttonpanel->SetBackgroundColour(wxColor(90, 90, 90));
+	saveButton = new wxButton(previewbuttonpanel, BUTTON_SAVE, "Save");
+	testButton = new wxButton(previewbuttonpanel, BUTTON_TEST, "Test");
+
+	wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
+	previewbuttonsizer->Add(saveButton, 1, 0, 5);
+	previewbuttonsizer->Add(testButton, 1, 0, 5);
+	previewbuttonpanel->SetSizer(previewbuttonsizer);
+
+	pvsizer->Add(previewimgpanel, 1, wxEXPAND | wxALL, 5);
+	pvsizer->Add(previewbuttonpanel, 1, wxEXPAND | wxALL, 5);
+
+	previewsizer->Add(parentpreviewpanel, 1, wxEXPAND | wxALL, 5);
+
+	Layout();
+	Refresh();
+	Update();
+}
+
+void MyFrame::UpdatePreviewPane2() {
+	previewPanelPane->Update();
+	Layout();
+	Refresh();
+	Update();
+}
+
+void MyFrame::CreatePreviewPane() {
+	previewsizer->Clear(true);
+
+	wxPanel* previewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(xhair.GetWidth(), xhair.GetHeight()));
+	wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
+	previewpanel->SetSizer(pvsizer);
+
+	previewPanelPane = new PreviewPanelPane(previewpanel, &xhair);
+	pvsizer->Add(previewPanelPane, 0, 0, 1);
+	previewpanel->SetSizer(pvsizer);
+
+	previewsizer->Add(previewpanel, 0, wxEXPAND | wxALL, 5);
+
+	previewPanelPane->Update();
+
+	Layout();
+	Refresh();
+	Update();
+}
+
+void MyFrame::SaveButtonClicked(wxCommandEvent& event) {
+	OPENFILENAME ofn;       // Structure for the file dialog
+	wchar_t szFile[260];    // Buffer to store the file path
+	ZeroMemory(&ofn, sizeof(ofn));
+
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;   // Handle to the parent window
+	ofn.lpstrFile = szFile; // Buffer to store the selected file path
+	ofn.lpstrFile[0] = L'\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = L"XHAIR Files(*.xhair)\0 * .xhair\0"; // Filter for file types
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+	if (GetSaveFileName(&ofn)) {
+		SaveToFile(szFile);
+	}
+	else {
+		OutputDebugString(L"Save failed\n");
+	}
+}
+
+void MyFrame::TestButtonClicked(wxCommandEvent& event){
+	wchar_t debugString[200]; // Buffer for the debug string
+	swprintf(debugString, 100, L"%d\n", xhair.selectedLayer);
+	OutputDebugString(debugString);
+}
+
+
+// File Handling
 void SaveToFile(const std::wstring& filePath) {
 
 	//getfilename
@@ -374,7 +631,7 @@ int LoadFromFile() {
 			//xhair.InitializeTest();
 			//int selected = -1;
 			while (std::getline(inFile, line)) {
-				
+
 				int type = std::stoi(line);
 				std::string name;
 				if (std::getline(inFile, line)) {
@@ -419,7 +676,7 @@ int LoadFromFile() {
 					OutputDebugString(L"Set visibility\n");
 
 
-					Plus* p = new Plus(name, col, length, width,gap , outline, out_thickness, ocol,  out_type, visible);
+					Plus* p = new Plus(name, col, length, width, gap, outline, out_thickness, ocol, out_type, visible);
 					OutputDebugString(L"Created plus\n");
 
 					OutputDebugString(L"Adding plus to crosshair\n");
@@ -520,251 +777,4 @@ void UpdateCrosshairPixels() {
 			DrawPlus(c);
 		}
 	}
-}
-
-void MyFrame::SaveButtonClicked(wxCommandEvent& event) {
-	OPENFILENAME ofn;       // Structure for the file dialog
-	wchar_t szFile[260];    // Buffer to store the file path
-	ZeroMemory(&ofn, sizeof(ofn));
-
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = NULL;   // Handle to the parent window
-	ofn.lpstrFile = szFile; // Buffer to store the selected file path
-	ofn.lpstrFile[0] = L'\0';
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = L"XHAIR Files(*.xhair)\0 * .xhair\0"; // Filter for file types
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = NULL;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-
-	if (GetSaveFileName(&ofn)) {
-		SaveToFile(szFile);
-	}
-	else {
-		OutputDebugString(L"Save failed\n");
-	}
-}
-
-void MyFrame::UpdateLayerListPane() {
-	layersizer->Clear(true);
-
-	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 300));
-	wxSizer* lsizer = new wxBoxSizer(wxVERTICAL);
-	llpanel->SetBackgroundColour(wxColor(100, 100, 100));
-
-	//Layer list
-	layerlist = new ScrolledWidgetsPane(llpanel, wxID_ANY, &xhair);
-	wxBoxSizer* llsizer = new wxBoxSizer(wxVERTICAL);
-	llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
-
-	//Layer Buttons
-	wxBoxSizer* lbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
-	wxButton* deleteLayer = new wxButton(llpanel, BUTTON_DELETELAYER, "Delete");
-	wxButton* newLayer = new wxButton(llpanel, BUTTON_NEWLAYER, "New Layer");
-	lbuttonsizer->Add(deleteLayer, 1, wxEXPAND | wxALL, 5);
-	lbuttonsizer->Add(newLayer, 1, wxEXPAND | wxALL, 5);
-
-	lsizer->Add(llsizer, 1, wxEXPAND | wxALL, 5);
-	lsizer->Add(lbuttonsizer, 1, wxEXPAND | wxALL, 5);
-
-	llpanel->SetSizer(lsizer);
-
-	//MyFrame private member layzersizer
-	layersizer->Add(llpanel, 1, wxEXPAND | wxALL, 5);
-
-	Layout();
-	Refresh();
-	Update();
-}
-
-void MyFrame::UpdateLayerListPane2() {
-	layerListPane->Update();
-	Layout();
-	Refresh();
-	Update();
-}
-
-void MyFrame::CreateLayerListPane() {
-	layersizer->Clear(true);
-
-	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 300));
-	wxSizer* lsizer = new wxBoxSizer(wxVERTICAL);
-	llpanel->SetBackgroundColour(wxColor(100, 100, 100));
-
-	layerListPane = new LayerListPane(llpanel, &xhair);
-
-	lsizer->Add(layerListPane, 1, wxEXPAND | wxALL, 5);
-	llpanel->SetSizer(lsizer);
-	layersizer->Add(llpanel, 1, wxEXPAND | wxALL, 5);
-
-
-	Layout();
-	Refresh();
-	Update();
-}
-
-void MyFrame::UpdateLayerControlPane() {
-	OutputDebugString(L"Entering UpdateLayerControlPane\n");
-	//controlsizer->Clear(true);
-	wxLogDebug(wxT("mainpanel pointer: %p"), mainpanel);
-	wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
-	layercontrolpanel->SetBackgroundColour(wxColor(255, 100, 100));
-	wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
-
-	OutputDebugString(L"Attempting to Create control panel\n");
-
-	if (xhair.selectedLayer > -1) {
-		ControlPanel* control = new ControlPanel(layercontrolpanel, wxID_ANY, &xhair, xhair.selectedLayer);
-		OutputDebugString(L"Adding control panel to sizer\n");
-		layercontrolsizer->Add(control, 1, wxEXPAND | wxALL, 5);
-	}
-	OutputDebugString(L"setting sizer\n");
-	layercontrolpanel->SetSizer(layercontrolsizer);
-
-	OutputDebugString(L"adding to controlsizer\n");
-	controlsizer->Add(layercontrolpanel, 1, wxEXPAND | wxALL, 5);
-
-	OutputDebugString(L"Attempting Layout()\n");
-	wxLogDebug(wxT("mainpanel pointer: %p"), mainpanel);
-	Layout();
-	OutputDebugString(L"Attempting Refresh()\n");
-	Refresh();
-	OutputDebugString(L"Attempting Update()\n");
-	Update();
-	OutputDebugString(L"Exiting UpdateLayerControlPane\n");
-}
-
-void MyFrame::UpdateLayerControlPane2() {
-	controlPanelPane->Update();
-	Layout();
-	Refresh();
-	Update();
-}
-
-void MyFrame::CreateLayerControlPane() {
-	controlsizer->Clear(true);
-
-	wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
-	//wxScrolledWindow* layercontrolpanel = new wxScrolledWindow(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 200));
-	layercontrolpanel->SetBackgroundColour(wxColor(90, 90, 90));
-
-	controlPanelPane = new ControlPanelPane(layercontrolpanel, wxID_ANY, &xhair, xhair.selectedLayer);
-	wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
-	layercontrolsizer->Add(controlPanelPane, 0, wxEXPAND | wxALL, 5);
-	layercontrolpanel->SetSizer(layercontrolsizer);
-
-	OutputDebugString(L"Entering UpdateLayerControlPane\n");
-
-	controlsizer->Add(layercontrolpanel, 0, wxEXPAND | wxALL, 5);
-	//layercontrolpanel->FitInside(); // ask the sizer about the needed size
-	//layercontrolpanel->SetScrollRate(5, 5);
-
-	Layout();
-	Refresh();
-	Update();
-}
-
-void MyFrame::UpdatePreviewPane() {
-	previewsizer->Clear(true);
-
-	wxPanel* parentpreviewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 500));
-	wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
-
-	parentpreviewpanel->SetSizer(pvsizer);
-
-	//panel for preview image
-	wxPanel* previewimgpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
-	previewimgpanel->SetBackgroundColour(wxColor(90, 90, 90));
-	previewimg = new ImagePanel(previewimgpanel, &xhair);
-	wxBoxSizer* previewimgsizer = new wxBoxSizer(wxHORIZONTAL);
-	//previewimgsizer->AddStretchSpacer();
-	previewimgsizer->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
-	//previewimgsizer->AddStretchSpacer();
-	previewimgpanel->SetSizer(previewimgsizer);
-
-	//panel for preview buttons
-	wxPanel* previewbuttonpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 150));
-	previewbuttonpanel->SetBackgroundColour(wxColor(90, 90, 90));
-	saveButton = new wxButton(previewbuttonpanel, BUTTON_SAVE, "Save");
-	testButton = new wxButton(previewbuttonpanel, BUTTON_TEST, "Test");
-
-	wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
-	previewbuttonsizer->Add(saveButton, 1, 0, 5);
-	previewbuttonsizer->Add(testButton, 1, 0, 5);
-	previewbuttonpanel->SetSizer(previewbuttonsizer);
-
-	pvsizer->Add(previewimgpanel, 1, wxEXPAND | wxALL, 5);
-	pvsizer->Add(previewbuttonpanel, 1, wxEXPAND | wxALL, 5);
-
-	previewsizer->Add(parentpreviewpanel, 1, wxEXPAND | wxALL, 5);
-
-	Layout();
-	Refresh();
-	Update();
-}
-
-void MyFrame::UpdatePreviewPane2() {
-	previewPanelPane->Update();
-	Layout();
-	Refresh();
-	Update();
-}
-
-void MyFrame::CreatePreviewPane() {
-	previewsizer->Clear(true);
-
-	wxPanel* previewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 500));
-	wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
-	previewpanel->SetSizer(pvsizer);
-
-	previewPanelPane = new PreviewPanelPane(previewpanel, &xhair);
-	pvsizer->Add(previewPanelPane, 0, 0, 1);
-	previewpanel->SetSizer(pvsizer);
-
-	previewsizer->Add(previewpanel, 0, wxEXPAND | wxALL, 5);
-
-	previewPanelPane->Update();
-
-	Layout();
-	Refresh();
-	Update();
-}
-
-void MyFrame::TestButtonClicked(wxCommandEvent& event){
-	wchar_t debugString[200]; // Buffer for the debug string
-	swprintf(debugString, 100, L"%d\n", xhair.selectedLayer);
-	OutputDebugString(debugString);
-}
-
-void MyFrame::LayerButtonClicked(wxCommandEvent& event) {
-	OutputDebugString(L"LayerButtonClicked\n");
-	UpdateLayerListPane2();
-	UpdateLayerControlPane2();
-}
-
-void MyFrame::SliderChanged(wxCommandEvent& event) {
-	OutputDebugString(L"Slider Changed\n");
-	UpdatePreviewPane2();
-}
-
-void MyFrame::OnNumericTextEnter(wxCommandEvent& event) {
-	OutputDebugString(L"Text Changed\n");
-	UpdatePreviewPane2();
-}
-
-void MyFrame::OutlineCheckboxClicked(wxCommandEvent& event) {
-	OutputDebugString(L"Outline Checkbox Clicked\n");
-	UpdatePreviewPane2();
-}
-
-void MyFrame::VisibilityButtonClicked(wxCommandEvent& event) {
-	OutputDebugString(L"Visibility Button Clicked\n");
-	UpdatePreviewPane2();
-}
-
-void MyFrame::LayerNameChanged(wxCommandEvent& event) {
-	OutputDebugString(L"Layer name changed\n");
-	UpdateLayerListPane2();
 }
