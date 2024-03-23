@@ -98,26 +98,34 @@ public:
 		/*************************************/
 		//LAYER LIST PANE
 		/*************************************/
+		OutputDebugString(L"Creating LayerListPane\n");
 		layersizer = new wxBoxSizer(wxHORIZONTAL);
 		//UpdateLayerListPane();
 		CreateLayerListPane();
+		OutputDebugString(L"Created LayerListPane\n");
 		
 		mainsizer2->Add(layersizer, 1, wxEXPAND | wxALL, 2);
 
 		/***************************************/
 		//LAYER CONTROL PANE
 		/***************************************/
+		OutputDebugString(L"Creating LayerControlPane\n");
 		controlsizer = new wxBoxSizer(wxHORIZONTAL);
 		//UpdateLayerControlPane();
 		CreateLayerControlPane();
 		mainsizer2->Add(controlsizer, 1, wxEXPAND | wxALL, 2);
+		OutputDebugString(L"Created LayerControlPane\n");
 
 		/***************************************/
 		//PREVIEW PANE
 		/***************************************/
+		OutputDebugString(L"Creating PreviewPane\n");
 		previewsizer = new wxBoxSizer(wxHORIZONTAL);
 		UpdatePreviewPane();
 		mainsizer2->Add(previewsizer, 1, wxEXPAND | wxALL, 2);
+		OutputDebugString(L"Created PreviewPane\n");
+
+		OutputDebugString(L"Edit interface successfully created\n");
 
 		Layout();
 		Refresh();
@@ -279,6 +287,7 @@ void SaveToFile(const std::wstring& filePath) {
 				outFile << (int)outcolor.blue << std::endl;
 				outFile << (int)outcolor.alpha << std::endl;
 				outFile << plus->GetOutlineType() << std::endl;
+				outFile << plus->GetVisibility() << std::endl;
 
 				//outFile << plus->GetSize() << std::endl;
 
@@ -325,6 +334,8 @@ int LoadFromFile() {
 		std::wstring lfile = ofn.lpstrFile;
 		std::ifstream inFile(lfile);
 
+		OutputDebugString(L"Loading a crosshair from file\n");
+
 		if (inFile.is_open()) {
 			std::string line;
 
@@ -352,6 +363,8 @@ int LoadFromFile() {
 				//failed to create crosshair from file.
 			}
 
+			OutputDebugString(L"Initializing crosshair\n");
+
 			xhair.Initialize({ 255, 255, 255, 0 });
 			//xhair.InitializeTest();
 			//int selected = -1;
@@ -367,9 +380,9 @@ int LoadFromFile() {
 				}
 				switch (type) {
 				case PLUSLAYER: {
-
-					int d[16];
-					for (int i = 0; i < 14; i++) { //16 pieces of data to get from 
+					OutputDebugString(L"Creating plus layer\n");
+					int d[17];
+					for (int i = 0; i < 15; i++) { //16 pieces of data to get from
 						if (std::getline(inFile, line)) {
 							d[i] = std::stoi(line);
 						}
@@ -377,28 +390,44 @@ int LoadFromFile() {
 							return 5;
 						}
 					}
+					OutputDebugString(L"Data read to array\n");
 					Pixel col = { d[0], d[1], d[2], d[3] };
+					OutputDebugString(L"Set color\n");
 					Pixel ocol = { d[9], d[10],d[11], d[12] };
+					OutputDebugString(L"Set outline color\n");
 					int length = d[4];
+					OutputDebugString(L"Set length\n");
 					int width = d[5];
+					OutputDebugString(L"Set width\n");
 					int gap = d[6];
+					OutputDebugString(L"Set gap\n");
 					bool outline = d[7];
+					OutputDebugString(L"Set outline\n");
 					int out_thickness = d[8];
+					OutputDebugString(L"Set outline thickness\n");
 					bool out_type = false;
 					if (d[13] > 0) {
 						out_type = true;
 					}
+					OutputDebugString(L"Set outline type\n");
+					bool visible = d[14];
+					OutputDebugString(L"Set visibility\n");
 
 
-					Plus* p = new Plus(name, col, length, width, outline, ocol, out_thickness, out_type, gap);
+					Plus* p = new Plus(name, col, length, width,gap , outline, out_thickness, ocol,  out_type, visible);
+					OutputDebugString(L"Created plus\n");
 
-					
+					OutputDebugString(L"Adding plus to crosshair\n");
 					xhair.AddLayer(p);
-					//xhair.selectedLayer++;
+					/*xhair.selectedLayer++;
+					OutputDebugString(L"setting ID\n");
+					p->SetID(xhair.selectedLayer);*/
+					OutputDebugString(L"Layer successfully added\n");
 				}
 				}
 			}
 			inFile.close();
+			OutputDebugString(L"Crosshair successfully read from file\n");
 
 			return 10;
 		}

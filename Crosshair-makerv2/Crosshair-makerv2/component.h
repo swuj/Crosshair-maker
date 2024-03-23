@@ -12,20 +12,18 @@ struct Pixel {
 	uint8_t red, green, blue, alpha;
 };
 
-//Generic parent class
+//Abstract class that layer types derive from
 class Component {
 protected:
-	bool visible;
-	std::string name;
-	int type;
-	int id;
-	int gap = -1;
-	int width = -1;
+	bool visible;				//visibility of layer
+	std::string name;			//name of layer
+	int type;					//type of layer, for dynamic casting and accessing type specific members
+	int id;						//id of layer, its position in Crosshair.layers/position in rendering order
 
 public:
 	Component(int t) : name("newcomponent"), visible(true), type(t) {};
 
-	Component(std::string n) : name(n), visible(true) {};
+	Component(std::string n, int type, bool visible) : name(n), visible(visible), type(type) {};
 
 	int GetType() {
 		return type;
@@ -39,13 +37,9 @@ public:
 	virtual void ChangeOutlineType() {
 	}
 
-	virtual int& GetGap() {
-		return gap;
-	}
+	virtual int& GetGap() = 0;
 
-	virtual int& GetWidth() {
-		return width;
-	}
+	virtual int& GetWidth() = 0;
 
 	virtual void SetGap(int g) {
 	}
@@ -84,12 +78,7 @@ public:
 	}
 
 	void ToggleMask() {
-		if (mask) {
-			mask = false;
-		}
-		else {
-			mask = true;
-		}
+		mask = !mask;
 	}
 
 };
@@ -98,18 +87,28 @@ public:
 class Shape : public Component{
 protected:
 	int type = 1;
-	Pixel shape_color;	//color of shape
-	int size;			//size of shape
-	bool outline;
-	int outline_thickness;
-	Pixel outline_color;
+	Pixel shape_color;			// Color of shape
+	int size;					// Size of shape, might rework this 
+	bool outline;				// Visibility of outline
+	int outline_thickness;		// Pixel width of outline
+	Pixel outline_color;		// Color of outline
+	int gap = 0;				// distance from center for plus, inner radius for circle
 
 public:
 
-	Shape(std::string n, Pixel c, int s, bool o, int ot, Pixel oc, int t) : Component(t), shape_color(c), size(s), outline(o), outline_thickness(ot), outline_color(oc) {}
+	Shape(std::string name, Pixel color, int size, int gap, bool outline, int outline_thickness, Pixel outline_color, int type, bool visible) : 
+		Component(name, type, visible), shape_color(color), size(size), outline(outline), outline_thickness(outline_thickness), outline_color(outline_color), gap(gap) {}
 
 	int& GetSize() {
 		return size;
+	}
+
+	int& GetGap() override {
+		return gap;
+	}
+
+	void SetGap(int g) override {
+		gap = g;
 	}
 
 	bool& GetOutline() {
@@ -125,12 +124,7 @@ public:
 	}
 
 	void ToggleOutline() {
-		if (outline) {
-			outline = false;
-		}
-		else {
-			outline = true;
-		}
+		outline = !outline;
 	}
 
 	int& GetOutlineThickness() {
@@ -157,24 +151,22 @@ public:
 	//Convert to Texture component, probably needs to be overloaded, maybe this doesnt even go in here actually
 };
 
-//Circle shaped crosshair
+//Circle shaped layer
 class Circle : public Shape {
 protected:
-	int type = 3;
-	bool inner_outline;
+	bool inner_outline;			// does the opening have an outline
+	int inner_outline_thickness;
+	Pixel inner_outline_color = {0, 0, 0, 255};
+
 
 public:
-	Circle() : Shape("newCircle", {255, 255, 255, 255}, 2, true, 1, {0,0,0,255}, 3), inner_outline(true) {}
+	Circle() : Shape("newCircle", {255, 255, 255, 255}, 2, 0, true, 1, {0,0,0,255}, CIRCLELAYER, true), inner_outline(true) {}
 
-	Circle(std::string n, Pixel c, int r, bool o, Pixel oc, int ot, bool io) : Shape(n, c, r, o, ot, oc, 3), inner_outline(io) {}
+	Circle(std::string name, Pixel color, int radius, int gap, bool outline, Pixel outline_color, int outline_thickness, bool inner_outline, bool visible) :
+		Shape(name, color, radius, gap, outline, outline_thickness, outline_color, CIRCLELAYER, visible), inner_outline(inner_outline) {}
 
 	void ToggleInnerOutline() {
-		if (inner_outline) {
-			inner_outline = false;
-		}
-		else {
-			inner_outline = true;
-		}
+		inner_outline = !inner_outline;
 	}
 
 	int& GetRadius() {
@@ -184,19 +176,28 @@ public:
 	void SetRadius(int r) {
 		SetSize(r);
 	}
+
+	int& GetInnerRadius() {
+		return GetGap();
+	}
+
+	void SetInnerRadius(int r) {
+		SetGap(r);
+	}
 };
 
-//traditional plus/cross shaped crosshair
+//traditional plus/cross shape
 class Plus : public Shape {
 private:
-	bool outline_type; //0 for none, 1 for lazy, 2 for proper
-	int width;
-	int gap;
+	bool outline_type;			// true is lazy(overwatch) style, false renders outlines for all 4 arms before the main color portion
+	int width;					// width of outline, odd values will be off center
+	int gap;					// arm distance from center
 
 public:
-	Plus() : Shape("NewPlus", { 255, 255, 255, 255 }, 4, true, 1, {0,0,0,255}, PLUSLAYER), width(2), outline_type(1), gap(0) {}
+	Plus() : Shape("NewPlus", { 255, 255, 255, 255 }, 4, 0, true, 1, {0,0,0,255}, PLUSLAYER, true), width(2), outline_type(false) {}
 
-	Plus(std::string n, Pixel c, int l, int w, bool o, Pixel oc, int ot, bool otype, int g) : Shape(n, c, l, o, ot, oc, PLUSLAYER), outline_type(otype), width(w), gap(g) {}
+	Plus(std::string name, Pixel color, int length, int width, int gap, bool outline, int outline_thickness, Pixel outline_color, bool outline_type, bool visible) :
+		Shape(name, color, length, gap, outline, outline_thickness, outline_color, PLUSLAYER, visible), outline_type(outline_type), width(width) {}
 
 	void ChangeOutlineType() override {
 		outline_type = !outline_type;
@@ -206,15 +207,8 @@ public:
 		return outline_type;
 	}
 
-	int& GetGap() override {
-		return gap;
-	}
-
 	int& GetWidth() override {
 		return width;
 	}
 
-	void SetGap(int g) override {
-		gap = g;
-	}
 };

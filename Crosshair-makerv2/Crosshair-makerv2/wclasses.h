@@ -7,7 +7,7 @@
 #include <wx/collpane.h>
 
 
-//Panel to show a preview of the crosshair
+//Panel to show a preview of the crosshair, renders the layers
 class ImagePanel : public wxPanel {
 public:
     ImagePanel(wxWindow* parent, Crosshair c)
@@ -276,7 +276,7 @@ public:
 
 };
 
-//Scrolling list container for the layers
+//Scrolling list for layer selection, order, and visibility
 class ScrolledWidgetsPane : public wxScrolledWindow
 {
 
@@ -349,6 +349,7 @@ public:
     }
 };
 
+//Linked slider and text box for uint8_t
 class ColorSlider : public wxPanel {
 private:
     wxBoxSizer* sizer;
@@ -389,6 +390,7 @@ public:
     }
 };
 
+//Linked slider and text box for ints, more customizable
 class IntSlider : public wxPanel {
 private:
     wxBoxSizer* sizer;
@@ -431,6 +433,7 @@ public:
     }
 };
 
+//Color picker
 class ColorControl : public wxPanel {
 private:
     wxBoxSizer* sizer;
@@ -495,6 +498,7 @@ public:
     }
 };
 
+//Container for Plus shape specific controls
 class PlusControl : public wxPanel {
 private:
     wxBoxSizer* sizer;
@@ -556,6 +560,7 @@ public:
 
 };
 
+//Container for Outline controls
 class OutLineControl : public wxPanel {
 private:
     wxBoxSizer* sizer;
@@ -649,7 +654,8 @@ public:
     }
 
 };
-//Controls for all the layer attributes
+
+//Parent container for all relevant layer control containers
 class ControlPanel : public wxPanel {
 private:
     int type;
@@ -662,6 +668,7 @@ private:
 
 public:
     ControlPanel(wxWindow* parent, int id, Crosshair* c, int layer) : wxPanel(parent){
+        OutputDebugString(L"Constructing ControlPanel\n");
         sizer = new wxBoxSizer(wxVERTICAL);
         SetSizer(sizer);
         x = c->GetWidth();
@@ -669,15 +676,18 @@ public:
 
         //componentPtr = c;
 
+        OutputDebugString(L"Getting component\n");
         Component* component = c->layers[layer];
         type = component->GetType();
 
+        OutputDebugString(L"Entering switch\n");
         switch (type) {
         case PLUSLAYER: {
             CreateCrossControl(component);
         }
 
         }
+        OutputDebugString(L"Constructed ControlPanel\n");
     }
 
     void CreateCrossControl(Component* c) {
@@ -710,6 +720,9 @@ public:
     }
 };
 
+/****************************************/
+//These classes make up the 3 main panels
+/****************************************/
 class LayerListPane : public wxPanel {
 private:
     wxSizer* sizer;
@@ -766,14 +779,18 @@ private:
     wxPanel* panel;
 public:
     ControlPanelPane(wxWindow* parent, int id, Crosshair* c, int layer) : wxPanel(parent), crosshair(c){
+        OutputDebugString(L"Constructing ControlPanelPane\n");
+
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
         if (crosshair->selectedLayer > -1) {
+            OutputDebugString(L"Selected Layer > -1\n");
             ControlPanel* control = new ControlPanel(this, wxID_ANY, crosshair, crosshair->selectedLayer);
             sizer->Add(control, 1, wxEXPAND | wxALL, 5);
         }
 
+        OutputDebugString(L"Constructed ControlPanelPane\n");
     }
     void Update() {
         OutputDebugString(L"Updating Control Pane\n");
