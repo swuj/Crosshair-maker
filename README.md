@@ -1,3 +1,6 @@
 C++ application using winapi to create and generate crosshair pngs.
-![added test button](https://github.com/Gunkah/Crosshair-maker/assets/111818714/da5e62ad-46fb-4b9b-af51-e2e309e51349)
-![testcross](https://github.com/Gunkah/Crosshair-maker/assets/111818714/12d39090-406d-448c-ad38-cfd5000fae44)
+Example crosshair:
+![testclient](https://github.com/swuj/Crosshair-maker/assets/111818714/26c35897-6ccb-4f18-b481-95f2fbe0f98c)
+
+Export result:
+![test](https://github.com/swuj/Crosshair-maker/assets/111818714/1ab2e230-81ba-4197-bb40-5644d693ec5d)
