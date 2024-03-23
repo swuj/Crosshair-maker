@@ -69,7 +69,6 @@ private:
 
         int xcenter = chwidth / 2;
         int ycenter = chheight / 2;
-
         //if 1 it will draw true size
         /*int pixelWidth = GetSize().GetWidth() / chwidth;
         int pixelHeight = GetSize().GetHeight() / chheight;
@@ -83,7 +82,8 @@ private:
 
         Pixel color = circle->GetColor();
         Pixel outline_color = circle->GetOutlineColor();
-        Pixel inner_outline_color = circle->GetInnerOutlineColor();
+        //Pixel inner_outline_color = circle->GetInnerOutlineColor();
+        Pixel inner_outline_color = circle->GetOutlineColor();
 
         wxColour wcolor(color.red, color.green, color.blue, color.alpha);
         wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
@@ -116,6 +116,11 @@ private:
         dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
         //dc.SetBrush(wxBrush(wcolor2, 0, wxBRUSHSTYLE_TRANSPARENT));
 
+        //see center pixel
+
+        dc.SetBrush(wxBrush({255, 0, 255, 255}));
+        dc.DrawRectangle((xcenter) * pixelWidth, (ycenter) * pixelHeight, pixelWidth, pixelHeight);
+
 
         for (int a = 0; a < olBoundry.size(); a++) {
             int i = a;
@@ -127,40 +132,46 @@ private:
             if (a < iolBoundry.size()) {
                 dc.SetBrush(wxBrush(wcolor3));
                 for (i; i < iolBoundry[a]; i++) {
+                    if (a == 0) {
+
+                    }
+                    if (i == 0) {
+
+                    }
                     dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter - i - 1) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a - 1) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a - 1) * pixelWidth, (ycenter - i - 1) * pixelHeight, pixelWidth, pixelHeight);
                     dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter - a - 1) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i - 1) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i - 1) * pixelWidth, (ycenter - a - 1) * pixelHeight, pixelWidth, pixelHeight);
                 }
             }
             if (a < mainBoundry.size()) {
                 dc.SetBrush(wxBrush(wcolor));
                 for (i; i < mainBoundry[a]; i++) {
                     dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter - i - 1) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a - 1) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a - 1) * pixelWidth, (ycenter - i - 1) * pixelHeight, pixelWidth, pixelHeight);
                     dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter - a - 1) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i - 1) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i - 1) * pixelWidth, (ycenter - a - 1) * pixelHeight, pixelWidth, pixelHeight);
                 }
             }
             if (a < olBoundry.size()) {
                 dc.SetBrush(wxBrush(wcolor2));
                 for (i; i < olBoundry[a]; i++) {
                     dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - a) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter - i - 1) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a - 1) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - a - 1) * pixelWidth, (ycenter - i - 1) * pixelHeight, pixelWidth, pixelHeight);
                     dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
-                    dc.DrawRectangle((xcenter - i) * pixelWidth, (ycenter - a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter + i) * pixelWidth, (ycenter - a - 1) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i - 1) * pixelWidth, (ycenter + a) * pixelHeight, pixelWidth, pixelHeight);
+                    dc.DrawRectangle((xcenter - i - 1) * pixelWidth, (ycenter - a - 1) * pixelHeight, pixelWidth, pixelHeight);
                 }
             }
         }
@@ -709,6 +720,68 @@ public:
 
 };
 
+//Container for Circle shape specific controls
+class CircleControl : public wxPanel {
+private:
+    wxBoxSizer* sizer;
+    Circle* c;
+    wxWindow* parent;
+
+public:
+    CircleControl(wxWindow* parent, Circle* circle, int x, int y) : wxPanel(parent), c(circle), parent(parent) {
+        sizer = new wxBoxSizer(wxVERTICAL);
+        this->SetSizer(sizer);
+
+        //wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
+        //wxWindow* win = pane->GetPane();
+        wxWindow* win = this;
+
+
+        //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+
+        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 1, 0, 1);
+        wxBoxSizer* radiuss = new wxBoxSizer(wxHORIZONTAL);
+
+        sizer->Add(new IntSlider(win, &(c->GetSize()), "Radius", x, y), 1, 0, 1);
+
+        wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
+        //sizer->Add(new IntSlider(win, &(c->GetWidth()), "Width", x, y), 1, 0, 1);
+
+        wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new IntSlider(win, &(c->GetGap()), "Gap", x, y), 1, 0, 1);
+
+        /*win->SetSizer(sizer2);
+        sizer->Add(pane, 0);
+
+        pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &PlusControl::OnPaneChanged, this);
+        pane->Collapse(false);*/
+    }
+
+    void OnPaneChanged(wxCollapsiblePaneEvent& event) {
+        // Get the collapsible pane
+        wxCollapsiblePane* pane = dynamic_cast<wxCollapsiblePane*>(event.GetEventObject());
+        if (!pane)
+            return;
+
+        // Get the parent sizer
+        wxSizer* parentSizer = parent->GetSizer();
+        if (!parentSizer)
+            return;
+
+        // Adjust the parent sizer's layout based on whether the collapsible pane is collapsed or expanded
+        if (pane->IsCollapsed()) {
+            parentSizer->Hide(pane->GetPane());
+        }
+        else {
+            parentSizer->Show(pane->GetPane());
+        }
+
+        // Recalculate the layout
+        parentSizer->Layout();
+    }
+
+};
+
 //Container for Outline controls
 class OutLineControl : public wxPanel {
 private:
@@ -755,11 +828,31 @@ public:
 
                 // Update the state of the checkbox
                 check2->SetValue(plus->GetOutline());
-                wxCommandEvent evt(wxEVT_CHECKBOX, CHECKBOX_HASOUTLINE);
+                wxCommandEvent evt(wxEVT_CHECKBOX, CHECKBOX_LAZYOUTLINE);
                 ProcessEvent(evt);
                 });
 
             sizer->Add(check2, 1, wxEXPAND | wxALL, 5);
+        }
+        else if (shape->GetType() == CIRCLELAYER) {
+            Circle* circle = dynamic_cast<Circle*>(shape);
+
+            wxCheckBox* check2 = new wxCheckBox(win, wxID_ANY, "Inner Outline");
+            check2->SetValue(&(circle->GetInnerOutline()));
+
+            check2->Bind(wxEVT_CHECKBOX, [this, circle, check2](wxCommandEvent& event) {
+                // Toggle the value of showoutline
+                circle->ToggleInnerOutline();
+
+                // Update the state of the checkbox
+                check2->SetValue(circle->GetInnerOutline());
+                wxCommandEvent evt(wxEVT_CHECKBOX, CHECKBOX_HASINNEROUTLINE);
+                ProcessEvent(evt);
+                });
+
+            sizer->Add(check2, 1, wxEXPAND | wxALL, 5);
+            sizer->Add(new wxStaticText(win, wxID_ANY, "Inner Outline Thickness"));
+            sizer->Add(new IntSlider(win, &(circle->GetInnerOutlineThickness()), "", x, y), 1, 0, 1);
         }
 
         sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Thickness"));
@@ -853,6 +946,10 @@ public:
             CreateCrossControl(component);
             break;
         }
+        case CIRCLELAYER: {
+            CreateCircleControl(component);
+            break;
+        }
 
         }
         OutputDebugString(L"Constructed ControlPanel\n");
@@ -885,6 +982,28 @@ public:
         OutputDebugString(L"Controls Updated\n");
 
         //return sizer;
+    }
+
+    void CreateCircleControl(Component* c) {
+        Circle* circle = dynamic_cast<Circle*>(c);
+
+        //Main Color
+        OutputDebugString(L"Creating Color Control\n");
+        ColorControl* mainColorControl = new ColorControl(this, &(circle->GetColor()), "Color");
+        sizer->Add(mainColorControl, 1, 0, 1);
+
+        //Dimensions
+        OutputDebugString(L"Creating Circle Control\n");
+        CircleControl* dimensionControl = new CircleControl(this, circle, x, y);
+        sizer->Add(dimensionControl, 1, 0, 1);
+
+        //outline checkbox
+        OutputDebugString(L"Creating Outline Control\n");
+        OutLineControl* outlineControl = new OutLineControl(this, circle, x, y);
+        sizer->Add(outlineControl, 1, 0, 1);
+
+        //SetSizer(sizer);
+        OutputDebugString(L"Controls Updated\n");
     }
 };
 
