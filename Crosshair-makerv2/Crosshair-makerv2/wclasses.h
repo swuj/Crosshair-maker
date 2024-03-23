@@ -10,7 +10,7 @@
 //Panel to show a preview of the crosshair, renders the layers
 class ImagePanel : public wxPanel {
 public:
-    ImagePanel(wxWindow* parent, Crosshair c)
+    ImagePanel(wxWindow* parent, Crosshair *c)
         : wxPanel(parent), crosshair(c){
     }
 
@@ -26,12 +26,13 @@ public:
 
 
 private:
+    Crosshair* crosshair;
     //std::vector<std::vector<Pixel>>& pixels;
-    Crosshair crosshair;
+    
 
     void RenderPixels(wxDC& dc) {
 
-        for (Component* c : crosshair.layers) {
+        for (Component* c : crosshair->layers) {
             if (!c->GetVisibility()) {
                 OutputDebugString(L"layer not visible\n");
                 continue;
@@ -60,9 +61,9 @@ private:
     void RenderPlus(Component* c, wxDC& dc) {
         Plus* plus = dynamic_cast<Plus*>(c);
 
-        int chwidth = crosshair.GetWidth();
+        int chwidth = crosshair->GetWidth();
 
-        int chheight = crosshair.GetHeight();
+        int chheight = crosshair->GetHeight();
 
         int xcenter = chwidth / 2;
         int ycenter = chheight / 2;
@@ -309,9 +310,20 @@ public:
         int id = 0;
         for (Component* c : crosshair->layers)
         {
+            //Background darker if selected
+            wxPanel* background = new wxPanel(this, wxID_ANY);
+            if (crosshair->selectedLayer == id) {
+                background->SetBackgroundColour(wxColor(50, 50, 50));
+            }
+            else {
+                background->SetBackgroundColour(wxColor(90, 90, 90));
+            }
+
             wxBoxSizer* s = new wxBoxSizer(wxHORIZONTAL);
             wxString n = c->GetName();
-            wxButton* b = new wxButton(this, BUTTON_LAYER, wxString::Format(n));
+            wxButton* b = new wxButton(background, BUTTON_LAYER, wxString::Format(n));
+
+            background->SetSizer(s);
 
             c->SetID(id);
             
@@ -327,7 +339,7 @@ public:
                 };
             b->Bind(wxEVT_BUTTON, lambdaEventHandler);
 
-            wxButton* vb = new wxButton(this, BUTTON_VISIBLE, "Visible");
+            wxButton* vb = new wxButton(background, BUTTON_VISIBLE, "Visible");
 
             auto lambdaEventHandler2 = [this, c](wxCommandEvent& event) {
                 OutputDebugString(L"Button Clicked2\n");
@@ -341,7 +353,7 @@ public:
 
             s->Add(b, 0, wxALL, 3);
             s->Add(vb, 0, wxALL, 3);
-            sizer->Add(s, 0, wxALL, 3);
+            sizer->Add(background, 0, wxALL, 3);
         }
 
         this->FitInside(); // ask the sizer about the needed size
@@ -680,6 +692,24 @@ public:
         Component* component = c->layers[layer];
         type = component->GetType();
 
+        wxBoxSizer* topsizer = new wxBoxSizer(wxHORIZONTAL);
+        wxTextCtrl* name = new wxTextCtrl(this, NAME_UPDATE, component->GetName(), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+        name->Bind(wxEVT_TEXT_ENTER, [this, name, component](wxCommandEvent& event) {
+            component->SetName(name->GetValue().ToStdString());
+
+            wxCommandEvent evt(wxEVT_COMMAND_TEXT_UPDATED, NAME_UPDATE);
+            ProcessEvent(evt);
+            });
+
+        wxString choices[] = { wxT("Plus"), wxT("Circle"), wxT("Texture") };
+        wxArrayString arrChoices(3, choices);
+        wxComboBox* typeselect = new wxComboBox(this, wxID_ANY, wxT("Type"), wxDefaultPosition, wxDefaultSize, arrChoices);
+
+        topsizer->Add(name,1, 0, 1);
+        topsizer->Add(typeselect, 1, 0, 1);
+
+        sizer->Add(topsizer, 1, 0, 1);
+
         OutputDebugString(L"Entering switch\n");
         switch (type) {
         case PLUSLAYER: {
@@ -691,7 +721,7 @@ public:
     }
 
     void CreateCrossControl(Component* c) {
-        sizer->Clear(true);
+        //sizer->Clear(true);
 
         OutputDebugString(L"Updating Controls\n");
 
@@ -805,11 +835,54 @@ public:
 };
 
 class PreviewPanelPane : public wxPanel {
-    PreviewPanelPane(wxWindow* parent) :wxPanel(parent) {
+private:
+    wxSizer* sizer;
+    wxBoxSizer* sizer2;
+    wxBoxSizer* llsizer;
+    wxBoxSizer* buttonsizer;
+    Crosshair* crosshair;
+    wxPanel* panel;
 
+public:
+    PreviewPanelPane(wxWindow* parent, Crosshair* c) :wxPanel(parent), crosshair(c){
+        OutputDebugString(L"Constructing PreviewPanelPane\n");
+        sizer = new wxBoxSizer(wxVERTICAL);
+        this->SetSizer(sizer);
+
+        //panel for preview image
+        panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(c->GetWidth(), c->GetHeight()));
+        panel->SetBackgroundColour(wxColor(100, 90, 90));
+
+        sizer2 = new wxBoxSizer(wxHORIZONTAL);
+        panel->SetSizer(sizer2);
+        
+        
+        ImagePanel* previewimg = new ImagePanel(panel, c);
+        //previewimgsizer->AddStretchSpacer();
+        //sizer2->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
+        sizer2->Add(previewimg, 1, wxEXPAND | wxALL, 5);
+        //previewimgsizer->AddStretchSpacer();
+        //previewimgpanel->SetSizer(previewimgsizer);
+
+        sizer->Add(panel, 1, 0, 5);
+
+        //panel for preview buttons
+        //wxPanel* previewbuttonpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 150));
+        //previewbuttonpanel->SetBackgroundColour(wxColor(90, 90, 90));
+        wxButton* saveButton = new wxButton(this, BUTTON_SAVE, "Save");
+        wxButton* testButton = new wxButton(this, BUTTON_TEST, "Test");
+
+        wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
+        previewbuttonsizer->Add(saveButton, 1, 0, 5);
+        previewbuttonsizer->Add(testButton, 1, 0, 5);
+
+        sizer->Add(previewbuttonsizer, 1, 0, 5);
     }
-    void Update() {
 
+    void Update() {
+        sizer2->Clear(true);
+        ImagePanel* previewimg = new ImagePanel(panel, crosshair);
+        sizer2->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
     }
 };
 

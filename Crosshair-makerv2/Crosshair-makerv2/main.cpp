@@ -70,6 +70,8 @@ public:
 	void UpdateLayerControlPane2();
 	void CreateLayerControlPane();
 	void UpdatePreviewPane();
+	void UpdatePreviewPane2();
+	void CreatePreviewPane();
 	void PopulateLayerButtons(Crosshair crosshair);
 	void InsertButton(Crosshair crosshair);
 	void RemoveButton(Crosshair crosshair);
@@ -78,6 +80,7 @@ public:
 	void OnNumericTextEnter(wxCommandEvent& event);
 	void OutlineCheckboxClicked(wxCommandEvent& event);
 	void VisibilityButtonClicked(wxCommandEvent& event);
+	void LayerNameChanged(wxCommandEvent& event);
 
 	void ShowInitialInterface() {
 		mainsizer2->Clear(true);
@@ -121,7 +124,8 @@ public:
 		/***************************************/
 		OutputDebugString(L"Creating PreviewPane\n");
 		previewsizer = new wxBoxSizer(wxHORIZONTAL);
-		UpdatePreviewPane();
+		//UpdatePreviewPane();
+		CreatePreviewPane();
 		mainsizer2->Add(previewsizer, 1, wxEXPAND | wxALL, 2);
 		OutputDebugString(L"Created PreviewPane\n");
 
@@ -182,6 +186,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_COMMAND(TEXT_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::SliderChanged)
 	EVT_COMMAND(SLIDER_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::OnNumericTextEnter)
 	EVT_COMMAND(CHECKBOX_HASOUTLINE, wxEVT_CHECKBOX, MyFrame::OutlineCheckboxClicked)
+	EVT_COMMAND(NAME_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::LayerNameChanged)
 	//EVT_SCROLL(SLIDER_CONTROLZ, MyFrame::SliderChanged)
     //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
@@ -573,6 +578,7 @@ void MyFrame::UpdateLayerListPane() {
 	Refresh();
 	Update();
 }
+
 void MyFrame::UpdateLayerListPane2() {
 	layerListPane->Update();
 	Layout();
@@ -671,7 +677,7 @@ void MyFrame::UpdatePreviewPane() {
 	//panel for preview image
 	wxPanel* previewimgpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
 	previewimgpanel->SetBackgroundColour(wxColor(90, 90, 90));
-	previewimg = new ImagePanel(previewimgpanel, xhair);
+	previewimg = new ImagePanel(previewimgpanel, &xhair);
 	wxBoxSizer* previewimgsizer = new wxBoxSizer(wxHORIZONTAL);
 	//previewimgsizer->AddStretchSpacer();
 	previewimgsizer->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
@@ -699,6 +705,33 @@ void MyFrame::UpdatePreviewPane() {
 	Update();
 }
 
+void MyFrame::UpdatePreviewPane2() {
+	previewPanelPane->Update();
+	Layout();
+	Refresh();
+	Update();
+}
+
+void MyFrame::CreatePreviewPane() {
+	previewsizer->Clear(true);
+
+	wxPanel* previewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 500));
+	wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
+	previewpanel->SetSizer(pvsizer);
+
+	previewPanelPane = new PreviewPanelPane(previewpanel, &xhair);
+	pvsizer->Add(previewPanelPane, 0, 0, 1);
+	previewpanel->SetSizer(pvsizer);
+
+	previewsizer->Add(previewpanel, 0, wxEXPAND | wxALL, 5);
+
+	previewPanelPane->Update();
+
+	Layout();
+	Refresh();
+	Update();
+}
+
 void MyFrame::TestButtonClicked(wxCommandEvent& event){
 	wchar_t debugString[200]; // Buffer for the debug string
 	swprintf(debugString, 100, L"%d\n", xhair.selectedLayer);
@@ -707,25 +740,31 @@ void MyFrame::TestButtonClicked(wxCommandEvent& event){
 
 void MyFrame::LayerButtonClicked(wxCommandEvent& event) {
 	OutputDebugString(L"LayerButtonClicked\n");
+	UpdateLayerListPane2();
 	UpdateLayerControlPane2();
 }
 
 void MyFrame::SliderChanged(wxCommandEvent& event) {
 	OutputDebugString(L"Slider Changed\n");
-	UpdatePreviewPane();
+	UpdatePreviewPane2();
 }
 
 void MyFrame::OnNumericTextEnter(wxCommandEvent& event) {
 	OutputDebugString(L"Text Changed\n");
-	UpdatePreviewPane();
+	UpdatePreviewPane2();
 }
 
 void MyFrame::OutlineCheckboxClicked(wxCommandEvent& event) {
 	OutputDebugString(L"Outline Checkbox Clicked\n");
-	UpdatePreviewPane();
+	UpdatePreviewPane2();
 }
 
 void MyFrame::VisibilityButtonClicked(wxCommandEvent& event) {
 	OutputDebugString(L"Visibility Button Clicked\n");
-	UpdatePreviewPane();
+	UpdatePreviewPane2();
+}
+
+void MyFrame::LayerNameChanged(wxCommandEvent& event) {
+	OutputDebugString(L"Layer name changed\n");
+	UpdateLayerListPane2();
 }

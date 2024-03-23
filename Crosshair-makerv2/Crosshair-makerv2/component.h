@@ -33,6 +33,10 @@ public:
 		return name;
 	}
 
+	void SetName(std::string n) {
+		name = n;
+	}
+
 	//PLUS class virtual functions
 	virtual void ChangeOutlineType() {
 	}
