@@ -925,12 +925,8 @@ public:
             ProcessEvent(evt);
             });
 
-        wxString choices[] = { wxT("Plus"), wxT("Circle"), wxT("Texture") };
-        wxArrayString arrChoices(3, choices);
-        wxComboBox* typeselect = new wxComboBox(this, wxID_ANY, wxT("Type"), wxDefaultPosition, wxDefaultSize, arrChoices);
 
         topsizer->Add(name,1, 0, 1);
-        topsizer->Add(typeselect, 1, 0, 1);
 
         sizer->Add(topsizer, 1, 0, 1);
 
@@ -1029,7 +1025,34 @@ public:
         buttonsizer = new wxBoxSizer(wxHORIZONTAL);
         wxButton* deleteLayer = new wxButton(this, BUTTON_DELETELAYER, "Delete");
         wxButton* newLayer = new wxButton(this, BUTTON_NEWLAYER, "New Layer");
+
+        wxString choices[] = { wxT("Plus"), wxT("Circle"), wxT("Texture") };
+        wxArrayString arrChoices(3, choices);
+        wxComboBox* typeselect = new wxComboBox(this, LAYER_TYPE_DROPDOWN, wxT("Type"), wxDefaultPosition, wxDefaultSize, arrChoices);
+
+        typeselect->Bind(wxEVT_COMBOBOX, [this, typeselect, c](wxCommandEvent& event) {
+            switch (typeselect->GetSelection()) {
+            case 0: {
+                c->typeToAdd = PLUSLAYER;
+                break;
+            }
+            case 1: {
+                c->typeToAdd = CIRCLELAYER;
+                break;
+            }
+            case 2: {
+                c->typeToAdd = CIRCLELAYER;
+                break;
+            }
+            }
+
+            //wxCommandEvent evt(wxEVT_COMBOBOX, LAYER_TYPE_DROPDOWN);
+            //ProcessEvent(evt);
+            //event.Skip();
+            });
+
         buttonsizer->Add(deleteLayer, 1, 0, 5);
+        buttonsizer->Add(typeselect, 1, 0, 5);
         buttonsizer->Add(newLayer, 1, 0, 5);
 
         sizer2->Add(llsizer, 1, wxEXPAND | wxALL, 5);
@@ -1114,8 +1137,10 @@ public:
         wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
         wxButton* saveButton = new wxButton(this, BUTTON_SAVE, "Save");
         wxButton* exportButton = new wxButton(this, BUTTON_EXPORT, "Export");
+        wxButton* testButton = new wxButton(this, BUTTON_TEST, "Test");
         previewbuttonsizer->Add(saveButton, 1, 0, 5);
         previewbuttonsizer->Add(exportButton, 1, 0, 5);
+        previewbuttonsizer->Add(testButton, 1, 0, 5);
 
         sizer->Add(previewbuttonsizer, 1, 0, 5);
     }

@@ -16,7 +16,7 @@ private:
 	//std::vector<std::vector<Component*>> layers;
 
 public:
-
+	int typeToAdd = PLUSLAYER;
 	std::vector<Component*> layers;
 	int selectedLayer = -1;
 

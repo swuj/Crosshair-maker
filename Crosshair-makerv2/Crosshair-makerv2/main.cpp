@@ -81,6 +81,7 @@ public:
 	void OutlineCheckboxClicked(wxCommandEvent& event);
 	void VisibilityButtonClicked(wxCommandEvent& event);
 	void LayerNameChanged(wxCommandEvent& event);
+	void LayerTypeChanged(wxCommandEvent& event);
 	void ExportButtonClicked(wxCommandEvent& event);
 
 	void ShowInitialInterface() {
@@ -181,7 +182,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(BUTTON_NEW2, MyFrame::NewButtonClicked2)
 	EVT_BUTTON(BUTTON_NEWLAYER, MyFrame::NewLayerButtonClicked)
 	EVT_BUTTON(BUTTON_DELETELAYER, MyFrame::DeleteLayerButtonClicked)
-	//EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
+	EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 	EVT_BUTTON(BUTTON_LAYER, MyFrame::LayerButtonClicked)
 	EVT_BUTTON(BUTTON_VISIBLE, MyFrame::VisibilityButtonClicked)
 	EVT_BUTTON(BUTTON_EXPORT, MyFrame::ExportButtonClicked)
@@ -189,6 +190,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_COMMAND(SLIDER_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::OnNumericTextEnter)
 	EVT_COMMAND(CHECKBOX_HASOUTLINE, wxEVT_CHECKBOX, MyFrame::OutlineCheckboxClicked)
 	EVT_COMMAND(NAME_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::LayerNameChanged)
+	EVT_COMBOBOX(LAYER_TYPE_DROPDOWN, MyFrame::LayerTypeChanged)
 	//EVT_SCROLL(SLIDER_CONTROLZ, MyFrame::SliderChanged)
     //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
@@ -243,7 +245,22 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 // LAYER LIST PANE
 void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 	//xhair.AddLayer(new Plus());
-	xhair.AddLayer(new Circle());
+	//xhair.AddLayer(new Plus());
+	int type = xhair.typeToAdd;
+	switch (type) {
+	case PLUSLAYER: {
+		xhair.AddLayer(new Plus());
+		break;
+	}
+	case CIRCLELAYER: {
+		xhair.AddLayer(new Circle());
+		break;
+	}
+	case TEXTURELAYER: {
+		xhair.AddLayer(new Circle());
+		break;
+	}
+	}
 	UpdateLayerListPane2();
 	UpdateLayerControlPane2();
 	UpdatePreviewPane2();
@@ -408,6 +425,36 @@ void MyFrame::LayerNameChanged(wxCommandEvent& event) {
 	UpdateLayerListPane2();
 }
 
+// Deletes current layer and adds a layer of selected type
+void MyFrame::LayerTypeChanged(wxCommandEvent& event) {
+	xhair.DeleteLayer();
+	UpdateLayerListPane2();
+	UpdateLayerControlPane2();
+	UpdatePreviewPane2();
+	int type = xhair.typeToAdd;
+	switch (type) {
+	case PLUSLAYER: {
+		xhair.AddLayer(new Plus());
+		break;
+	}
+	case CIRCLELAYER: {
+		xhair.AddLayer(new Circle());
+		break;
+	}
+	case TEXTURELAYER: {
+		xhair.AddLayer(new Circle());
+		break;
+	}
+	}
+	OutputDebugString(L"Layer type changed\n");
+
+	UpdateLayerListPane2();
+	UpdateLayerControlPane2();
+	UpdatePreviewPane2();
+
+	OutputDebugString(L"Layer type changed2\n");
+}
+
 
 // PREVIEW PANE
 void MyFrame::UpdatePreviewPane() {
@@ -527,6 +574,35 @@ void MyFrame::ExportButtonClicked(wxCommandEvent& event){
 	else {
 		OutputDebugString(L"Save failed\n");
 	}
+}
+
+void MyFrame::TestButtonClicked(wxCommandEvent& event) {
+	xhair.DeleteLayer();
+	UpdateLayerListPane2();
+	UpdateLayerControlPane2();
+	UpdatePreviewPane2();
+	int type = xhair.typeToAdd;
+	switch (type) {
+	case PLUSLAYER: {
+		xhair.AddLayer(new Plus());
+		break;
+	}
+	case CIRCLELAYER: {
+		xhair.AddLayer(new Circle());
+		break;
+	}
+	case TEXTURELAYER: {
+		xhair.AddLayer(new Circle());
+		break;
+	}
+	}
+	OutputDebugString(L"Layer type changed\n");
+
+	UpdateLayerListPane2();
+	UpdateLayerControlPane2();
+	UpdatePreviewPane2();
+
+	OutputDebugString(L"Layer type changed2\n");
 }
 
 
@@ -1065,7 +1141,6 @@ void DrawCircle(Component* comp) {
 		}
 	}
 }
-
 
 void UpdateCrosshairPixels() {
 	for (Component* c : xhair.layers) {
