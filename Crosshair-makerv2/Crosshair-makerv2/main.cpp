@@ -237,7 +237,7 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 	int h = wxAtoi(heightEntry->GetValue());
 	int w = wxAtoi(widthEntry->GetValue());
 	xhair = Crosshair(h, w);
-	xhair.InitializeTest();
+	xhair.Initialize({0,0,0,0});
 	ShowEditInterface();
 }
 
