@@ -32,6 +32,10 @@ private:
     void RenderPixels(wxDC& dc) {
 
         for (Component* c : crosshair.layers) {
+            if (!c->GetVisibility()) {
+                OutputDebugString(L"layer not visible\n");
+                continue;
+            }
             switch (c->GetType()) {
             case PLUSLAYER: {
                 RenderPlus(c, dc);
@@ -235,10 +239,8 @@ private:
                 }
 
             }
+        }   
 
-        }
-
-        
     }
     DECLARE_EVENT_TABLE()
 };
@@ -307,6 +309,7 @@ public:
         int id = 0;
         for (Component* c : crosshair->layers)
         {
+            wxBoxSizer* s = new wxBoxSizer(wxHORIZONTAL);
             wxString n = c->GetName();
             wxButton* b = new wxButton(this, BUTTON_LAYER, wxString::Format(n));
 
@@ -322,12 +325,23 @@ public:
 
                 event.Skip();
                 };
-
             b->Bind(wxEVT_BUTTON, lambdaEventHandler);
+
+            wxButton* vb = new wxButton(this, BUTTON_VISIBLE, "Visible");
+
+            auto lambdaEventHandler2 = [this, c](wxCommandEvent& event) {
+                OutputDebugString(L"Button Clicked2\n");
+                c->ToggleVisibility();
+                event.Skip();
+                };
+
+            vb->Bind(wxEVT_BUTTON, lambdaEventHandler2);
 
             id++;
 
-            sizer->Add(b, 0, wxALL, 3);
+            s->Add(b, 0, wxALL, 3);
+            s->Add(vb, 0, wxALL, 3);
+            sizer->Add(s, 0, wxALL, 3);
         }
 
         this->FitInside(); // ask the sizer about the needed size

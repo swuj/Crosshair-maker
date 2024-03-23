@@ -15,7 +15,7 @@ struct Pixel {
 //Generic parent class
 class Component {
 protected:
-	bool hidden;
+	bool visible;
 	std::string name;
 	int type;
 	int id;
@@ -23,9 +23,9 @@ protected:
 	int width = -1;
 
 public:
-	Component(int t) : name("newcomponent"), hidden(false), type(t) {};
+	Component(int t) : name("newcomponent"), visible(true), type(t) {};
 
-	Component(std::string n) : name(n), hidden(false) {};
+	Component(std::string n) : name(n), visible(true) {};
 
 	int GetType() {
 		return type;
@@ -56,6 +56,14 @@ public:
 
 	int GetID() {
 		return id;
+	}
+
+	void ToggleVisibility() {
+		visible = !visible;
+	}
+
+	bool& GetVisibility() {
+		return visible;
 	}
 	//duplicate
 

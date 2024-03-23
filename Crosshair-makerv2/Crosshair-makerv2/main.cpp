@@ -77,6 +77,7 @@ public:
 	void SliderChanged(wxCommandEvent& event);
 	void OnNumericTextEnter(wxCommandEvent& event);
 	void OutlineCheckboxClicked(wxCommandEvent& event);
+	void VisibilityButtonClicked(wxCommandEvent& event);
 
 	void ShowInitialInterface() {
 		mainsizer2->Clear(true);
@@ -169,6 +170,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(BUTTON_DELETELAYER, MyFrame::DeleteLayerButtonClicked)
 	EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 	EVT_BUTTON(BUTTON_LAYER, MyFrame::LayerButtonClicked)
+	EVT_BUTTON(BUTTON_VISIBLE, MyFrame::VisibilityButtonClicked)
 	EVT_COMMAND(TEXT_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::SliderChanged)
 	EVT_COMMAND(SLIDER_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::OnNumericTextEnter)
 	EVT_COMMAND(CHECKBOX_HASOUTLINE, wxEVT_CHECKBOX, MyFrame::OutlineCheckboxClicked)
@@ -694,3 +696,7 @@ void MyFrame::OutlineCheckboxClicked(wxCommandEvent& event) {
 	UpdatePreviewPane();
 }
 
+void MyFrame::VisibilityButtonClicked(wxCommandEvent& event) {
+	OutputDebugString(L"Visibility Button Clicked\n");
+	UpdatePreviewPane();
+}
