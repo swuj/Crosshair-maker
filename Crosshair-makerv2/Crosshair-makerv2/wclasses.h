@@ -607,19 +607,19 @@ public:
 
         //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
-        sizer->Add(new wxStaticText(this, wxID_ANY, "Color"), 1, 0, 5);
+        sizer->Add(new wxStaticText(this, wxID_ANY, "Color"), 0, 0, 5);
 
         ColorSlider* redSlider = new ColorSlider(win, &(color->red), "R");
-        sizer->Add(redSlider, 1, 0, 1);
+        sizer->Add(redSlider, 0, 0, 1);
 
         ColorSlider* greenSlider = new ColorSlider(win, &(color->green), "G");
-        sizer->Add(greenSlider, 1, 0, 1);
+        sizer->Add(greenSlider, 0, 0, 1);
 
         ColorSlider* blueSlider = new ColorSlider(win, &(color->blue), "B");
-        sizer->Add(blueSlider, 1, 0, 1);
+        sizer->Add(blueSlider, 0, 0, 1);
 
         ColorSlider* alphaSlider = new ColorSlider(win, &(color->alpha), "A");
-        sizer->Add(alphaSlider, 1, 0, 1);
+        sizer->Add(alphaSlider, 0, 0, 1);
         
         //win->SetSizer(sizer2);
         //sizer->Add(pane, 0);
@@ -671,16 +671,16 @@ public:
 
         //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
-        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 1, 0, 1);
+        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
         wxBoxSizer* lengths = new wxBoxSizer(wxHORIZONTAL);
 
-        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", x, y), 1, 0, 1);
+        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", x, y), 0, 0, 1);
 
         wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", x, y), 1, 0, 1);
+        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", x, y), 0, 0, 1);
 
         wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetGap()), "Gap", x, y), 1, 0, 1);
+        sizer->Add(new IntSlider(win, &(p->GetGap()), "Gap", x, y), 0, 0, 1);
 
         /*win->SetSizer(sizer2);
         sizer->Add(pane, 0);
@@ -733,16 +733,16 @@ public:
 
         //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
-        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 1, 0, 1);
+        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
         wxBoxSizer* radiuss = new wxBoxSizer(wxHORIZONTAL);
 
-        sizer->Add(new IntSlider(win, &(c->GetSize()), "Radius", x, y), 1, 0, 1);
+        sizer->Add(new IntSlider(win, &(c->GetSize()), "Radius", x, y), 0, 0, 1);
 
         wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
         //sizer->Add(new IntSlider(win, &(c->GetWidth()), "Width", x, y), 1, 0, 1);
 
         wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(c->GetGap()), "Gap", x, y), 1, 0, 1);
+        sizer->Add(new IntSlider(win, &(c->GetGap()), "Gap", x, y), 0, 0, 1);
 
         /*win->SetSizer(sizer2);
         sizer->Add(pane, 0);
@@ -916,7 +916,7 @@ public:
         Component* component = c->layers[layer];
         type = component->GetType();
 
-        wxBoxSizer* topsizer = new wxBoxSizer(wxHORIZONTAL);
+        //wxBoxSizer* topsizer = new wxBoxSizer(wxHORIZONTAL);
         wxTextCtrl* name = new wxTextCtrl(this, NAME_UPDATE, component->GetName(), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
         name->Bind(wxEVT_TEXT_ENTER, [this, name, component](wxCommandEvent& event) {
             component->SetName(name->GetValue().ToStdString());
@@ -926,9 +926,9 @@ public:
             });
 
 
-        topsizer->Add(name,1, 0, 1);
+        //topsizer->Add(name,1, 0, 1);
 
-        sizer->Add(topsizer, 1, 0, 1);
+        sizer->Add(name, 0, 0, 1);
 
         OutputDebugString(L"Entering switch\n");
         switch (type) {
@@ -1091,7 +1091,7 @@ public:
         if (crosshair->selectedLayer > -1) {
             OutputDebugString(L"Selected Layer > -1\n");
             ControlPanel* control = new ControlPanel(this, wxID_ANY, crosshair, crosshair->selectedLayer);
-            sizer->Add(control, 1, wxEXPAND | wxALL, 5);
+            sizer->Add(control, 0,0,1);
         }
 
         OutputDebugString(L"Constructed ControlPanelPane\n");
@@ -1102,7 +1102,7 @@ public:
 
         if (crosshair->selectedLayer > -1) {
             ControlPanel* control = new ControlPanel(this, wxID_ANY, crosshair, crosshair->selectedLayer);
-            sizer->Add(control, 1, wxEXPAND | wxALL, 5);
+            sizer->Add(control, 0, 0, 1);
         }
         OutputDebugString(L"Updated Control Pane\n");
     }
