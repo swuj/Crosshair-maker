@@ -206,16 +206,25 @@ public:
 class xhRectangle : public Shape {
 private:
 	int width;					// width of outline, odd values will be off center
-	int gap;					// arm distance from center
+	int x_offset = 0;					// arm offsets from center
+	int y_offset = 0;
 
 public:
-	xhRectangle() : Shape("NewRect", { 255, 255, 255, 255 }, 4, 0, true, 1, { 0,0,0,255 }, RECTLAYER, true), width(2) {}
+	xhRectangle() : Shape("NewRect", { 255, 255, 255, 255 }, 2, 0, true, 1, { 0,0,0,255 }, RECTLAYER, true), width(2) {}
 
-	xhRectangle(std::string name, Pixel color, int length, int width, int gap, bool outline, int outline_thickness, Pixel outline_color, bool visible) :
-		Shape(name, color, length, gap, outline, outline_thickness, outline_color, RECTLAYER, visible), width(width) {}
+	xhRectangle(std::string name, Pixel color, int length, int width, int x_offset, int y_offset, bool outline, int outline_thickness, Pixel outline_color, bool visible) :
+		Shape(name, color, length, gap, outline, outline_thickness, outline_color, RECTLAYER, visible), width(width), x_offset(x_offset), y_offset(y_offset) {}
 
 	int& GetWidth() {
 		return width;
+	}
+
+	int& GetXOffset() {
+		return x_offset;
+	}
+
+	int& GetYOffset() {
+		return y_offset;
 	}
 };
 

@@ -222,7 +222,9 @@ private:
 
         int width = rect->GetWidth();
         int length = rect->GetSize();
-        int gap = rect->GetGap();
+        //int gap = rect->GetGap();
+        int xoff = rect->GetXOffset();
+        int yoff = rect->GetYOffset();
 
         Pixel color = rect->GetColor();
         Pixel outline_color = rect->GetOutlineColor();
@@ -238,10 +240,10 @@ private:
 
         //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
         for (int i = 0 - outline - (width/2); i < (width/2) + outline; i++) {
-            for (int j = 0 - outline - (length/2); j < (length+2) + outline; j++) {
+            for (int j = 0 - outline - (length/2); j < (length/2) + outline; j++) {
                 //pixel to be drawn
-                int pixx = xcenter - (width / 2) + i;
-                int pixy = ycenter + gap + j;
+                int pixx = xcenter + xoff + i;
+                int pixy = ycenter + yoff + j;
                 //OutputDebugString(L"Trying to Draw a Pixel\n");
                 if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
                     //OutputDebugString(L"Drawing a pixel\n");
@@ -613,13 +615,13 @@ private:
 
 public:
     IntSlider(wxWindow* parent, int* val, wxString label, int x, int y) : wxPanel(parent), val(val) {
-        max = std::max(x, y);
+        //max = std::max(x, y);
 
         sizer = new wxBoxSizer(wxHORIZONTAL);
         this->SetSizer(sizer);
 
         wxStaticText* clabel = new wxStaticText(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize, 0);
-        wxSlider* cslider = new wxSlider(this, SLIDER_UPDATE, *val, 0, max, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator);
+        wxSlider* cslider = new wxSlider(this, SLIDER_UPDATE, *val, x, y, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL, wxDefaultValidator);
         NumericTextCtrl* cvalue = new NumericTextCtrl(this, TEXT_UPDATE, wxString::Format(wxT("%d"), *val), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 
 
@@ -727,20 +729,20 @@ public:
         //wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
         //wxWindow* win = pane->GetPane();
         wxWindow* win = this;
-
+        int max = std::max(x, y);
 
         //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
         sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
         wxBoxSizer* lengths = new wxBoxSizer(wxHORIZONTAL);
 
-        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", x, y), 0, 0, 1);
+        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", 0, max), 0, 0, 1);
 
         wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", x, y), 0, 0, 1);
+        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", 0, max), 0, 0, 1);
 
         wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetGap()), "Gap", x, y), 0, 0, 1);
+        sizer->Add(new IntSlider(win, &(p->GetGap()), "Gap", 0, max), 0, 0, 1);
 
         /*win->SetSizer(sizer2);
         sizer->Add(pane, 0);
@@ -790,19 +792,22 @@ public:
         //wxWindow* win = pane->GetPane();
         wxWindow* win = this;
 
-
+        int max = std::max(x, y);
         //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
         sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
         wxBoxSizer* lengths = new wxBoxSizer(wxHORIZONTAL);
 
-        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", x, y), 0, 0, 1);
+        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", 0, max), 0, 0, 1);
 
         wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", x, y), 0, 0, 1);
+        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", 0, max), 0, 0, 1);
 
-        wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetGap()), "Gap", x, y), 0, 0, 1);
+        wxBoxSizer* xoffs = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new IntSlider(win, &(p->GetXOffset()), "X offset", -(x/2), x/2), 0, 0, 1);
+
+        wxBoxSizer* yoffs = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new IntSlider(win, &(p->GetYOffset()), "Y offset", -(y/2), y/2), 0, 0, 1);
 
         /*win->SetSizer(sizer2);
         sizer->Add(pane, 0);
@@ -852,19 +857,20 @@ public:
         //wxWindow* win = pane->GetPane();
         wxWindow* win = this;
 
+        int max = std::max(x, y);
 
         //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
         sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
         wxBoxSizer* radiuss = new wxBoxSizer(wxHORIZONTAL);
 
-        sizer->Add(new IntSlider(win, &(c->GetSize()), "Radius", x, y), 0, 0, 1);
+        sizer->Add(new IntSlider(win, &(c->GetSize()), "Radius", 0, max), 0, 0, 1);
 
-        wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
+        //wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
         //sizer->Add(new IntSlider(win, &(c->GetWidth()), "Width", x, y), 1, 0, 1);
 
         wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(c->GetGap()), "Gap", x, y), 0, 0, 1);
+        sizer->Add(new IntSlider(win, &(c->GetGap()), "Gap", 0, max), 0, 0, 1);
 
         /*win->SetSizer(sizer2);
         sizer->Add(pane, 0);
@@ -913,6 +919,8 @@ public:
         /*wxCollapsiblePane* pane = new wxCollapsiblePane(this, CHECKBOX_HASOUTLINE, "OutLine", wxDefaultPosition, wxDefaultSize);
         wxWindow* win = pane->GetPane();
         wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);*/
+
+        int max = std::max(x, y);
 
         wxWindow* win = this;
         sizer->Add(new wxStaticText(this, wxID_ANY, "Outline"), 1, wxEXPAND | wxALL, 5);
@@ -968,11 +976,11 @@ public:
 
             sizer->Add(check2, 1, wxEXPAND | wxALL, 5);
             sizer->Add(new wxStaticText(win, wxID_ANY, "Inner Outline Thickness"));
-            sizer->Add(new IntSlider(win, &(circle->GetInnerOutlineThickness()), "", x, y), 1, 0, 1);
+            sizer->Add(new IntSlider(win, &(circle->GetInnerOutlineThickness()), "", 0, max), 1, 0, 1);
         }
 
         sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Thickness"));
-        sizer->Add(new IntSlider(win, &(s->GetOutlineThickness()), "", x, y), 1, 0, 1);
+        sizer->Add(new IntSlider(win, &(s->GetOutlineThickness()), "", 0, max), 1, 0, 1);
 
         Pixel* color = &(s->GetOutlineColor());
         sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Color"));
