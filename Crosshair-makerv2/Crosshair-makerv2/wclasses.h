@@ -1214,7 +1214,7 @@ public:
             //ProcessEvent(evt);
             //event.Skip();
             });
-
+        typeselect->SetSelection(0);
         buttonsizer->Add(deleteLayer, 1, 0, 5);
         buttonsizer->Add(typeselect, 1, 0, 5);
         buttonsizer->Add(newLayer, 1, 0, 5);
