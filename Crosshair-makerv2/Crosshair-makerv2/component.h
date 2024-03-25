@@ -7,6 +7,7 @@
 #define SHAPELAYER 102
 #define CIRCLELAYER 103
 #define PLUSLAYER 104
+#define RECTLAYER 105
 
 struct Pixel {
 	uint8_t red, green, blue, alpha;
@@ -202,6 +203,22 @@ public:
 	}
 };
 
+class xhRectangle : public Shape {
+private:
+	int width;					// width of outline, odd values will be off center
+	int gap;					// arm distance from center
+
+public:
+	xhRectangle() : Shape("NewRect", { 255, 255, 255, 255 }, 4, 0, true, 1, { 0,0,0,255 }, RECTLAYER, true), width(2) {}
+
+	xhRectangle(std::string name, Pixel color, int length, int width, int gap, bool outline, int outline_thickness, Pixel outline_color, bool visible) :
+		Shape(name, color, length, gap, outline, outline_thickness, outline_color, RECTLAYER, visible), width(width) {}
+
+	int& GetWidth() {
+		return width;
+	}
+};
+
 //traditional plus/cross shape
 class Plus : public Shape {
 private:
@@ -226,5 +243,4 @@ public:
 	int& GetWidth() {
 		return width;
 	}
-
 };

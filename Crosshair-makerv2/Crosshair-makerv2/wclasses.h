@@ -50,16 +50,18 @@ private:
                 RenderCirlce(c, dc);
                 break;
             }
-            case TEXTURELAYER: {
+            case RECTLAYER: {
                 OutputDebugString(L"Rendering a Texture\n");
-                RenderTexture(c, dc);
+                RenderRectangle(c, dc);
                 break;
             }
 
             }
         }
     }
-
+    /********************/
+    //Rendering Functions
+    /********************/
     void RenderCirlce(Component* comp, wxDC& dc) {
 
         Circle* circle = dynamic_cast<Circle*>(comp);
@@ -197,6 +199,64 @@ private:
     }
 
     void RenderTexture(Component* c, wxDC& dc) {
+
+    }
+
+    void RenderRectangle(Component* c, wxDC& dc) {
+        xhRectangle* rect = dynamic_cast<xhRectangle*>(c);
+
+        int chwidth = crosshair->GetWidth();
+
+        int chheight = crosshair->GetHeight();
+
+        int xcenter = chwidth / 2;
+        int ycenter = chheight / 2;
+
+
+        //if 1 it will draw true size
+        /*int pixelWidth = GetSize().GetWidth() / chwidth;
+        int pixelHeight = GetSize().GetHeight() / chheight;*/
+        int pixelWidth = 1;
+        int pixelHeight = 1;
+
+
+        int width = rect->GetWidth();
+        int length = rect->GetSize();
+        int gap = rect->GetGap();
+
+        Pixel color = rect->GetColor();
+        Pixel outline_color = rect->GetOutlineColor();
+
+        wxColour wcolor(color.red, color.green, color.blue, color.alpha);
+        wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
+
+        int outline = rect->GetOutlineThickness() * rect->GetOutline();
+
+        //OutputDebugString(L"Rendering a plus\n");
+
+        dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+
+        //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+        for (int i = 0 - outline - (width/2); i < (width/2) + outline; i++) {
+            for (int j = 0 - outline - (length/2); j < (length+2) + outline; j++) {
+                //pixel to be drawn
+                int pixx = xcenter - (width / 2) + i;
+                int pixy = ycenter + gap + j;
+                //OutputDebugString(L"Trying to Draw a Pixel\n");
+                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                    //OutputDebugString(L"Drawing a pixel\n");
+                    if (i < 0 - (width / 2) || i >= width/2 || j < -(length / 2) || j >= length/2) {
+                        dc.SetBrush(wxBrush(wcolor2));
+                        //crosshair.SetColor(pixx, pixy, outline_color);
+                    }
+                    else {
+                        dc.SetBrush(wxBrush(wcolor));
+                        //crosshair.SetColor(pixx, pixy, color);
+                    }
+                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                }
+            }
+        }
 
     }
 
@@ -714,6 +774,68 @@ public:
 
 };
 
+//Container for Plus shape specific controls
+class RectangleControl : public wxPanel {
+private:
+    wxBoxSizer* sizer;
+    xhRectangle* p;
+    wxWindow* parent;
+
+public:
+    RectangleControl(wxWindow* parent, xhRectangle* rect, int x, int y) : wxPanel(parent), p(rect), parent(parent) {
+        sizer = new wxBoxSizer(wxVERTICAL);
+        this->SetSizer(sizer);
+
+        //wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
+        //wxWindow* win = pane->GetPane();
+        wxWindow* win = this;
+
+
+        //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+
+        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
+        wxBoxSizer* lengths = new wxBoxSizer(wxHORIZONTAL);
+
+        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", x, y), 0, 0, 1);
+
+        wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", x, y), 0, 0, 1);
+
+        wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new IntSlider(win, &(p->GetGap()), "Gap", x, y), 0, 0, 1);
+
+        /*win->SetSizer(sizer2);
+        sizer->Add(pane, 0);
+
+        pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &PlusControl::OnPaneChanged, this);
+        pane->Collapse(false);*/
+    }
+
+    void OnPaneChanged(wxCollapsiblePaneEvent& event) {
+        // Get the collapsible pane
+        wxCollapsiblePane* pane = dynamic_cast<wxCollapsiblePane*>(event.GetEventObject());
+        if (!pane)
+            return;
+
+        // Get the parent sizer
+        wxSizer* parentSizer = parent->GetSizer();
+        if (!parentSizer)
+            return;
+
+        // Adjust the parent sizer's layout based on whether the collapsible pane is collapsed or expanded
+        if (pane->IsCollapsed()) {
+            parentSizer->Hide(pane->GetPane());
+        }
+        else {
+            parentSizer->Show(pane->GetPane());
+        }
+
+        // Recalculate the layout
+        parentSizer->Layout();
+    }
+
+};
+
 //Container for Circle shape specific controls
 class CircleControl : public wxPanel {
 private:
@@ -940,6 +1062,11 @@ public:
             CreateCircleControl(component);
             break;
         }
+        case RECTLAYER: {
+            CreateRectangleControl(component);
+            break;
+        }
+
 
         }
         OutputDebugString(L"Constructed ControlPanel\n");
@@ -961,6 +1088,35 @@ public:
         //Dimensions
         OutputDebugString(L"Creating Plus Control\n");
         PlusControl* dimensionControl = new PlusControl(this, plus, x, y);
+        sizer->Add(dimensionControl, 1, 0, 1);
+
+        //outline checkbox
+        OutputDebugString(L"Creating Outline Control\n");
+        OutLineControl* outlineControl = new OutLineControl(this, plus, x, y);
+        sizer->Add(outlineControl, 1, 0, 1);
+
+        //SetSizer(sizer);
+        OutputDebugString(L"Controls Updated\n");
+
+        //return sizer;
+    }
+
+    void CreateRectangleControl(Component* c) {
+        //sizer->Clear(true);
+
+        OutputDebugString(L"Updating Controls\n");
+
+        //Cast component to cross to access Plus members
+        xhRectangle* plus = dynamic_cast<xhRectangle*>(c);
+
+        //Main Color
+        OutputDebugString(L"Creating Color Control\n");
+        ColorControl* mainColorControl = new ColorControl(this, &(plus->GetColor()), "Color");
+        sizer->Add(mainColorControl, 1, 0, 1);
+
+        //Dimensions
+        OutputDebugString(L"Creating Plus Control\n");
+        RectangleControl* dimensionControl = new RectangleControl(this, plus, x, y);
         sizer->Add(dimensionControl, 1, 0, 1);
 
         //outline checkbox
@@ -1026,7 +1182,7 @@ public:
         wxButton* deleteLayer = new wxButton(this, BUTTON_DELETELAYER, "Delete");
         wxButton* newLayer = new wxButton(this, BUTTON_NEWLAYER, "New Layer");
 
-        wxString choices[] = { wxT("Plus"), wxT("Circle"), wxT("Texture") };
+        wxString choices[] = { wxT("Plus"), wxT("Circle"), wxT("Rectangle") };
         wxArrayString arrChoices(3, choices);
         wxComboBox* typeselect = new wxComboBox(this, LAYER_TYPE_DROPDOWN, wxT("Type"), wxDefaultPosition, wxDefaultSize, arrChoices);
 
@@ -1041,7 +1197,7 @@ public:
                 break;
             }
             case 2: {
-                c->typeToAdd = CIRCLELAYER;
+                c->typeToAdd = RECTLAYER;
                 break;
             }
             }

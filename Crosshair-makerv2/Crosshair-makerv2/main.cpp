@@ -256,8 +256,8 @@ void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 		xhair.AddLayer(new Circle());
 		break;
 	}
-	case TEXTURELAYER: {
-		xhair.AddLayer(new Circle());
+	case RECTLAYER: {
+		xhair.AddLayer(new xhRectangle());
 		break;
 	}
 	}
