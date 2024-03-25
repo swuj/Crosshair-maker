@@ -213,7 +213,7 @@ public:
 	xhRectangle() : Shape("NewRect", { 255, 255, 255, 255 }, 2, 0, true, 1, { 0,0,0,255 }, RECTLAYER, true), width(2) {}
 
 	xhRectangle(std::string name, Pixel color, int length, int width, int x_offset, int y_offset, bool outline, int outline_thickness, Pixel outline_color, bool visible) :
-		Shape(name, color, length, gap, outline, outline_thickness, outline_color, RECTLAYER, visible), width(width), x_offset(x_offset), y_offset(y_offset) {}
+		Shape(name, color, length, 0, outline, outline_thickness, outline_color, RECTLAYER, visible), width(width), x_offset(x_offset), y_offset(y_offset) {}
 
 	int& GetWidth() {
 		return width;
