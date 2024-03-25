@@ -1222,6 +1222,57 @@ void DrawCircle(Component* comp) {
 	}
 }
 
+void DrawRectangle(Component* comp) {
+	xhRectangle* rect = dynamic_cast<xhRectangle*>(comp);
+
+	int chwidth = xhair.GetWidth();
+
+	int chheight = xhair.GetHeight();
+
+	int xcenter = chwidth / 2;
+	int ycenter = chheight / 2;
+
+
+	//if 1 it will draw true size
+	/*int pixelWidth = GetSize().GetWidth() / chwidth;
+	int pixelHeight = GetSize().GetHeight() / chheight;*/
+	int pixelWidth = 1;
+	int pixelHeight = 1;
+
+
+	int width = rect->GetWidth();
+	int length = rect->GetSize();
+
+	int xoff = rect->GetXOffset();
+	int yoff = rect->GetYOffset();
+
+	Pixel color = rect->GetColor();
+	Pixel outline_color = rect->GetOutlineColor();
+
+	wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
+
+	int outline = rect->GetOutlineThickness() * rect->GetOutline();
+
+	//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+	for (int i = 0 - outline - (width / 2); i < (width / 2) + outline; i++) {
+		for (int j = 0 - outline - (length / 2); j < (length / 2) + outline; j++) {
+			//pixel to be drawn
+			int pixx = xcenter + xoff + i;
+			int pixy = ycenter + yoff + j;
+			//OutputDebugString(L"Trying to Draw a Pixel\n");
+			if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+				//OutputDebugString(L"Drawing a pixel\n");
+				if (i < 0 - (width / 2) || i >= width / 2 || j < -(length / 2) || j >= length / 2) {
+					xhair.SetColor(pixx, pixy, outline_color);
+				}
+				else {
+					xhair.SetColor(pixx, pixy, color);
+				}
+			}
+		}
+	}
+}
+
 void UpdateCrosshairPixels() {
 	for (Component* c : xhair.layers) {
 		int type = c->GetType();
@@ -1239,6 +1290,11 @@ void UpdateCrosshairPixels() {
 		case CIRCLELAYER: {
 			OutputDebugString(L"Drawing a circle\n");
 			DrawCircle(c);
+			break;
+		}
+		case RECTLAYER: {
+			OutputDebugString(L"Drawing a rectangle\n");
+			DrawRectangle(c);
 			break;
 		}
 
