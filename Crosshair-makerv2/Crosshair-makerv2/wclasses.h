@@ -5,6 +5,7 @@
 #include "xhair.h"
 #include "definitions.h"
 #include <wx/collpane.h>
+#include <numeric>
 
 
 //Panel to show a preview of the crosshair, renders the layers
@@ -51,11 +52,15 @@ private:
                 break;
             }
             case RECTLAYER: {
-                OutputDebugString(L"Rendering a Texture\n");
+                OutputDebugString(L"Rendering a Rectangle\n");
                 RenderRectangle(c, dc);
                 break;
             }
-
+            case DIAMONDLAYER: {
+                OutputDebugString(L"Rendering a Rectangle\n");
+                RenderDiamond(c, dc);
+                break;
+            }
             }
         }
     }
@@ -248,6 +253,76 @@ private:
                 if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
                     //OutputDebugString(L"Drawing a pixel\n");
                     if (i < 0 - (width / 2) || i >= width/2 || j < -(length / 2) || j >= length/2) {
+                        dc.SetBrush(wxBrush(wcolor2));
+                        //crosshair.SetColor(pixx, pixy, outline_color);
+                    }
+                    else {
+                        dc.SetBrush(wxBrush(wcolor));
+                        //crosshair.SetColor(pixx, pixy, color);
+                    }
+                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                }
+            }
+        }
+
+    }
+
+    void RenderDiamond(Component* c, wxDC& dc) {
+        xhDiamond* rect = dynamic_cast<xhDiamond*>(c);
+
+        int chwidth = crosshair->GetWidth();
+
+        int chheight = crosshair->GetHeight();
+
+        int xcenter = chwidth / 2;
+        int ycenter = chheight / 2;
+
+
+        //if 1 it will draw true size
+        /*int pixelWidth = GetSize().GetWidth() / chwidth;
+        int pixelHeight = GetSize().GetHeight() / chheight;*/
+        int pixelWidth = 1;
+        int pixelHeight = 1;
+
+
+        int width = rect->GetWidth();
+        int length = rect->GetSize();
+        long slope = (long)length/(long)width;
+
+        //find gcd
+        int g = std::gcd(width, length);
+
+        int swidth = width / g;
+        int slength = length / g;
+
+        //int gap = rect->GetGap();
+        int xoff = rect->GetXOffset();
+        int yoff = rect->GetYOffset();
+
+        Pixel color = rect->GetColor();
+        Pixel outline_color = rect->GetOutlineColor();
+
+        wxColour wcolor(color.red, color.green, color.blue, color.alpha);
+        wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
+
+        int outline = rect->GetOutlineThickness() * rect->GetOutline();
+
+        //OutputDebugString(L"Rendering a plus\n");
+
+        dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+
+        //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+        for (int i = 0 - outline - (width / 2); i < (width / 2) + outline; i++) {
+            int a = ( ((width / 2) - abs(i)) * slength) / swidth;
+            for (int j = 0 - outline - a; j < outline + a; j++) {
+                //pixel to be drawn
+                int pixx = xcenter + xoff + i;
+                int pixy = ycenter + yoff + j;
+
+                //Bounds of frame
+                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                    //OutputDebugString(L"Drawing a pixel\n");
+                    if (j < - a || j >= a || i < -width / 2|| i>=width/2) {
                         dc.SetBrush(wxBrush(wcolor2));
                         //crosshair.SetColor(pixx, pixy, outline_color);
                     }
@@ -1074,6 +1149,10 @@ public:
             CreateRectangleControl(component);
             break;
         }
+        case DIAMONDLAYER: {
+            CreateRectangleControl(component);
+            break;
+        }
 
 
         }
@@ -1190,8 +1269,8 @@ public:
         wxButton* deleteLayer = new wxButton(this, BUTTON_DELETELAYER, "Delete");
         wxButton* newLayer = new wxButton(this, BUTTON_NEWLAYER, "New Layer");
 
-        wxString choices[] = { wxT("Plus"), wxT("Circle"), wxT("Rectangle") };
-        wxArrayString arrChoices(3, choices);
+        wxString choices[] = { wxT("Plus"), wxT("Circle"), wxT("Rectangle"), wxT("Diamond") };
+        wxArrayString arrChoices(4, choices);
         wxComboBox* typeselect = new wxComboBox(this, LAYER_TYPE_DROPDOWN, wxT("Type"), wxDefaultPosition, wxDefaultSize, arrChoices);
 
         typeselect->Bind(wxEVT_COMBOBOX, [this, typeselect, c](wxCommandEvent& event) {
@@ -1206,6 +1285,10 @@ public:
             }
             case 2: {
                 c->typeToAdd = RECTLAYER;
+                break;
+            }
+            case 3: {
+                c->typeToAdd = DIAMONDLAYER;
                 break;
             }
             }
