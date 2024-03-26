@@ -1,4 +1,4 @@
-C++ application using winapi to create and generate crosshair pngs.
+C++ application using wxWidgets to create and generate crosshair pngs.
 Example crosshair:
 ![testclient](https://github.com/swuj/Crosshair-maker/assets/111818714/26c35897-6ccb-4f18-b481-95f2fbe0f98c)
 
