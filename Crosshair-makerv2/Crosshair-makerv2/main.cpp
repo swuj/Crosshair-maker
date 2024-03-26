@@ -1351,6 +1351,65 @@ void DrawRectangle(Component* comp) {
 	}
 }
 
+void DrawDiamond(Component* comp) {
+	xhDiamond* rect = dynamic_cast<xhDiamond*>(comp);
+
+	int chwidth = xhair.GetWidth();
+
+	int chheight = xhair.GetHeight();
+
+	int xcenter = chwidth / 2;
+	int ycenter = chheight / 2;
+
+
+	//if 1 it will draw true size
+	/*int pixelWidth = GetSize().GetWidth() / chwidth;
+	int pixelHeight = GetSize().GetHeight() / chheight;*/
+	int pixelWidth = 1;
+	int pixelHeight = 1;
+
+
+	int width = rect->GetWidth();
+	int length = rect->GetSize();
+
+	//find gcd
+	int g = std::gcd(width, length);
+
+	int swidth = width / g;
+	int slength = length / g;
+
+	//int gap = rect->GetGap();
+	int xoff = rect->GetXOffset();
+	int yoff = rect->GetYOffset();
+
+	Pixel color = rect->GetColor();
+	Pixel outline_color = rect->GetOutlineColor();
+
+	int outline = rect->GetOutlineThickness() * rect->GetOutline();
+
+
+	//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+	for (int i = 0 - outline - (width / 2); i < (width / 2) + outline; i++) {
+		int a = (((width / 2) - abs(i)) * slength) / swidth;
+		for (int j = 0 - outline - a; j < outline + a; j++) {
+			//pixel to be drawn
+			int pixx = xcenter + xoff + i;
+			int pixy = ycenter + yoff + j;
+
+			//Bounds of frame
+			if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+				//OutputDebugString(L"Drawing a pixel\n");
+				if (j < -a || j >= a || i < -width / 2 || i >= width / 2) {
+					xhair.SetColor(pixx, pixy, outline_color);
+				}
+				else {
+					xhair.SetColor(pixx, pixy, color);
+				}
+			}
+		}
+	}
+}
+
 void UpdateCrosshairPixels() {
 	for (Component* c : xhair.layers) {
 		int type = c->GetType();
@@ -1373,6 +1432,11 @@ void UpdateCrosshairPixels() {
 		case RECTLAYER: {
 			OutputDebugString(L"Drawing a rectangle\n");
 			DrawRectangle(c);
+			break;
+		}
+		case DIAMONDLAYER: {
+			OutputDebugString(L"Drawing a diamond\n");
+			DrawDiamond(c);
 			break;
 		}
 

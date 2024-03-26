@@ -287,7 +287,6 @@ private:
 
         int width = rect->GetWidth();
         int length = rect->GetSize();
-        long slope = (long)length/(long)width;
 
         //find gcd
         int g = std::gcd(width, length);
