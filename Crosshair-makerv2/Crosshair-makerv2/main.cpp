@@ -241,7 +241,6 @@ void MyFrame::NewButtonClicked2(wxCommandEvent& event) {
 	ShowEditInterface();
 }
 
-
 // LAYER LIST PANE
 void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 	//xhair.AddLayer(new Plus());
@@ -260,6 +259,11 @@ void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 		xhair.AddLayer(new xhRectangle());
 		break;
 	}
+	case DIAMONDLAYER: {
+		xhair.AddLayer(new xhDiamond());
+		break;
+	}
+
 	}
 	UpdateLayerListPane2();
 	UpdateLayerControlPane2();
@@ -720,6 +724,36 @@ void SaveToFile(const std::wstring& filePath) {
 				delete ptr;
 				break;
 			}
+			case DIAMONDLAYER: {
+				xhDiamond* ptr = dynamic_cast<xhDiamond*>(c);
+				Pixel color = ptr->GetColor();
+				Pixel outcolor = ptr->GetOutlineColor();
+
+				outFile << type << std::endl;
+				outFile << ptr->GetName() << std::endl;
+
+				outFile << (int)color.red << std::endl;
+				outFile << (int)color.green << std::endl;
+				outFile << (int)color.blue << std::endl;
+				outFile << (int)color.alpha << std::endl;
+
+				outFile << ptr->GetSize() << std::endl;
+				outFile << ptr->GetWidth() << std::endl;
+				outFile << ptr->GetGap() << std::endl;
+
+				outFile << ptr->GetOutline() << std::endl;
+				outFile << ptr->GetOutlineThickness() << std::endl;
+				outFile << (int)outcolor.red << std::endl;
+				outFile << (int)outcolor.green << std::endl;
+				outFile << (int)outcolor.blue << std::endl;
+				outFile << (int)outcolor.alpha << std::endl;
+				outFile << ptr->GetXOffset() << std::endl;
+				outFile << ptr->GetYOffset() << std::endl;
+				outFile << ptr->GetVisibility() << std::endl;
+
+				delete ptr;
+				break;
+			}
 
 			default: {
 				break;
@@ -917,7 +951,7 @@ int LoadFromFile() {
 					OutputDebugString(L"Set length\n");
 					int width = d[5];
 					OutputDebugString(L"Set width\n");
-					int gap = d[6];
+					int gap = d[6]; //unused
 					OutputDebugString(L"Set gap\n");
 					bool outline = d[7];
 					OutputDebugString(L"Set outline\n");
@@ -933,7 +967,51 @@ int LoadFromFile() {
 					xhRectangle* p = new xhRectangle(name, col, length, width, xoff, yoff,outline, out_thickness, ocol, visible);
 					OutputDebugString(L"Created plus\n");
 
-					OutputDebugString(L"Adding plus to crosshair\n");
+					OutputDebugString(L"Adding rectangle to crosshair\n");
+					xhair.AddLayer(p);
+					/*xhair.selectedLayer++;
+					OutputDebugString(L"setting ID\n");
+					p->SetID(xhair.selectedLayer);*/
+					OutputDebugString(L"Layer successfully added\n");
+					break;
+				}
+				case DIAMONDLAYER: {
+					OutputDebugString(L"Creating diamond layer\n");
+					int d[17];
+					for (int i = 0; i < 16; i++) { //17 pieces of data to get from
+						if (std::getline(inFile, line)) {
+							d[i] = std::stoi(line);
+						}
+						else {
+							return 5;
+						}
+					}
+					OutputDebugString(L"Data read to array\n");
+					Pixel col = { d[0], d[1], d[2], d[3] };
+					OutputDebugString(L"Set color\n");
+					Pixel ocol = { d[9], d[10],d[11], d[12] };
+					OutputDebugString(L"Set outline color\n");
+					int length = d[4];
+					OutputDebugString(L"Set length\n");
+					int width = d[5];
+					OutputDebugString(L"Set width\n");
+					int gap = d[6]; //unused
+					OutputDebugString(L"Set gap\n");
+					bool outline = d[7];
+					OutputDebugString(L"Set outline\n");
+					int out_thickness = d[8];
+					OutputDebugString(L"Set outline thickness\n");
+					int xoff = d[13];
+					int yoff = d[14];
+					OutputDebugString(L"Set outline type\n");
+					bool visible = d[15];
+					OutputDebugString(L"Set visibility\n");
+
+
+					xhDiamond* p = new xhDiamond(name, col, length, width, xoff, yoff, outline, out_thickness, ocol, visible);
+					OutputDebugString(L"Created plus\n");
+
+					OutputDebugString(L"Adding diamond to crosshair\n");
 					xhair.AddLayer(p);
 					/*xhair.selectedLayer++;
 					OutputDebugString(L"setting ID\n");

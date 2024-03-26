@@ -30,7 +30,7 @@ public:
 	int GetType() {
 		return type;
 	}
-	int SetType(int t) {
+	void SetType(int t) {
 		type = t;
 	}
 
@@ -245,8 +245,6 @@ public:
 	{
 		SetType(DIAMONDLAYER);
 	}
-
-
 };
 
 //traditional plus/cross shape
