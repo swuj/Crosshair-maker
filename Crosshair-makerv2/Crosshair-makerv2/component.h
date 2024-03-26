@@ -8,6 +8,7 @@
 #define CIRCLELAYER 103
 #define PLUSLAYER 104
 #define RECTLAYER 105
+#define DIAMONDLAYER 106
 
 struct Pixel {
 	uint8_t red, green, blue, alpha;
@@ -28,6 +29,9 @@ public:
 
 	int GetType() {
 		return type;
+	}
+	int SetType(int t) {
+		type = t;
 	}
 
 	std::string GetName() {
@@ -226,6 +230,23 @@ public:
 	int& GetYOffset() {
 		return y_offset;
 	}
+};
+
+//Same as rectangle but has different render algorithm
+class xhDiamond : public xhRectangle {
+private:
+public:
+	xhDiamond() : xhRectangle() {
+		SetType(DIAMONDLAYER);
+	}
+
+	xhDiamond(std::string name, Pixel color, int length, int width, int x_offset, int y_offset, bool outline, int outline_thickness, Pixel outline_color, bool visible) :
+		xhRectangle(name, color, length, width, x_offset, y_offset, outline, outline_thickness, outline_color, visible)
+	{
+		SetType(DIAMONDLAYER);
+	}
+
+
 };
 
 //traditional plus/cross shape
