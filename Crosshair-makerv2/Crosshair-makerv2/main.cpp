@@ -661,6 +661,37 @@ void SaveToFile(const std::wstring& filePath) {
 				delete plus;
 				break;
 			}
+			case XLAYER: {
+				xhX* plus = dynamic_cast<xhX*>(c);
+				Pixel color = plus->GetColor();
+				Pixel outcolor = plus->GetOutlineColor();
+
+				outFile << type << std::endl;
+				outFile << plus->GetName() << std::endl;
+
+				outFile << (int)color.red << std::endl;
+				outFile << (int)color.green << std::endl;
+				outFile << (int)color.blue << std::endl;
+				outFile << (int)color.alpha << std::endl;
+
+				outFile << plus->GetSize() << std::endl;
+				outFile << plus->GetWidth() << std::endl;
+				outFile << plus->GetGap() << std::endl;
+
+				outFile << plus->GetOutline() << std::endl;
+				outFile << plus->GetOutlineThickness() << std::endl;
+				outFile << (int)outcolor.red << std::endl;
+				outFile << (int)outcolor.green << std::endl;
+				outFile << (int)outcolor.blue << std::endl;
+				outFile << (int)outcolor.alpha << std::endl;
+				outFile << plus->GetOutlineType() << std::endl;
+				outFile << plus->GetVisibility() << std::endl;
+
+				//outFile << plus->GetSize() << std::endl;
+
+				delete plus;
+				break;
+			}
 			case CIRCLELAYER: {
 				Circle* ptr = dynamic_cast<Circle*>(c);
 				Pixel color = ptr->GetColor();
@@ -931,6 +962,52 @@ int LoadFromFile() {
 					OutputDebugString(L"Layer successfully added\n");
 					break;
 				}
+				case XLAYER: {
+					OutputDebugString(L"Creating X layer\n");
+					int d[17];
+					for (int i = 0; i < 15; i++) { //16 pieces of data to get from
+						if (std::getline(inFile, line)) {
+							d[i] = std::stoi(line);
+						}
+						else {
+							return 5;
+						}
+					}
+					OutputDebugString(L"Data read to array\n");
+					Pixel col = { d[0], d[1], d[2], d[3] };
+					OutputDebugString(L"Set color\n");
+					Pixel ocol = { d[9], d[10],d[11], d[12] };
+					OutputDebugString(L"Set outline color\n");
+					int length = d[4];
+					OutputDebugString(L"Set length\n");
+					int width = d[5];
+					OutputDebugString(L"Set width\n");
+					int gap = d[6];
+					OutputDebugString(L"Set gap\n");
+					bool outline = d[7];
+					OutputDebugString(L"Set outline\n");
+					int out_thickness = d[8];
+					OutputDebugString(L"Set outline thickness\n");
+					bool out_type = false;
+					if (d[13] > 0) {
+						out_type = true;
+					}
+					OutputDebugString(L"Set outline type\n");
+					bool visible = d[14];
+					OutputDebugString(L"Set visibility\n");
+
+
+					xhX* p = new xhX(name, col, length, width, gap, outline, out_thickness, ocol, out_type, visible);
+					OutputDebugString(L"Created X\n");
+
+					OutputDebugString(L"Adding X to crosshair\n");
+					xhair.AddLayer(p);
+					/*xhair.selectedLayer++;
+					OutputDebugString(L"setting ID\n");
+					p->SetID(xhair.selectedLayer);*/
+					OutputDebugString(L"Layer successfully added\n");
+					break;
+				}
 				case RECTLAYER: {
 					OutputDebugString(L"Creating rectangle layer\n");
 					int d[17];
@@ -1141,6 +1218,171 @@ void DrawPlus(Component* c) {
 			if (!pass) {
 				col = plus->GetColor();
 				
+			}
+
+			//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+			for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+				for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+					//pixel to be drawn
+					int pixx = xcenter - (width / 2) + i;
+					int pixy = ycenter + gap + j;
+					//OutputDebugString(L"Trying to Draw a Pixel\n");
+					if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+						//OutputDebugString(L"Drawing a pixel\n");
+						xhair.SetColor(pixx, pixy, col);
+					}
+
+				}
+			}
+
+			for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+				for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+					//pixel to be drawn
+					int pixx = xcenter - (width / 2) + i;
+					int pixy = ycenter - gap + j - length;
+
+					if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+						xhair.SetColor(pixx, pixy, col);
+					}
+
+				}
+			}
+
+			for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+				for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+					//pixel to be drawn
+					int pixx = xcenter - length + j - gap;
+					int pixy = ycenter - (width / 2) + i;
+
+					if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+						xhair.SetColor(pixx, pixy, col);
+					}
+				}
+			}
+
+			for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
+				for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
+					//pixel to be drawn
+					int pixx = xcenter + j + gap;
+					int pixy = ycenter - (width / 2) + i;
+
+					if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+						xhair.SetColor(pixx, pixy, col);
+					}
+				}
+			}
+		}
+	}
+}
+
+void DrawX(Component* c) {
+
+	xhX* plus = dynamic_cast<xhX*>(c);
+
+	int chwidth = xhair.GetWidth();
+
+	int chheight = xhair.GetHeight();
+
+	int xcenter = chwidth / 2;
+	int ycenter = chheight / 2;
+
+
+	//if 1 it will draw true size
+	/*int pixelWidth = GetSize().GetWidth() / chwidth;
+	int pixelHeight = GetSize().GetHeight() / chheight;*/
+	int pixelWidth = 1;
+	int pixelHeight = 1;
+
+
+	int width = plus->GetWidth();
+	int length = plus->GetSize();
+	int gap = plus->GetGap();
+
+	Pixel color = plus->GetColor();
+	Pixel outline_color = plus->GetOutlineColor();
+
+	int outline = plus->GetOutlineThickness() * plus->GetOutline();
+
+	if (plus->GetOutlineType()) {
+		//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
+		for (int i = 0 - outline; i < width + outline; i++) {
+			for (int j = 0 - outline; j < length + outline; j++) {
+				//pixel to be drawn
+				int pixx = xcenter - (width / 2) + i;
+				int pixy = ycenter + gap + j;
+				//OutputDebugString(L"Trying to Draw a Pixel\n");
+				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+					//OutputDebugString(L"Drawing a pixel\n");
+					if (i < 0 || i >= width || j < 0 || j >= length) {
+						xhair.SetColor(pixx, pixy, outline_color);
+					}
+					else {
+						xhair.SetColor(pixx, pixy, color);
+					}
+				}
+
+			}
+		}
+
+		for (int i = 0 - outline; i < width + outline; i++) {
+			for (int j = 0 - outline; j < length + outline; j++) {
+				//pixel to be drawn
+				int pixx = xcenter - (width / 2) + i;
+				int pixy = ycenter - gap + j - length;
+
+				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+					if (i < 0 || i >= width || j < 0 || j >= length) {
+						xhair.SetColor(pixx, pixy, outline_color);
+					}
+					else {
+						xhair.SetColor(pixx, pixy, color);
+					}
+				}
+
+			}
+		}
+
+		for (int i = 0 - outline; i < width + outline; i++) {
+			for (int j = 0 - outline; j < length + outline; j++) {
+				//pixel to be drawn
+				int pixx = xcenter - length + j - gap;
+				int pixy = ycenter - (width / 2) + i;
+
+				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+					if (i < 0 || i >= width || j < 0 || j >= length) {
+						xhair.SetColor(pixx, pixy, outline_color);
+					}
+					else {
+						xhair.SetColor(pixx, pixy, color);
+					}
+				}
+			}
+		}
+
+		for (int i = 0 - outline; i < width + outline; i++) {
+			for (int j = 0 - outline; j < length + outline; j++) {
+				//pixel to be drawn
+				int pixx = xcenter + j + gap;
+				int pixy = ycenter - (width / 2) + i;
+
+				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+					if (i < 0 || i >= width || j < 0 || j >= length) {
+						xhair.SetColor(pixx, pixy, outline_color);
+					}
+					else {
+						xhair.SetColor(pixx, pixy, color);
+					}
+				}
+			}
+		}
+
+	}
+	else {
+		Pixel col = plus->GetOutlineColor();
+		for (int pass = 1; pass >= 0; pass--) {
+			if (!pass) {
+				col = plus->GetColor();
+
 			}
 
 			//Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
@@ -1439,6 +1681,12 @@ void UpdateCrosshairPixels() {
 			DrawDiamond(c);
 			break;
 		}
+		case XLAYER: {
+			OutputDebugString(L"Drawing an X\n");
+			DrawX(c);
+			break;
+		}
+
 
 			
 		}

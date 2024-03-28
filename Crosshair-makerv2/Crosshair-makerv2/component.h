@@ -275,6 +275,7 @@ public:
 };
 
 class xhX : public Plus {
+public:
 	xhX() : Plus() {
 		SetName("newX");
 		SetType(XLAYER);
