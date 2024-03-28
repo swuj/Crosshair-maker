@@ -272,3 +272,7 @@ public:
 		return width;
 	}
 };
+
+class xhX : public Plus {
+
+};
