@@ -9,6 +9,7 @@
 #define PLUSLAYER 104
 #define RECTLAYER 105
 #define DIAMONDLAYER 106
+#define XLAYER 107
 
 struct Pixel {
 	uint8_t red, green, blue, alpha;
@@ -274,5 +275,13 @@ public:
 };
 
 class xhX : public Plus {
+	xhX() : Plus() {
+		SetName("newX");
+		SetType(XLAYER);
+	}
 
+	xhX(std::string name, Pixel color, int length, int width, int gap, bool outline, int outline_thickness, Pixel outline_color, bool outline_type, bool visible) :
+		Plus(name, color, length, width, gap, outline, outline_thickness, outline_color, outline_type, visible) {
+		SetType(XLAYER);
+	}
 };
