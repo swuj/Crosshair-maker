@@ -581,17 +581,17 @@ private:
                             //crosshair.SetColor(pixx, pixy, color);
                         }
                         //dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
-                        dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter - i + j + gap) * pixelHeight, pixelWidth, pixelHeight);
-                        dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
 
-                        dc.DrawRectangle((xcenter + i + gap) * pixelWidth, (ycenter - i + j + gap) * pixelHeight, pixelWidth, pixelHeight);
-                        dc.DrawRectangle((xcenter + i - j + gap) * pixelWidth, (ycenter - i) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter + i + gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter + i - j + gap) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
 
-                        dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter + i - j - gap) * pixelHeight, pixelWidth, pixelHeight);
-                        dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter + i - j + gap) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter + i + gap) * pixelHeight, pixelWidth, pixelHeight);
 
-                        dc.DrawRectangle((xcenter + i + gap) * pixelWidth, (ycenter + i - j - gap) * pixelHeight, pixelWidth, pixelHeight);
-                        dc.DrawRectangle((xcenter + i - j + gap) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter + i + gap) * pixelWidth, (ycenter + i - j + gap) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter + i - j + gap) * pixelWidth, (ycenter + i + gap) * pixelHeight, pixelWidth, pixelHeight);
                     }
 
                 }
