@@ -164,6 +164,48 @@ public:
 		Update();
 	}
 
+	void OnFileOpen(wxCommandEvent& event) {
+		if (LoadFromFile() == 10) {
+			UpdateCrosshairPixels();
+			ShowEditInterface();
+		}
+	}
+
+	void OnFileSave(wxCommandEvent& event) {
+		if (&xhair != nullptr) {
+			OPENFILENAME ofn;       // Structure for the file dialog
+			wchar_t szFile[260];    // Buffer to store the file path
+			ZeroMemory(&ofn, sizeof(ofn));
+
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = NULL;   // Handle to the parent window
+			ofn.lpstrFile = szFile; // Buffer to store the selected file path
+			ofn.lpstrFile[0] = L'\0';
+			ofn.nMaxFile = sizeof(szFile);
+			ofn.lpstrFilter = L"XHAIR Files(*.xhair)\0 * .xhair\0"; // Filter for file types
+			ofn.nFilterIndex = 1;
+			ofn.lpstrFileTitle = NULL;
+			ofn.nMaxFileTitle = 0;
+			ofn.lpstrInitialDir = NULL;
+			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+			if (GetSaveFileName(&ofn)) {
+				SaveToFile(szFile);
+			}
+			else {
+				OutputDebugString(L"Save failed\n");
+			}
+		}
+		else {
+			OutputDebugString(L"No crosshair open to save\n");
+		}
+		
+	}
+
+	void OnFileExit(wxCommandEvent& event) {
+		Close(true); // Close the frame
+	}
+
     DECLARE_EVENT_TABLE()
 };
 
@@ -172,6 +214,22 @@ wxIMPLEMENT_APP(MainApp);
 bool MainApp::OnInit()
 {
     MyFrame* frame = new MyFrame("Crosshair Maker", wxPoint(1, 1), wxSize(1000, 800));
+
+	wxMenuBar* menuBar = new wxMenuBar;
+
+	// Create a file menu
+	wxMenu* fileMenu = new wxMenu;
+	fileMenu->Append(wxID_OPEN, "&Open...\tCtrl+O");
+	fileMenu->Append(wxID_SAVE, "&Save\tCtrl+S");
+	fileMenu->AppendSeparator();
+	fileMenu->Append(wxID_EXIT, "&Exit\tCtrl+Q");
+
+	// Add the file menu to the menu bar
+	menuBar->Append(fileMenu, "&File");
+
+	// Associate the menu bar with the frame
+	frame->SetMenuBar(menuBar);
+
     frame->Show(true);
     SetTopWindow(frame);
 
@@ -195,6 +253,10 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_COMMAND(CHECKBOX_HASOUTLINE, wxEVT_CHECKBOX, MyFrame::OutlineCheckboxClicked)
 	EVT_COMMAND(NAME_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::LayerNameChanged)
 	EVT_COMBOBOX(LAYER_TYPE_DROPDOWN, MyFrame::LayerTypeChanged)
+
+	EVT_MENU(wxID_OPEN, MyFrame::OnFileOpen)
+	EVT_MENU(wxID_SAVE, MyFrame::OnFileSave)
+	EVT_MENU(wxID_EXIT, MyFrame::OnFileExit)
 	//EVT_SCROLL(SLIDER_CONTROLZ, MyFrame::SliderChanged)
     //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
