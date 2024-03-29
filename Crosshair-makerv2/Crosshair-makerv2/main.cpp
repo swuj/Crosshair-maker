@@ -251,6 +251,10 @@ void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 		xhair.AddLayer(new Plus());
 		break;
 	}
+	case XLAYER: {
+		xhair.AddLayer(new xhX());
+		break;
+	}
 	case CIRCLELAYER: {
 		xhair.AddLayer(new Circle());
 		break;
