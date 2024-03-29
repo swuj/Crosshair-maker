@@ -24,3 +24,4 @@ enum
 
 wxDECLARE_EVENT(myEVT_PROGRESS, wxCommandEvent);
 wxDEFINE_EVENT(myEVT_PROGRESS, wxCommandEvent);
+wxDECLARE_EVENT(LAYER_PANEL_CLICKED, wxCommandEvent);

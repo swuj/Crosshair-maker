@@ -6,7 +6,10 @@
 #include <iostream>
 #include <fstream>
 #include "wclasses.h"
+#include "definitions.h"
 
+
+wxDEFINE_EVENT(LAYER_PANEL_CLICKED, wxCommandEvent);
 Crosshair xhair;
 
 int LoadFromFile();
@@ -183,7 +186,8 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(BUTTON_NEWLAYER, MyFrame::NewLayerButtonClicked)
 	EVT_BUTTON(BUTTON_DELETELAYER, MyFrame::DeleteLayerButtonClicked)
 	EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
-	EVT_BUTTON(BUTTON_LAYER, MyFrame::LayerButtonClicked)
+	//EVT_LEFT_DOWN(MyFrame::LayerButtonClicked)
+	EVT_COMMAND(wxID_ANY, LAYER_PANEL_CLICKED, MyFrame::LayerButtonClicked)
 	EVT_BUTTON(BUTTON_VISIBLE, MyFrame::VisibilityButtonClicked)
 	EVT_BUTTON(BUTTON_EXPORT, MyFrame::ExportButtonClicked)
 	EVT_COMMAND(TEXT_UPDATE, wxEVT_COMMAND_TEXT_UPDATED, MyFrame::SliderChanged)
@@ -275,11 +279,14 @@ void MyFrame::NewLayerButtonClicked(wxCommandEvent& event) {
 }
 
 void MyFrame::DeleteLayerButtonClicked(wxCommandEvent& event) {
-	xhair.DeleteLayer();
+	OutputDebugString(L"DeleteLayerButton process begin\n");
+	//xhair.DeleteLayer(xhair.selectedLayer);
 	UpdateLayerListPane2();
 	UpdateLayerControlPane2();
 	UpdatePreviewPane2();
+	OutputDebugString(L"DeleteLayerButton process complete\n");
 }
+
 
 void MyFrame::VisibilityButtonClicked(wxCommandEvent& event) {
 	OutputDebugString(L"Visibility Button Clicked\n");
@@ -435,7 +442,7 @@ void MyFrame::LayerNameChanged(wxCommandEvent& event) {
 
 // Deletes current layer and adds a layer of selected type
 void MyFrame::LayerTypeChanged(wxCommandEvent& event) {
-	xhair.DeleteLayer();
+	//xhair.DeleteLayer();
 	UpdateLayerListPane2();
 	UpdateLayerControlPane2();
 	UpdatePreviewPane2();
@@ -585,7 +592,7 @@ void MyFrame::ExportButtonClicked(wxCommandEvent& event){
 }
 
 void MyFrame::TestButtonClicked(wxCommandEvent& event) {
-	xhair.DeleteLayer();
+	//xhair.DeleteLayer();
 	UpdateLayerListPane2();
 	UpdateLayerControlPane2();
 	UpdatePreviewPane2();

@@ -39,14 +39,21 @@ public:
 		}
 	}
 
-	void DeleteLayer() {
-		if (selectedLayer >= 0) {
-			layers.erase(layers.begin() + selectedLayer);
-			for (int i = selectedLayer; i < layers.size(); i++) {
+	void DeleteLayer(int toDelete) {
+		wchar_t debugString[200]; // Buffer for the debug string
+		swprintf(debugString, 100, L"Attempting to delete layer: %d\n", toDelete);
+		OutputDebugString(debugString);
+
+		if (toDelete >= 0) {
+			layers.erase(layers.begin() + toDelete);
+			for (int i = toDelete; i < layers.size(); i++) {
 				layers[i]->SetID(i);
 			}
-			selectedLayer--;
+			if (toDelete <= selectedLayer) {
+				selectedLayer--;
+			}
 		}
+		OutputDebugString(L"Layer removed");
 	}
 
 	//std::vector<std::vector<

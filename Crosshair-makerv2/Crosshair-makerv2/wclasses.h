@@ -7,12 +7,21 @@
 #include <wx/collpane.h>
 #include <numeric>
 
+wxDECLARE_EVENT(LAYER_PANEL_CLICKED, wxCommandEvent);
+
 
 //Panel to show a preview of the crosshair, renders the layers
 class ImagePanel : public wxPanel {
 public:
+    //main preview
     ImagePanel(wxWindow* parent, Crosshair *c, bool s)
         : wxPanel(parent), crosshair(c), showcenter(s){
+    }
+
+    //for layer list
+    ImagePanel(wxWindow* parent, Crosshair* c, int layer, wxPoint pos, wxSize size)
+        : wxPanel(parent, wxID_ANY, pos, size), crosshair(c){
+
     }
 
     void OnPaint(wxPaintEvent& event) {
@@ -28,8 +37,10 @@ public:
 
 private:
     Crosshair* crosshair;
+    Component* comp;
     //std::vector<std::vector<Pixel>>& pixels;
     bool showcenter = false;
+
     
 
     void RenderPixels(wxDC& dc) {
@@ -73,6 +84,43 @@ private:
             RenderCenterline(dc);
         }
         
+    }
+
+    void RenderLayerPreview(wxDC& dc) {
+
+        
+            int type = comp->GetType();
+            OutputDebugString(L"Entering Render switch\n");
+            switch (type) {
+            case PLUSLAYER: {
+                OutputDebugString(L"Rendering a Plus\n");
+                RenderPlus(comp, dc);
+                break;
+            }
+            case XLAYER: {
+                OutputDebugString(L"Rendering an X\n");
+                RenderX(comp, dc);
+                break;
+            }
+            case CIRCLELAYER: {
+                OutputDebugString(L"Rendering a Circle\n");
+                RenderCirlce(comp, dc);
+                break;
+            }
+            case RECTLAYER: {
+                OutputDebugString(L"Rendering a Rectangle\n");
+                RenderRectangle(comp, dc);
+                break;
+            }
+            case DIAMONDLAYER: {
+                OutputDebugString(L"Rendering a Rectangle\n");
+                RenderDiamond(comp, dc);
+                break;
+            }
+            }
+        if (showcenter) {
+            RenderCenterline(dc);
+        }
     }
     /********************/
     //Rendering Functions
@@ -718,6 +766,96 @@ public:
 
 };
 
+class LayerWidget : public wxPanel {
+private:
+    wxSizer* sizer;
+    int layer;
+    Component* comp;
+    Crosshair* crosshair;
+    //ImagePanel* layerPreview;
+    wxStaticText* label;
+    wxButton* deleteButton;
+    wxButton* visibilityButton;
+    wxPanel* labelPanel;
+public:
+    LayerWidget(wxWindow* parent, Crosshair* crosshair, int layer, wxColour bgc) :wxPanel(parent), crosshair(crosshair), layer(layer) {
+        sizer = new wxBoxSizer(wxHORIZONTAL);
+        this->SetSizer(sizer);
+
+        comp = crosshair->layers[layer];
+
+        labelPanel = new wxPanel(this, BUTTON_LAYER, wxDefaultPosition, wxSize(70,40));
+        labelPanel->SetBackgroundColour(bgc); // Set panel background color
+        
+        labelPanel->Bind(wxEVT_LEFT_DOWN, [this, crosshair](wxMouseEvent& event) {
+            OutputDebugString(L"Panel Clicked\n");
+            this->crosshair->selectedLayer = comp->GetID();
+            wchar_t debugString[200]; // Buffer for the debug string
+            swprintf(debugString, 100, L"%d\n", this->crosshair->selectedLayer);
+            OutputDebugString(debugString);
+
+            wxCommandEvent evt(LAYER_PANEL_CLICKED);
+            //ProcessEvent(evt);
+            GetParent()->GetEventHandler()->AddPendingEvent(evt);
+            //event.Skip();
+            });
+
+        label = new wxStaticText(labelPanel, wxID_ANY, comp->GetName());
+        label->Bind(wxEVT_LEFT_DOWN, [this, crosshair](wxMouseEvent& event) {
+            OutputDebugString(L"Panel Clicked\n");
+            this->crosshair->selectedLayer = comp->GetID();
+            wchar_t debugString[200]; // Buffer for the debug string
+            swprintf(debugString, 100, L"%d\n", this->crosshair->selectedLayer);
+            OutputDebugString(debugString);
+
+            wxCommandEvent evt(LAYER_PANEL_CLICKED);
+            labelPanel->GetParent()->GetEventHandler()->AddPendingEvent(evt);
+            //event.Skip(); // Allow the event to propagate to the parent panel
+            });
+
+        wxSizer* labelSizer = new wxBoxSizer(wxHORIZONTAL);
+        labelPanel->SetSizer(labelSizer);
+        labelSizer->Add(label, 1, wxALIGN_CENTER_VERTICAL, 1);
+        sizer->Add(labelPanel, 2, 0, 1);
+
+        sizer->AddStretchSpacer();
+
+        wxButton* visibilityButton = new wxButton(this, BUTTON_VISIBLE, "Visible", wxDefaultPosition, wxSize(50, 40));
+        if (comp->GetVisibility()) {
+            visibilityButton->SetLabel("Visible");
+        }
+        else {
+            visibilityButton->SetLabel("Hidden");
+        }
+
+        auto lambdaEventHandler2 = [this, visibilityButton](wxCommandEvent& event) {
+            OutputDebugString(L"Button Clicked2\n");
+            comp->ToggleVisibility();
+            if (comp->GetVisibility()) {
+                visibilityButton->SetLabel("Visible");
+            }
+            else {
+                visibilityButton->SetLabel("Hidden");
+            }
+            event.Skip();
+            };
+
+        visibilityButton->Bind(wxEVT_BUTTON, lambdaEventHandler2);
+        sizer->Add(visibilityButton, 1, 0, 1);
+
+        deleteButton = new wxButton(this, wxID_ANY, "x", wxDefaultPosition, wxSize(25,40));
+        deleteButton->Bind(wxEVT_BUTTON, [this, crosshair, layer](wxCommandEvent& event) {
+            crosshair->DeleteLayer(layer);
+
+            wxCommandEvent evt(wxEVT_BUTTON, BUTTON_DELETELAYER);
+            ProcessEvent(evt);
+            });
+
+        sizer->Add(deleteButton, 1, 0, 1);
+
+    }
+};
+
 //Scrolling list for layer selection, order, and visibility
 class ScrolledWidgetsPane : public wxScrolledWindow
 {
@@ -751,56 +889,57 @@ public:
         int id = 0;
         for (Component* c : crosshair->layers)
         {
+            wxColor bgc;
             //Background darker if selected
-            wxPanel* background = new wxPanel(this, wxID_ANY);
+            wxPanel* background = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(250, 40));
             if (crosshair->selectedLayer == id) {
                 background->SetBackgroundColour(wxColor(50, 50, 50));
+                bgc = wxColor(50, 50, 50);
             }
             else {
                 background->SetBackgroundColour(wxColor(90, 90, 90));
+                bgc = wxColor(90, 90, 90);
             }
 
             wxBoxSizer* s = new wxBoxSizer(wxHORIZONTAL);
-            wxString n = c->GetName();
-            wxButton* b = new wxButton(background, BUTTON_LAYER, wxString::Format(n));
-
             background->SetSizer(s);
-
             c->SetID(id);
-            
-            auto lambdaEventHandler = [this, c](wxCommandEvent& event) {
-                OutputDebugString(L"Button Clicked2\n");
-                this->crosshairptr->selectedLayer = c->GetID();
+            //wxString n = c->GetName();
+            //wxButton* b = new wxButton(background, BUTTON_LAYER, wxString::Format(n));
+            //
+            //auto lambdaEventHandler = [this, c](wxCommandEvent& event) {
+            //    OutputDebugString(L"Button Clicked2\n");
+            //    this->crosshairptr->selectedLayer = c->GetID();
+            //    wchar_t debugString[200]; // Buffer for the debug string
+            //    swprintf(debugString, 100, L"%d\n", this->crosshairptr->selectedLayer);
+            //    OutputDebugString(debugString);
+            //    event.Skip();
+            //    };
+            //b->Bind(wxEVT_BUTTON, lambdaEventHandler);
+            //wxButton* vb = new wxButton(background, BUTTON_VISIBLE, "Visible");
+            //auto lambdaEventHandler2 = [this, c](wxCommandEvent& event) {
+            //    OutputDebugString(L"Button Clicked2\n");
+            //    c->ToggleVisibility();
+            //    event.Skip();
+            //    };
+            //vb->Bind(wxEVT_BUTTON, lambdaEventHandler2);
 
-                wchar_t debugString[200]; // Buffer for the debug string
-                swprintf(debugString, 100, L"%d\n", this->crosshairptr->selectedLayer);
-                OutputDebugString(debugString);
-
-                event.Skip();
-                };
-            b->Bind(wxEVT_BUTTON, lambdaEventHandler);
-
-            wxButton* vb = new wxButton(background, BUTTON_VISIBLE, "Visible");
-
-            auto lambdaEventHandler2 = [this, c](wxCommandEvent& event) {
-                OutputDebugString(L"Button Clicked2\n");
-                c->ToggleVisibility();
-                event.Skip();
-                };
-
-            vb->Bind(wxEVT_BUTTON, lambdaEventHandler2);
-
+            LayerWidget* layer = new LayerWidget(background, crosshair, id, bgc);
             id++;
 
-            s->Add(b, 0, wxALL, 3);
-            s->Add(vb, 0, wxALL, 3);
-            sizer->Add(background, 0, wxALL, 3);
+            //s->Add(b, 0, wxALL, 3);
+            //s->Add(vb, 0, wxALL, 3);
+            s->Add(layer, 0, 0, 1);
+            
+            sizer->Add(background, 0, 0, 1);
         }
 
         this->FitInside(); // ask the sizer about the needed size
         this->SetScrollRate(5, 5);
     }
 };
+
+
 
 //Linked slider and text box for uint8_t
 class ColorSlider : public wxPanel {
@@ -1450,12 +1589,11 @@ public:
 
         //Layer Buttons
         buttonsizer = new wxBoxSizer(wxHORIZONTAL);
-        wxButton* deleteLayer = new wxButton(this, BUTTON_DELETELAYER, "Delete");
-        wxButton* newLayer = new wxButton(this, BUTTON_NEWLAYER, "New Layer");
+        wxButton* newLayer = new wxButton(this, BUTTON_NEWLAYER, "Add Layer", wxDefaultPosition, wxSize(80, 25));
 
         wxString choices[] = { wxT("Plus"), wxT("Circle"), wxT("Rectangle"), wxT("Diamond"), wxT("X") };
         wxArrayString arrChoices(5, choices);
-        wxComboBox* typeselect = new wxComboBox(this, LAYER_TYPE_DROPDOWN, wxT("Type"), wxDefaultPosition, wxDefaultSize, arrChoices);
+        wxComboBox* typeselect = new wxComboBox(this, LAYER_TYPE_DROPDOWN, wxT("Type"), wxDefaultPosition, wxSize(80, 25), arrChoices);
 
         typeselect->Bind(wxEVT_COMBOBOX, [this, typeselect, c](wxCommandEvent& event) {
             switch (typeselect->GetSelection()) {
@@ -1486,12 +1624,11 @@ public:
             //event.Skip();
             });
         typeselect->SetSelection(0);
-        buttonsizer->Add(deleteLayer, 1, 0, 5);
         buttonsizer->Add(typeselect, 1, 0, 5);
         buttonsizer->Add(newLayer, 1, 0, 5);
 
         sizer2->Add(llsizer, 1, wxEXPAND | wxALL, 5);
-        sizer2->Add(buttonsizer, 1, wxEXPAND | wxALL, 5);
+        sizer2->Add(buttonsizer, 1, 0, 5);
 
         //panel->SetSizer(sizer2);
         sizer->Add(sizer2, 1, wxEXPAND | wxALL, 5);
