@@ -784,7 +784,7 @@ public:
 
         comp = crosshair->layers[layer];
 
-        labelPanel = new wxPanel(this, BUTTON_LAYER, wxDefaultPosition, wxSize(70,40));
+        labelPanel = new wxPanel(this, BUTTON_LAYER, wxDefaultPosition, wxSize(200,40));
         labelPanel->SetBackgroundColour(bgc); // Set panel background color
         
         labelPanel->Bind(wxEVT_LEFT_DOWN, [this, crosshair](wxMouseEvent& event) {
@@ -815,8 +815,8 @@ public:
 
         wxSizer* labelSizer = new wxBoxSizer(wxHORIZONTAL);
         labelPanel->SetSizer(labelSizer);
-        labelSizer->Add(label, 1, wxALIGN_CENTER_VERTICAL, 1);
-        sizer->Add(labelPanel, 2, 0, 1);
+        labelSizer->Add(label, 1, wxALIGN_CENTER_VERTICAL, 5);
+        sizer->Add(labelPanel, 0, 0, 0);
 
         sizer->AddStretchSpacer();
 
@@ -841,7 +841,7 @@ public:
             };
 
         visibilityButton->Bind(wxEVT_BUTTON, lambdaEventHandler2);
-        sizer->Add(visibilityButton, 1, 0, 1);
+        sizer->Add(visibilityButton, 0, 0, 1);
 
         deleteButton = new wxButton(this, wxID_ANY, "x", wxDefaultPosition, wxSize(25,40));
         deleteButton->Bind(wxEVT_BUTTON, [this, crosshair, layer](wxCommandEvent& event) {
@@ -851,8 +851,7 @@ public:
             ProcessEvent(evt);
             });
 
-        sizer->Add(deleteButton, 1, 0, 1);
-
+        sizer->Add(deleteButton, 0, 0, 0);
     }
 };
 
@@ -881,20 +880,24 @@ public:
         // this part makes the scrollbars show up
         this->FitInside(); // ask the sizer about the needed size
         this->SetScrollRate(5, 5);
+        ShowScrollbars(wxScrollbarVisibility(false), wxScrollbarVisibility(true));
+        //this->SetScrollbars(1, 1, 1, 1, 0, 0, false);
     }
 
     void PopulateList(Crosshair* crosshair) {
         sizer->Clear(true);
+        //wxPanel* bgpanel = new wxPanel(this, wxID_ANY, wxPoint(0, 0), wxSize(250, 300));
+        //bgpanel->SetBackgroundColour(wxColor(10, 10, 10));
 
         int id = 0;
         for (Component* c : crosshair->layers)
         {
             wxColor bgc;
             //Background darker if selected
-            wxPanel* background = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(250, 40));
+            wxPanel* background = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(268, 40));
             if (crosshair->selectedLayer == id) {
-                background->SetBackgroundColour(wxColor(50, 50, 50));
-                bgc = wxColor(50, 50, 50);
+                background->SetBackgroundColour(wxColor(120, 120, 120));
+                bgc = wxColor(150, 150, 150);
             }
             else {
                 background->SetBackgroundColour(wxColor(90, 90, 90));
@@ -929,9 +932,9 @@ public:
 
             //s->Add(b, 0, wxALL, 3);
             //s->Add(vb, 0, wxALL, 3);
-            s->Add(layer, 0, 0, 1);
+            s->Add(layer, 0, 0, 0);
             
-            sizer->Add(background, 0, 0, 1);
+            sizer->Add(background, 0, 0, 0);
         }
 
         this->FitInside(); // ask the sizer about the needed size
@@ -1570,6 +1573,7 @@ class LayerListPane : public wxPanel {
 private:
     wxSizer* sizer;
     wxBoxSizer* sizer2;
+    wxBoxSizer* sizer3;
     wxBoxSizer* llsizer;
     wxBoxSizer* buttonsizer;
     Crosshair* crosshair;
@@ -1580,10 +1584,20 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
+        wxStaticText* label = new wxStaticText(this, wxID_ANY, crosshair->GetName());
+        sizer->Add(label, 0, 0, 0);
+
+        panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(300,380));
+        panel->SetBackgroundColour(wxColor(30,30,30));
+
+        
+
         sizer2 = new wxBoxSizer(wxVERTICAL);
+        panel->SetSizer(sizer2);
 
         //Layer list
-        ScrolledWidgetsPane* layerlist = new ScrolledWidgetsPane(this, wxID_ANY, crosshair);
+        ScrolledWidgetsPane* layerlist = new ScrolledWidgetsPane(panel, wxID_ANY, crosshair);
+        layerlist->SetScrollbars(1, 1, 1, 1, 0, 0, false);
         llsizer = new wxBoxSizer(wxVERTICAL);
         llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
 
@@ -1627,17 +1641,19 @@ public:
         buttonsizer->Add(typeselect, 1, 0, 5);
         buttonsizer->Add(newLayer, 1, 0, 5);
 
-        sizer2->Add(llsizer, 1, wxEXPAND | wxALL, 5);
-        sizer2->Add(buttonsizer, 1, 0, 5);
+        sizer2->Add(llsizer, 1, wxEXPAND | wxALL, 0);
+        //sizer2->Add(buttonsizer, 1, 0, 5);
 
         //panel->SetSizer(sizer2);
-        sizer->Add(sizer2, 1, wxEXPAND | wxALL, 5);
+        sizer->Add(panel, 1, 0, 5);
+        sizer->Add(buttonsizer, 1, 0, 5);
     }
 
     void Update() {
         OutputDebugString(L"Updating Layer Pane\n");
         llsizer->Clear(true);
-        ScrolledWidgetsPane* layerlist = new ScrolledWidgetsPane(this, wxID_ANY, crosshair);
+        ScrolledWidgetsPane* layerlist = new ScrolledWidgetsPane(panel, wxID_ANY, crosshair);
+        layerlist->SetScrollbars(1, 1, 1, 1, 0, 0, false);
         //llsizer = new wxBoxSizer(wxVERTICAL);
         llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
         OutputDebugString(L"Updated Layer Pane\n");

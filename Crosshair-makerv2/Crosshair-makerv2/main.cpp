@@ -399,9 +399,9 @@ void MyFrame::UpdateLayerListPane2() {
 void MyFrame::CreateLayerListPane() {
 	layersizer->Clear(true);
 
-	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 300));
+	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 600));
 	wxSizer* lsizer = new wxBoxSizer(wxVERTICAL);
-	llpanel->SetBackgroundColour(wxColor(100, 100, 100));
+	llpanel->SetBackgroundColour(wxColor(150, 150, 150));
 
 	layerListPane = new LayerListPane(llpanel, &xhair);
 
@@ -466,7 +466,7 @@ void MyFrame::CreateLayerControlPane() {
 
 	wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
 	//wxScrolledWindow* layercontrolpanel = new wxScrolledWindow(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 200));
-	layercontrolpanel->SetBackgroundColour(wxColor(90, 90, 90));
+	layercontrolpanel->SetBackgroundColour(wxColor(150, 150, 150));
 
 	controlPanelPane = new ControlPanelPane(layercontrolpanel, wxID_ANY, &xhair, xhair.selectedLayer);
 	wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
@@ -1670,6 +1670,7 @@ void DrawDiamond(Component* comp) {
 }
 
 void UpdateCrosshairPixels() {
+	xhair.Initialize({ 0, 0, 0, 0 });
 	for (Component* c : xhair.layers) {
 		int type = c->GetType();
 		OutputDebugString(std::to_wstring(type).c_str());
@@ -1703,9 +1704,6 @@ void UpdateCrosshairPixels() {
 			DrawX(c);
 			break;
 		}
-
-
-			
 		}
 	}
 }

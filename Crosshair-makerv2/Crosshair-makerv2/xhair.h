@@ -19,6 +19,7 @@ public:
 	int typeToAdd = PLUSLAYER;
 	std::vector<Component*> layers;
 	int selectedLayer = -1;
+	std::string name = "newCrosshair";
 
 	void AddLayer(Component* l) {
 
@@ -82,6 +83,7 @@ public:
 				pixels[x][y] = { 255,100,100,255 };
 			}
 		}
+
 	}
 
 	int GetWidth() const {
@@ -110,5 +112,13 @@ public:
 
 	const std::vector<std::vector<Pixel>>& GetPixels() const {
 		return pixels;
+	}
+
+	std::string GetName() {
+		return name;
+	}
+
+	void SetName(std::string n) {
+		name = n;
 	}
 };
