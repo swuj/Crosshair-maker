@@ -11,8 +11,8 @@
 //Panel to show a preview of the crosshair, renders the layers
 class ImagePanel : public wxPanel {
 public:
-    ImagePanel(wxWindow* parent, Crosshair *c)
-        : wxPanel(parent), crosshair(c){
+    ImagePanel(wxWindow* parent, Crosshair *c, bool s)
+        : wxPanel(parent), crosshair(c), showcenter(s){
     }
 
     void OnPaint(wxPaintEvent& event) {
@@ -29,6 +29,7 @@ public:
 private:
     Crosshair* crosshair;
     //std::vector<std::vector<Pixel>>& pixels;
+    bool showcenter = false;
     
 
     void RenderPixels(wxDC& dc) {
@@ -68,7 +69,10 @@ private:
             }
             }
         }
-        RenderCenterline(dc);
+        if (showcenter) {
+            RenderCenterline(dc);
+        }
+        
     }
     /********************/
     //Rendering Functions
@@ -593,7 +597,7 @@ private:
                     int pixx = xcenter - i;
                     int pixy = ycenter - i + j;
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                        if (i < 0 || i >= length || j < 0 || j >= lim) {
+                        if (i < 0 || i >= length || j < 0 || j > lim) {
                             dc.SetBrush(wxBrush(wcolor2));
                             //crosshair.SetColor(pixx, pixy, outline_color);
                         }
@@ -627,7 +631,7 @@ private:
                     int pixx = xcenter - i;
                     int pixy = ycenter - i + j;
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                        if (i < 0 || i >= length || j < 0 || j >= lim) {
+                        if (i < 0 || i >= length || j < 0 || j > lim) {
                             dc.SetBrush(wxBrush(wcolor2));
                             //crosshair.SetColor(pixx, pixy, outline_color);
                             dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
@@ -654,7 +658,7 @@ private:
                     int pixx = xcenter - i;
                     int pixy = ycenter - i + j;
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                        if (i < 0 || i >= length || j < 0 || j >= lim) {
+                        if (i < 0 || i >= length || j < 0 || j > lim) {
                             
                         }
                         else {
@@ -1173,19 +1177,37 @@ public:
 
         sizer->Add(check, 1, wxEXPAND | wxALL, 5);
 
-        if (shape->GetType()==PLUSLAYER|| shape->GetType() == XLAYER) {
+        if (shape->GetType()==PLUSLAYER) {
             Plus* plus = dynamic_cast<Plus*>(shape);
 
             wxCheckBox* check2 = new wxCheckBox(win, wxID_ANY, "Lazy Outline");
-            check2->SetValue(&(plus->GetOutlineType()));
+            check2->SetValue((plus->GetOutlineType()));
 
             check2->Bind(wxEVT_CHECKBOX, [this, plus, check2](wxCommandEvent& event) {
                 // Toggle the value of showoutline
                 plus->ChangeOutlineType();
 
                 // Update the state of the checkbox
-                check2->SetValue(plus->GetOutline());
-                wxCommandEvent evt(wxEVT_CHECKBOX, CHECKBOX_LAZYOUTLINE);
+                check2->SetValue(plus->GetOutlineType());
+                wxCommandEvent evt(wxEVT_CHECKBOX, CHECKBOX_HASOUTLINE);
+                ProcessEvent(evt);
+                });
+
+            sizer->Add(check2, 1, wxEXPAND | wxALL, 5);
+        }
+        else if (shape->GetType() == XLAYER) {
+            xhX* plus = dynamic_cast<xhX*>(shape);
+
+            wxCheckBox* check2 = new wxCheckBox(win, wxID_ANY, "Lazy Outline");
+            check2->SetValue((plus->GetOutlineType()));
+
+            check2->Bind(wxEVT_CHECKBOX, [this, plus, check2](wxCommandEvent& event) {
+                // Toggle the value of showoutline
+                plus->ChangeOutlineType();
+
+                // Update the state of the checkbox
+                check2->SetValue(plus->GetOutlineType());
+                wxCommandEvent evt(wxEVT_CHECKBOX, CHECKBOX_HASOUTLINE);
                 ProcessEvent(evt);
                 });
 
@@ -1529,6 +1551,7 @@ private:
     wxBoxSizer* buttonsizer;
     Crosshair* crosshair;
     wxPanel* panel;
+    bool showcenter = false;
 
 public:
     PreviewPanelPane(wxWindow* parent, Crosshair* c) :wxPanel(parent), crosshair(c){
@@ -1542,9 +1565,24 @@ public:
         sizer2 = new wxBoxSizer(wxHORIZONTAL);
         panel->SetSizer(sizer2);
 
-        ImagePanel* previewimg = new ImagePanel(panel, c);
+        ImagePanel* previewimg = new ImagePanel(panel, c, showcenter);
         sizer2->Add(previewimg, 1, wxEXPAND | wxALL, 5);
         sizer->Add(panel, 1, 0, 5);
+
+        wxCheckBox* check = new wxCheckBox(this, wxID_ANY, "Show center");
+        check->SetValue(showcenter);
+
+        check->Bind(wxEVT_CHECKBOX, [this, check](wxCommandEvent& event) {
+            // Toggle the value of showoutline
+            showcenter = !showcenter;
+
+            // Update the state of the checkbox
+            check->SetValue(showcenter);
+            wxCommandEvent evt(wxEVT_CHECKBOX, CHECKBOX_HASOUTLINE);
+            ProcessEvent(evt);
+            });
+
+        sizer->Add(check, 1, 0, 5);
 
         // Save and Test buttons
         wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
@@ -1560,7 +1598,7 @@ public:
 
     void Update() {
         sizer2->Clear(true);
-        ImagePanel* previewimg = new ImagePanel(panel, crosshair);
+        ImagePanel* previewimg = new ImagePanel(panel, crosshair, showcenter);
         sizer2->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
     }
 };

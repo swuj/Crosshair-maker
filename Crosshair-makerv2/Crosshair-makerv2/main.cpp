@@ -466,42 +466,42 @@ void MyFrame::LayerTypeChanged(wxCommandEvent& event) {
 
 // PREVIEW PANE
 void MyFrame::UpdatePreviewPane() {
-	previewsizer->Clear(true);
+	//previewsizer->Clear(true);
 
-	wxPanel* parentpreviewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 500));
-	wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
+	//wxPanel* parentpreviewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 500));
+	//wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
 
-	parentpreviewpanel->SetSizer(pvsizer);
+	//parentpreviewpanel->SetSizer(pvsizer);
 
-	//panel for preview image
-	wxPanel* previewimgpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
-	previewimgpanel->SetBackgroundColour(wxColor(90, 90, 90));
-	previewimg = new ImagePanel(previewimgpanel, &xhair);
-	wxBoxSizer* previewimgsizer = new wxBoxSizer(wxHORIZONTAL);
-	//previewimgsizer->AddStretchSpacer();
-	previewimgsizer->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
-	//previewimgsizer->AddStretchSpacer();
-	previewimgpanel->SetSizer(previewimgsizer);
+	////panel for preview image
+	//wxPanel* previewimgpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
+	//previewimgpanel->SetBackgroundColour(wxColor(90, 90, 90));
+	//previewimg = new ImagePanel(previewimgpanel, &xhair);
+	//wxBoxSizer* previewimgsizer = new wxBoxSizer(wxHORIZONTAL);
+	////previewimgsizer->AddStretchSpacer();
+	//previewimgsizer->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
+	////previewimgsizer->AddStretchSpacer();
+	//previewimgpanel->SetSizer(previewimgsizer);
 
-	//panel for preview buttons
-	wxPanel* previewbuttonpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 150));
-	previewbuttonpanel->SetBackgroundColour(wxColor(90, 90, 90));
-	saveButton = new wxButton(previewbuttonpanel, BUTTON_SAVE, "Save");
-	testButton = new wxButton(previewbuttonpanel, BUTTON_TEST, "Test");
+	////panel for preview buttons
+	//wxPanel* previewbuttonpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 150));
+	//previewbuttonpanel->SetBackgroundColour(wxColor(90, 90, 90));
+	//saveButton = new wxButton(previewbuttonpanel, BUTTON_SAVE, "Save");
+	//testButton = new wxButton(previewbuttonpanel, BUTTON_TEST, "Test");
 
-	wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
-	previewbuttonsizer->Add(saveButton, 1, 0, 5);
-	previewbuttonsizer->Add(testButton, 1, 0, 5);
-	previewbuttonpanel->SetSizer(previewbuttonsizer);
+	//wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
+	//previewbuttonsizer->Add(saveButton, 1, 0, 5);
+	//previewbuttonsizer->Add(testButton, 1, 0, 5);
+	//previewbuttonpanel->SetSizer(previewbuttonsizer);
 
-	pvsizer->Add(previewimgpanel, 1, wxEXPAND | wxALL, 5);
-	pvsizer->Add(previewbuttonpanel, 1, wxEXPAND | wxALL, 5);
+	//pvsizer->Add(previewimgpanel, 1, wxEXPAND | wxALL, 5);
+	//pvsizer->Add(previewbuttonpanel, 1, wxEXPAND | wxALL, 5);
 
-	previewsizer->Add(parentpreviewpanel, 1, wxEXPAND | wxALL, 5);
+	//previewsizer->Add(parentpreviewpanel, 1, wxEXPAND | wxALL, 5);
 
-	Layout();
-	Refresh();
-	Update();
+	//Layout();
+	//Refresh();
+	//Update();
 }
 
 void MyFrame::UpdatePreviewPane2() {
