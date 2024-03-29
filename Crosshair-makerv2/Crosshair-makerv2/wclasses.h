@@ -672,9 +672,7 @@ private:
                             dc.DrawRectangle((xcenter + i + gap - 1) * pixelWidth, (ycenter + i - j + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
                             dc.DrawRectangle((xcenter + i - j + gap - 1) * pixelWidth, (ycenter + i + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
                         }
-
                     }
-
                 }
             }
 
