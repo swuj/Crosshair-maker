@@ -68,10 +68,31 @@ private:
             }
             }
         }
+        RenderCenterline(dc);
     }
     /********************/
     //Rendering Functions
     /********************/
+    void RenderCenterline(wxDC& dc) {
+        int chwidth = crosshair->GetWidth();
+        int chheight = crosshair->GetHeight();
+
+        int xcenter = chwidth / 2;
+        int ycenter = chheight / 2;
+
+        wxColour wcolor(255, 0, 0, 255);
+        dc.SetBrush(wxBrush(wcolor));
+
+        for (int i = 0; i < chwidth; i++) {
+            dc.DrawRectangle(i, ycenter , 1, 1);
+
+        }
+        for (int i = 0; i < chheight; i++) {
+            dc.DrawRectangle(xcenter, i, 1, 1);
+
+        }
+
+    }
     void RenderCirlce(Component* comp, wxDC& dc) {
 
         Circle* circle = dynamic_cast<Circle*>(comp);
@@ -567,7 +588,7 @@ private:
             //each loop then determines how many pixels to draw straight below it
             for (int i = 0 - outline; i < length + outline; i++) {
                 int lim = std::min(i, width);//how many main color pixels to draw down before outline, if<0 draw outline-lim pixels of outline color
-                for (int j = 0; j < lim + outline; j++) {
+                for (int j = 0; j <= lim + outline; j++) {
                     //pixel to be drawn
                     int pixx = xcenter - i;
                     int pixy = ycenter - i + j;
@@ -584,14 +605,14 @@ private:
                         dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
                         dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
 
-                        dc.DrawRectangle((xcenter + i + gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
-                        dc.DrawRectangle((xcenter + i - j + gap) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter + i + gap - 1) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter + i - j + gap - 1) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
 
-                        dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter + i - j + gap) * pixelHeight, pixelWidth, pixelHeight);
-                        dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter + i + gap) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter + i - j + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter + i + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
 
-                        dc.DrawRectangle((xcenter + i + gap) * pixelWidth, (ycenter + i - j + gap) * pixelHeight, pixelWidth, pixelHeight);
-                        dc.DrawRectangle((xcenter + i - j + gap) * pixelWidth, (ycenter + i + gap) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter + i + gap - 1) * pixelWidth, (ycenter + i - j + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
+                        dc.DrawRectangle((xcenter + i - j + gap - 1) * pixelWidth, (ycenter + i + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
                     }
 
                 }
@@ -599,68 +620,66 @@ private:
 
         }
         else {
-            for (int pass = 1; pass >= 0; pass--) {
-                if (pass) {
-                    dc.SetBrush(wxBrush(wcolor2));
-                }
-                else {
-                    dc.SetBrush(wxBrush(wcolor));
-                }
+            for (int i = 0 - outline; i < length + outline; i++) {
+                int lim = std::min(i, width);//how many main color pixels to draw down before outline, if<0 draw outline-lim pixels of outline color
+                for (int j = 0; j <= lim + outline; j++) {
+                    //pixel to be drawn
+                    int pixx = xcenter - i;
+                    int pixy = ycenter - i + j;
+                    if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                        if (i < 0 || i >= length || j < 0 || j >= lim) {
+                            dc.SetBrush(wxBrush(wcolor2));
+                            //crosshair.SetColor(pixx, pixy, outline_color);
+                            dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
+                            dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
 
-                //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
-                for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
-                    for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
-                        //pixel to be drawn
-                        int pixx = xcenter - (width / 2) + i;
-                        int pixy = ycenter + gap + j;
-                        //OutputDebugString(L"Trying to Draw a Pixel\n");
-                        if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                            //OutputDebugString(L"Drawing a pixel\n");
-                            dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                            dc.DrawRectangle((xcenter + i + gap - 1) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
+                            dc.DrawRectangle((xcenter + i - j + gap - 1) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
+
+                            dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter + i - j + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
+                            dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter + i + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
+
+                            dc.DrawRectangle((xcenter + i + gap - 1) * pixelWidth, (ycenter + i - j + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
+                            dc.DrawRectangle((xcenter + i - j + gap - 1) * pixelWidth, (ycenter + i + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
                         }
-
+                        
                     }
+
                 }
-
-                for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
-                    for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
-                        //pixel to be drawn
-                        int pixx = xcenter - (width / 2) + i;
-                        int pixy = ycenter - gap + j - length;
-
-                        if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                            dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
-                        }
-
-                    }
-                }
-
-                for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
-                    for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
-                        //pixel to be drawn
-                        int pixx = xcenter - length + j - gap;
-                        int pixy = ycenter - (width / 2) + i;
-
-                        if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                            dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
-                        }
-                    }
-                }
-
-                for (int i = 0 - (outline * pass); i < width + (outline * pass); i++) {
-                    for (int j = 0 - (outline * pass); j < length + (outline * pass); j++) {
-                        //pixel to be drawn
-                        int pixx = xcenter + j + gap;
-                        int pixy = ycenter - (width / 2) + i;
-
-                        if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                            dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
-                        }
-                    }
-                }
-
             }
+            for (int i = 0 - outline; i < length + outline; i++) {
+                int lim = std::min(i, width);//how many main color pixels to draw down before outline, if<0 draw outline-lim pixels of outline color
+                for (int j = 0; j <= lim + outline; j++) {
+                    //pixel to be drawn
+                    int pixx = xcenter - i;
+                    int pixy = ycenter - i + j;
+                    if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                        if (i < 0 || i >= length || j < 0 || j >= lim) {
+                            
+                        }
+                        else {
+                            dc.SetBrush(wxBrush(wcolor));
+                            //crosshair.SetColor(pixx, pixy, outline_color);
+                            dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
+                            dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
+
+                            dc.DrawRectangle((xcenter + i + gap - 1) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
+                            dc.DrawRectangle((xcenter + i - j + gap - 1) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
+
+                            dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter + i - j + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
+                            dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter + i + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
+
+                            dc.DrawRectangle((xcenter + i + gap - 1) * pixelWidth, (ycenter + i - j + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
+                            dc.DrawRectangle((xcenter + i - j + gap - 1) * pixelWidth, (ycenter + i + gap - 1) * pixelHeight, pixelWidth, pixelHeight);
+                        }
+
+                    }
+
+                }
+            }
+
         }
+
 
     }
     DECLARE_EVENT_TABLE()
