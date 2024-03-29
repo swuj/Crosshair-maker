@@ -219,6 +219,7 @@ bool MainApp::OnInit()
 
 	// Create a file menu
 	wxMenu* fileMenu = new wxMenu;
+	fileMenu->Append(wxID_NEW, "&New...\tCtrl+N");
 	fileMenu->Append(wxID_OPEN, "&Open...\tCtrl+O");
 	fileMenu->Append(wxID_SAVE, "&Save\tCtrl+S");
 	fileMenu->AppendSeparator();
@@ -257,6 +258,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_MENU(wxID_OPEN, MyFrame::OnFileOpen)
 	EVT_MENU(wxID_SAVE, MyFrame::OnFileSave)
 	EVT_MENU(wxID_EXIT, MyFrame::OnFileExit)
+	EVT_MENU(wxID_NEW, MyFrame::NewButtonClicked)
 	//EVT_SCROLL(SLIDER_CONTROLZ, MyFrame::SliderChanged)
     //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
