@@ -1295,9 +1295,7 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        /*wxCollapsiblePane* pane = new wxCollapsiblePane(this, CHECKBOX_HASOUTLINE, "OutLine", wxDefaultPosition, wxDefaultSize);
-        wxWindow* win = pane->GetPane();
-        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);*/
+        
 
         int max = std::max(x, y);
 
