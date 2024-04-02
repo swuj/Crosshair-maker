@@ -4,23 +4,35 @@
 #include <string>
 #include "component.h"
 
-//struct Pixel {
-//	uint8_t red, green, blue, alpha;
-//};
-
+//Structure representing a crosshair, has pixel dimensions and a vector containing all the shapes that make up the crosshair
+//as well as a Pixel vector representing the final image, used for png export
 class Crosshair {
 private:
+	//pixel dimensions
 	int width;
 	int height;
+
+	//Final image representation
 	std::vector<std::vector<Pixel>> pixels;
-	//std::vector<std::vector<Component*>> layers;
 
 public:
-	int typeToAdd = PLUSLAYER;
-	std::vector<Component*> layers;
-	int selectedLayer = -1;
 	std::string name = "newCrosshair";
 
+	//Collection of components that make up the crosshair
+	std::vector<Component*> layers;
+
+	//currently selected layer in the interface
+	int selectedLayer = -1;
+	
+	//used by the AddLayer button in the layerlist interface, having it in the Crosshair class avoids some event binding stuff
+	int typeToAdd = PLUSLAYER;
+
+	//constructors
+	Crosshair() : width(20), height(20), pixels(20, std::vector<Pixel>(20)) {}
+
+	Crosshair(int w, int h) : width(w), height(h), pixels(w, std::vector<Pixel>(h)) {}
+
+	//Inserts the given layer to the layers vector in the position after selectedLayer
 	void AddLayer(Component* l) {
 
 		OutputDebugString(L"Adding layer\n");
@@ -40,6 +52,7 @@ public:
 		}
 	}
 
+	//Deletes the layer in the layers vector located at toDelete
 	void DeleteLayer(int toDelete) {
 		wchar_t debugString[200]; // Buffer for the debug string
 		swprintf(debugString, 100, L"Attempting to delete layer: %d\n", toDelete);
@@ -57,18 +70,14 @@ public:
 		OutputDebugString(L"Layer removed");
 	}
 
-	//std::vector<std::vector<
-	Crosshair() : width(0), height(0) {}
-
-	Crosshair(int w, int h) : width(w), height(h), pixels(w, std::vector<Pixel>(h)) {}
-
-	//set pixel color
+	//set pixel color in the image representation vector
 	void SetColor(int x, int y, Pixel c) {
 		if (x >= 0 && x < width && y >= 0 && y < height) {
 			pixels[x][y] = { c.red, c.green, c.blue, c.alpha };
 		}
 	}
 
+	//sets every color to the given color
 	void Initialize(Pixel bg) {
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
@@ -83,7 +92,6 @@ public:
 				pixels[x][y] = { 255,100,100,255 };
 			}
 		}
-
 	}
 
 	int GetWidth() const {
@@ -93,7 +101,7 @@ public:
 		return height;
 	}
 
-	//save as file
+	//save as png
 	void SaveAsPng(const std::wstring& filePath) {
 		std::vector<uint8_t> flatPixels;  // Flat array to hold the pixel data
 

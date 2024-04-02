@@ -44,7 +44,6 @@ private:
     
 
     void RenderPixels(wxDC& dc) {
-
         for (Component* c : crosshair->layers) {
             if (!c->GetVisibility()) {
                 OutputDebugString(L"layer not visible\n");
@@ -74,7 +73,7 @@ private:
                 break;
             }
             case DIAMONDLAYER: {
-                OutputDebugString(L"Rendering a Rectangle\n");
+                OutputDebugString(L"Rendering a Diamond\n");
                 RenderDiamond(c, dc);
                 break;
             }
@@ -87,8 +86,6 @@ private:
     }
 
     void RenderLayerPreview(wxDC& dc) {
-
-        
             int type = comp->GetType();
             OutputDebugString(L"Entering Render switch\n");
             switch (type) {
@@ -122,9 +119,12 @@ private:
             RenderCenterline(dc);
         }
     }
+
     /********************/
     //Rendering Functions
     /********************/
+
+    //Draws red centerline for x and y
     void RenderCenterline(wxDC& dc) {
         int chwidth = crosshair->GetWidth();
         int chheight = crosshair->GetHeight();
@@ -145,6 +145,7 @@ private:
         }
 
     }
+
     void RenderCirlce(Component* comp, wxDC& dc) {
 
         Circle* circle = dynamic_cast<Circle*>(comp);
@@ -154,6 +155,7 @@ private:
 
         int xcenter = chwidth / 2;
         int ycenter = chheight / 2;
+
         //if 1 it will draw true size
         /*int pixelWidth = GetSize().GetWidth() / chwidth;
         int pixelHeight = GetSize().GetHeight() / chheight;
@@ -183,11 +185,6 @@ private:
         int total_radius = radius + outline;
         int empty_radius = gap - inner_outline;
 
-        /*std::vector<int> olBoundry(total_radius);
-        std::vector<int> mainBoundry(radius);
-        std::vector<int> iolBoundry(gap);
-        std::vector<int> emptyBoundry(empty_radius);*/
-
         std::vector<int> olBoundry;
         std::vector<int> mainBoundry;
         std::vector<int> iolBoundry;
@@ -199,21 +196,18 @@ private:
         circleBres(empty_radius, &emptyBoundry);
 
         dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
-        //dc.SetBrush(wxBrush(wcolor2, 0, wxBRUSHSTYLE_TRANSPARENT));
-
-        //see center pixel
-
-        //dc.SetBrush(wxBrush({255, 0, 255, 255}));
-        //dc.DrawRectangle((xcenter) * pixelWidth, (ycenter) * pixelHeight, pixelWidth, pixelHeight);
-
 
         for (int a = 0; a < olBoundry.size(); a++) {
             int i = a;
+
+            //Draw empty region (just iterate)
             if (a<emptyBoundry.size()) {
                 for (i; i < emptyBoundry[a]; i++) {
                     //dc.DrawRectangle((xcenter + a) * pixelWidth, (ycenter + i) * pixelHeight, pixelWidth, pixelHeight);
                 }
             }
+
+            //Draw inner outline
             if (a < iolBoundry.size()) {
                 dc.SetBrush(wxBrush(wcolor3));
                 for (i; i < iolBoundry[a]; i++) {
@@ -233,6 +227,8 @@ private:
                     dc.DrawRectangle((xcenter - i - 1) * pixelWidth, (ycenter - a - 1) * pixelHeight, pixelWidth, pixelHeight);
                 }
             }
+
+            //Draw main section
             if (a < mainBoundry.size()) {
                 dc.SetBrush(wxBrush(wcolor));
                 for (i; i < mainBoundry[a]; i++) {
@@ -246,6 +242,8 @@ private:
                     dc.DrawRectangle((xcenter - i - 1) * pixelWidth, (ycenter - a - 1) * pixelHeight, pixelWidth, pixelHeight);
                 }
             }
+
+            //Draw outline
             if (a < olBoundry.size()) {
                 dc.SetBrush(wxBrush(wcolor2));
                 for (i; i < olBoundry[a]; i++) {
@@ -262,6 +260,7 @@ private:
         }
     }
 
+    //Bresenhams for drawing the circle
     void circleBres(int r, std::vector<int>* vec)
     {
         int x = 0, y = r;
@@ -282,135 +281,6 @@ private:
     }
 
     void RenderTexture(Component* c, wxDC& dc) {
-
-    }
-
-    void RenderRectangle(Component* c, wxDC& dc) {
-        xhRectangle* rect = dynamic_cast<xhRectangle*>(c);
-
-        int chwidth = crosshair->GetWidth();
-
-        int chheight = crosshair->GetHeight();
-
-        int xcenter = chwidth / 2;
-        int ycenter = chheight / 2;
-
-
-        //if 1 it will draw true size
-        /*int pixelWidth = GetSize().GetWidth() / chwidth;
-        int pixelHeight = GetSize().GetHeight() / chheight;*/
-        int pixelWidth = 1;
-        int pixelHeight = 1;
-
-
-        int width = rect->GetWidth();
-        int length = rect->GetSize();
-        //int gap = rect->GetGap();
-        int xoff = rect->GetXOffset();
-        int yoff = rect->GetYOffset();
-
-        Pixel color = rect->GetColor();
-        Pixel outline_color = rect->GetOutlineColor();
-
-        wxColour wcolor(color.red, color.green, color.blue, color.alpha);
-        wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
-
-        int outline = rect->GetOutlineThickness() * rect->GetOutline();
-
-        //OutputDebugString(L"Rendering a plus\n");
-
-        dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
-
-        //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
-        for (int i = 0 - outline - (width/2); i < (width/2) + outline; i++) {
-            for (int j = 0 - outline - (length/2); j < (length/2) + outline; j++) {
-                //pixel to be drawn
-                int pixx = xcenter + xoff + i;
-                int pixy = ycenter + yoff + j;
-                //OutputDebugString(L"Trying to Draw a Pixel\n");
-                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                    //OutputDebugString(L"Drawing a pixel\n");
-                    if (i < 0 - (width / 2) || i >= width/2 || j < -(length / 2) || j >= length/2) {
-                        dc.SetBrush(wxBrush(wcolor2));
-                        //crosshair.SetColor(pixx, pixy, outline_color);
-                    }
-                    else {
-                        dc.SetBrush(wxBrush(wcolor));
-                        //crosshair.SetColor(pixx, pixy, color);
-                    }
-                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
-                }
-            }
-        }
-
-    }
-
-    void RenderDiamond(Component* c, wxDC& dc) {
-        xhDiamond* rect = dynamic_cast<xhDiamond*>(c);
-
-        int chwidth = crosshair->GetWidth();
-
-        int chheight = crosshair->GetHeight();
-
-        int xcenter = chwidth / 2;
-        int ycenter = chheight / 2;
-
-
-        //if 1 it will draw true size
-        /*int pixelWidth = GetSize().GetWidth() / chwidth;
-        int pixelHeight = GetSize().GetHeight() / chheight;*/
-        int pixelWidth = 1;
-        int pixelHeight = 1;
-
-
-        int width = rect->GetWidth();
-        int length = rect->GetSize();
-
-        //find gcd
-        int g = std::gcd(width, length);
-
-        int swidth = width / g;
-        int slength = length / g;
-
-        //int gap = rect->GetGap();
-        int xoff = rect->GetXOffset();
-        int yoff = rect->GetYOffset();
-
-        Pixel color = rect->GetColor();
-        Pixel outline_color = rect->GetOutlineColor();
-
-        wxColour wcolor(color.red, color.green, color.blue, color.alpha);
-        wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
-
-        int outline = rect->GetOutlineThickness() * rect->GetOutline();
-
-        //OutputDebugString(L"Rendering a plus\n");
-
-        dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
-
-        //Each Loop draws one arm, if i or j are outside a certain boundry it draws the outline color instead of the shape color
-        for (int i = 0 - outline - (width / 2); i < (width / 2) + outline; i++) {
-            int a = ( ((width / 2) - abs(i)) * slength) / swidth;
-            for (int j = 0 - outline - a; j < outline + a; j++) {
-                //pixel to be drawn
-                int pixx = xcenter + xoff + i;
-                int pixy = ycenter + yoff + j;
-
-                //Bounds of frame
-                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                    //OutputDebugString(L"Drawing a pixel\n");
-                    if (j < - a || j >= a || i < -width / 2|| i>=width/2) {
-                        dc.SetBrush(wxBrush(wcolor2));
-                        //crosshair.SetColor(pixx, pixy, outline_color);
-                    }
-                    else {
-                        dc.SetBrush(wxBrush(wcolor));
-                        //crosshair.SetColor(pixx, pixy, color);
-                    }
-                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
-                }
-            }
-        }
 
     }
 
@@ -444,8 +314,6 @@ private:
 
         int outline = plus->GetOutlineThickness()*plus->GetOutline();
 
-        //OutputDebugString(L"Rendering a plus\n");
-
         dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
 
         if (plus->GetOutlineType()) {
@@ -455,17 +323,15 @@ private:
                     //pixel to be drawn
                     int pixx = xcenter - (width / 2) + i;
                     int pixy = ycenter + gap + j;
-                    //OutputDebugString(L"Trying to Draw a Pixel\n");
+
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-                        //OutputDebugString(L"Drawing a pixel\n");
                         if (i < 0 || i >= width || j < 0 || j >= length) {
                             dc.SetBrush(wxBrush(wcolor2));
-                            //crosshair.SetColor(pixx, pixy, outline_color);
                         }
                         else {
                             dc.SetBrush(wxBrush(wcolor));
-                            //crosshair.SetColor(pixx, pixy, color);
                         }
+
                         dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
                     }
 
@@ -481,12 +347,11 @@ private:
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
                         if (i < 0 || i >= width || j < 0 || j >= length) {
                             dc.SetBrush(wxBrush(wcolor2));
-                            //crosshair.SetColor(pixx, pixy, outline_color);
                         }
                         else {
                             dc.SetBrush(wxBrush(wcolor));
-                            //crosshair.SetColor(pixx, pixy, color);
                         }
+
                         dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
                     }
 
@@ -502,12 +367,11 @@ private:
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
                         if (i < 0 || i >= width || j < 0 || j >= length) {
                             dc.SetBrush(wxBrush(wcolor2));
-                            //crosshair.SetColor(pixx, pixy, outline_color);
                         }
                         else {
                             dc.SetBrush(wxBrush(wcolor));
-                            //crosshair.SetColor(pixx, pixy, color);
                         }
+
                         dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
                     }
                 }
@@ -522,12 +386,11 @@ private:
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
                         if (i < 0 || i >= width || j < 0 || j >= length) {
                             dc.SetBrush(wxBrush(wcolor2));
-                            //crosshair.SetColor(pixx, pixy, outline_color);
                         }
                         else {
                             dc.SetBrush(wxBrush(wcolor));
-                            //crosshair.SetColor(pixx, pixy, color);
                         }
+
                         dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
                     }
                 }
@@ -597,6 +460,124 @@ private:
 
             }
         }   
+    }
+
+    void RenderRectangle(Component* c, wxDC& dc) {
+        xhRectangle* rect = dynamic_cast<xhRectangle*>(c);
+
+        int chwidth = crosshair->GetWidth();
+
+        int chheight = crosshair->GetHeight();
+
+        int xcenter = chwidth / 2;
+        int ycenter = chheight / 2;
+
+
+        //if 1 it will draw true size
+        /*int pixelWidth = GetSize().GetWidth() / chwidth;
+        int pixelHeight = GetSize().GetHeight() / chheight;*/
+        int pixelWidth = 1;
+        int pixelHeight = 1;
+
+
+        int width = rect->GetWidth();
+        int length = rect->GetSize();
+        //int gap = rect->GetGap();
+        int xoff = rect->GetXOffset();
+        int yoff = rect->GetYOffset();
+
+        Pixel color = rect->GetColor();
+        Pixel outline_color = rect->GetOutlineColor();
+
+        wxColour wcolor(color.red, color.green, color.blue, color.alpha);
+        wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
+
+        int outline = rect->GetOutlineThickness() * rect->GetOutline();
+
+        dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+
+        //Same as Plus render loop but using offset
+        for (int i = 0 - outline - (width / 2); i < (width / 2) + outline; i++) {
+            for (int j = 0 - outline - (length / 2); j < (length / 2) + outline; j++) {
+                int pixx = xcenter + xoff + i;
+                int pixy = ycenter + yoff + j;
+
+                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                    if (i < 0 - (width / 2) || i >= width / 2 || j < -(length / 2) || j >= length / 2) {
+                        dc.SetBrush(wxBrush(wcolor2));
+                    }
+                    else {
+                        dc.SetBrush(wxBrush(wcolor));
+                    }
+
+                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                }
+            }
+        }
+    }
+
+    void RenderDiamond(Component* c, wxDC& dc) {
+        xhDiamond* rect = dynamic_cast<xhDiamond*>(c);
+
+        int chwidth = crosshair->GetWidth();
+
+        int chheight = crosshair->GetHeight();
+
+        int xcenter = chwidth / 2;
+        int ycenter = chheight / 2;
+
+
+        //if 1 it will draw true size
+        /*int pixelWidth = GetSize().GetWidth() / chwidth;
+        int pixelHeight = GetSize().GetHeight() / chheight;*/
+        int pixelWidth = 1;
+        int pixelHeight = 1;
+
+
+        int width = rect->GetWidth();
+        int length = rect->GetSize();
+
+        //find gcd
+        int g = std::gcd(width, length);
+
+        int swidth = width / g;
+        int slength = length / g;
+
+        //int gap = rect->GetGap();
+        int xoff = rect->GetXOffset();
+        int yoff = rect->GetYOffset();
+
+        Pixel color = rect->GetColor();
+        Pixel outline_color = rect->GetOutlineColor();
+
+        wxColour wcolor(color.red, color.green, color.blue, color.alpha);
+        wxColour wcolor2(outline_color.red, outline_color.green, outline_color.blue, outline_color.alpha);
+
+        int outline = rect->GetOutlineThickness() * rect->GetOutline();
+
+        dc.SetPen(wxPen(wcolor2, 0, wxPENSTYLE_TRANSPARENT));
+
+        //Similar to rectangle render loop
+        for (int i = 0 - outline - (width / 2); i < (width / 2) + outline; i++) {
+            int a = (((width / 2) - abs(i)) * slength) / swidth;
+            for (int j = 0 - outline - a; j < outline + a; j++) {
+                //pixel to be drawn
+                int pixx = xcenter + xoff + i;
+                int pixy = ycenter + yoff + j;
+
+                //Bounds of frame
+                if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
+                    if (j < -a || j >= a || i < -width / 2 || i >= width / 2) {
+                        dc.SetBrush(wxBrush(wcolor2));
+                    }
+                    else {
+                        dc.SetBrush(wxBrush(wcolor));
+                    }
+
+                    dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
+                }
+            }
+        }
 
     }
 
@@ -640,6 +621,7 @@ private:
             //each loop then determines how many pixels to draw straight below it
             for (int i = 0 - outline; i < length + outline; i++) {
                 int lim = std::min(i, width);//how many main color pixels to draw down before outline, if<0 draw outline-lim pixels of outline color
+
                 for (int j = 0; j <= lim + outline; j++) {
                     //pixel to be drawn
                     int pixx = xcenter - i;
@@ -647,13 +629,10 @@ private:
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
                         if (i < 0 || i >= length || j < 0 || j > lim) {
                             dc.SetBrush(wxBrush(wcolor2));
-                            //crosshair.SetColor(pixx, pixy, outline_color);
                         }
                         else {
                             dc.SetBrush(wxBrush(wcolor));
-                            //crosshair.SetColor(pixx, pixy, color);
                         }
-                        //dc.DrawRectangle(pixx * pixelWidth, pixy * pixelHeight, pixelWidth, pixelHeight);
                         dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
                         dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
 
@@ -678,10 +657,10 @@ private:
                     //pixel to be drawn
                     int pixx = xcenter - i;
                     int pixy = ycenter - i + j;
+
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
                         if (i < 0 || i >= length || j < 0 || j > lim) {
                             dc.SetBrush(wxBrush(wcolor2));
-                            //crosshair.SetColor(pixx, pixy, outline_color);
                             dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
                             dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
 
@@ -705,13 +684,13 @@ private:
                     //pixel to be drawn
                     int pixx = xcenter - i;
                     int pixy = ycenter - i + j;
+
                     if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
                         if (i < 0 || i >= length || j < 0 || j > lim) {
                             
                         }
                         else {
                             dc.SetBrush(wxBrush(wcolor));
-                            //crosshair.SetColor(pixx, pixy, outline_color);
                             dc.DrawRectangle((xcenter - i - gap) * pixelWidth, (ycenter - i + j - gap) * pixelHeight, pixelWidth, pixelHeight);
                             dc.DrawRectangle((xcenter - i + j - gap) * pixelWidth, (ycenter - i - gap) * pixelHeight, pixelWidth, pixelHeight);
 
@@ -729,9 +708,8 @@ private:
             }
 
         }
-
-
     }
+
     DECLARE_EVENT_TABLE()
 };
 
@@ -763,9 +741,9 @@ public:
             SetValue(GetValue() + wxString::FromAscii("."));
         }
     }
-
 };
 
+//Represents a layer in the layer list, shows name, visibility and delete buttons, clicking it selects that layer and loads its control panel
 class LayerWidget : public wxPanel {
 private:
     wxSizer* sizer;
@@ -777,16 +755,19 @@ private:
     wxButton* deleteButton;
     wxButton* visibilityButton;
     wxPanel* labelPanel;
+
 public:
+
     LayerWidget(wxWindow* parent, Crosshair* crosshair, int layer, wxColour bgc) :wxPanel(parent), crosshair(crosshair), layer(layer) {
         sizer = new wxBoxSizer(wxHORIZONTAL);
         this->SetSizer(sizer);
 
+        //Layer that the widget represents
         comp = crosshair->layers[layer];
 
+        //name, clicking this section will select that layer
         labelPanel = new wxPanel(this, BUTTON_LAYER, wxDefaultPosition, wxSize(200,40));
         labelPanel->SetBackgroundColour(bgc); // Set panel background color
-        
         labelPanel->Bind(wxEVT_LEFT_DOWN, [this, crosshair](wxMouseEvent& event) {
             OutputDebugString(L"Panel Clicked\n");
             this->crosshair->selectedLayer = comp->GetID();
@@ -817,9 +798,10 @@ public:
         labelPanel->SetSizer(labelSizer);
         labelSizer->Add(label, 1, wxALIGN_CENTER_VERTICAL, 5);
         sizer->Add(labelPanel, 0, 0, 0);
-
         sizer->AddStretchSpacer();
 
+
+        //visibility button, toggling it will tell the preview and png export whether or now to skip this layer
         wxButton* visibilityButton = new wxButton(this, BUTTON_VISIBLE, "Visible", wxDefaultPosition, wxSize(50, 40));
         if (comp->GetVisibility()) {
             visibilityButton->SetLabel("Visible");
@@ -843,6 +825,8 @@ public:
         visibilityButton->Bind(wxEVT_BUTTON, lambdaEventHandler2);
         sizer->Add(visibilityButton, 0, 0, 1);
 
+
+        //delete button, clicking it will remove the layer from the crosshair
         deleteButton = new wxButton(this, wxID_ANY, "x", wxDefaultPosition, wxSize(25,40));
         deleteButton->Bind(wxEVT_BUTTON, [this, crosshair, layer](wxCommandEvent& event) {
             crosshair->DeleteLayer(layer);
@@ -862,32 +846,26 @@ class ScrolledWidgetsPane : public wxScrolledWindow
 private:
     wxBoxSizer* sizer;
     Crosshair* crosshairptr;
-    //std::vector< wxButton*> buttons;
 
 public:
     ScrolledWidgetsPane(wxWindow* parent, wxWindowID id, Crosshair* crosshair) : wxScrolledWindow(parent, id)
     {
-        // the sizer will take care of determining the needed scroll size
-        // (if you don't use sizers you will need to manually set the viewport size)
         sizer = new wxBoxSizer(wxVERTICAL);
-
         this->SetSizer(sizer);
 
         crosshairptr = crosshair;
         PopulateList(crosshairptr);
        
-
-        // this part makes the scrollbars show up
-        this->FitInside(); // ask the sizer about the needed size
+        this->FitInside();
         this->SetScrollRate(5, 5);
+        //looks cleaner to me if the scrollbar is always there, even if the window isnt full
         ShowScrollbars(wxScrollbarVisibility(false), wxScrollbarVisibility(true));
-        //this->SetScrollbars(1, 1, 1, 1, 0, 0, false);
     }
 
+    //Creates LayerWidgets for each layer in the crosshair and puts them in the scrolled pane
+    //also assigns an id to each Component, so that its position in the order can be easily accessed
     void PopulateList(Crosshair* crosshair) {
         sizer->Clear(true);
-        //wxPanel* bgpanel = new wxPanel(this, wxID_ANY, wxPoint(0, 0), wxSize(250, 300));
-        //bgpanel->SetBackgroundColour(wxColor(10, 10, 10));
 
         int id = 0;
         for (Component* c : crosshair->layers)
@@ -907,37 +885,15 @@ public:
             wxBoxSizer* s = new wxBoxSizer(wxHORIZONTAL);
             background->SetSizer(s);
             c->SetID(id);
-            //wxString n = c->GetName();
-            //wxButton* b = new wxButton(background, BUTTON_LAYER, wxString::Format(n));
-            //
-            //auto lambdaEventHandler = [this, c](wxCommandEvent& event) {
-            //    OutputDebugString(L"Button Clicked2\n");
-            //    this->crosshairptr->selectedLayer = c->GetID();
-            //    wchar_t debugString[200]; // Buffer for the debug string
-            //    swprintf(debugString, 100, L"%d\n", this->crosshairptr->selectedLayer);
-            //    OutputDebugString(debugString);
-            //    event.Skip();
-            //    };
-            //b->Bind(wxEVT_BUTTON, lambdaEventHandler);
-            //wxButton* vb = new wxButton(background, BUTTON_VISIBLE, "Visible");
-            //auto lambdaEventHandler2 = [this, c](wxCommandEvent& event) {
-            //    OutputDebugString(L"Button Clicked2\n");
-            //    c->ToggleVisibility();
-            //    event.Skip();
-            //    };
-            //vb->Bind(wxEVT_BUTTON, lambdaEventHandler2);
 
             LayerWidget* layer = new LayerWidget(background, crosshair, id, bgc);
             id++;
-
-            //s->Add(b, 0, wxALL, 3);
-            //s->Add(vb, 0, wxALL, 3);
             s->Add(layer, 0, 0, 0);
             
             sizer->Add(background, 0, 0, 0);
         }
 
-        this->FitInside(); // ask the sizer about the needed size
+        this->FitInside();
         this->SetScrollRate(5, 5);
     }
 };
@@ -1028,7 +984,7 @@ public:
     }
 };
 
-//Color picker
+//Contains 4 color sliders linked to a color pointer
 class ColorControl : public wxPanel {
 private:
     wxBoxSizer* sizer;
@@ -1155,7 +1111,7 @@ public:
 
 };
 
-//Container for Plus shape specific controls
+//Container for Rectangle shape specific controls
 class RectangleControl : public wxPanel {
 private:
     wxBoxSizer* sizer;
@@ -1283,7 +1239,7 @@ public:
 
 };
 
-//Container for Outline controls
+//Container for Outline controls, has a color picker, toggles for outline visibility/type, and an int slider for thickness
 class OutLineControl : public wxPanel {
 private:
     wxBoxSizer* sizer;
@@ -1294,8 +1250,6 @@ public:
     OutLineControl(wxWindow* parent, Shape* shape, int x, int y) : wxPanel(parent), s(shape), parent(parent) {
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
-
-        
 
         int max = std::max(x, y);
 
@@ -1450,7 +1404,6 @@ public:
             ProcessEvent(evt);
             });
 
-
         //topsizer->Add(name,1, 0, 1);
 
         sizer->Add(name, 0, 0, 1);
@@ -1567,6 +1520,8 @@ public:
 /****************************************/
 //These classes make up the 3 main panels
 /****************************************/
+
+//Pane containing the list of layers and the button to add a new layer
 class LayerListPane : public wxPanel {
 private:
     wxSizer* sizer;
@@ -1659,6 +1614,7 @@ public:
 
 };
 
+//Pane containing all the attribute/color controls for the selected layer
 class ControlPanelPane : public wxPanel {
 private:
     wxSizer* sizer;
@@ -1694,6 +1650,8 @@ public:
     }
 };
 
+
+//Pane containing the preview render of the crosshair, center outline toggle, and the save and export buttons
 class PreviewPanelPane : public wxPanel {
 private:
     wxSizer* sizer;
@@ -1720,9 +1678,9 @@ public:
         sizer2->Add(previewimg, 1, wxEXPAND | wxALL, 5);
         sizer->Add(panel, 1, 0, 5);
 
+        //center line toggle
         wxCheckBox* check = new wxCheckBox(this, wxID_ANY, "Show center");
         check->SetValue(showcenter);
-
         check->Bind(wxEVT_CHECKBOX, [this, check](wxCommandEvent& event) {
             // Toggle the value of showoutline
             showcenter = !showcenter;
@@ -1735,7 +1693,7 @@ public:
 
         sizer->Add(check, 1, 0, 5);
 
-        // Save and Test buttons
+        // Save, export, and Test buttons
         wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
         wxButton* saveButton = new wxButton(this, BUTTON_SAVE, "Save");
         wxButton* exportButton = new wxButton(this, BUTTON_EXPORT, "Export");

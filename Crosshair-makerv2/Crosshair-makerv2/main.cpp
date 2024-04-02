@@ -31,13 +31,9 @@ private:
 	wxPanel* mainpanel;
     wxBoxSizer* mainsizer;
 	wxBoxSizer* mainsizer2;
-    wxButton* saveButton;
-    wxButton* testButton;
-	ImagePanel* previewimg;
 	NumericTextCtrl* widthEntry;
 	NumericTextCtrl* heightEntry;
 	wxButton* confirmNewButton;
-	ScrolledWidgetsPane* layerlist;
 
 	//Edit Interface
 	wxBoxSizer* layersizer;
@@ -47,8 +43,6 @@ private:
 	LayerListPane* layerListPane;
 	ControlPanelPane* controlPanelPane;
 	PreviewPanelPane* previewPanelPane;
-
-	std::vector<wxButton*> layerlistbuttons;
 
 	int wwidth;
 	int wheight;

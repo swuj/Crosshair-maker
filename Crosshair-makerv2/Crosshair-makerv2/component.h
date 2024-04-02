@@ -161,7 +161,6 @@ public:
 	//Convert to Texture component, probably needs to be overloaded, maybe this doesnt even go in here actually
 };
 
-//Circle shaped layer
 class Circle : public Shape {
 protected:
 	bool inner_outline = true;			// does the opening have an outline
@@ -274,6 +273,7 @@ public:
 	}
 };
 
+//X shape
 class xhX : public Plus {
 public:
 	xhX() : Plus() {
