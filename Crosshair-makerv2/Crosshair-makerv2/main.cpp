@@ -1284,7 +1284,7 @@ void DrawX(Component* c) {
 				int pixx = xcenter - i;
 				int pixy = ycenter - i + j;
 				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-					if (i < 0 || i >= length || j < 0 || j >= lim) {
+					if (i < 0 || i >= length || j < 0 || j > lim) {
 						
 						xhair.SetColor((xcenter - i - gap), (ycenter - i + j - gap), outline_color);
 						xhair.SetColor((xcenter - i + j - gap), (ycenter - i - gap), outline_color);
@@ -1319,7 +1319,7 @@ void DrawX(Component* c) {
 				int pixx = xcenter - i;
 				int pixy = ycenter - i + j;
 				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-					if (i < 0 || i >= length || j < 0 || j >= lim) {
+					if (i < 0 || i >= length || j < 0 || j > lim) {
 						xhair.SetColor((xcenter - i - gap), (ycenter - i + j - gap), outline_color);
 						xhair.SetColor((xcenter - i + j - gap), (ycenter - i - gap), outline_color);
 						xhair.SetColor((xcenter + i + gap - 1), (ycenter - i + j - gap), outline_color);
@@ -1341,7 +1341,7 @@ void DrawX(Component* c) {
 				int pixx = xcenter - i;
 				int pixy = ycenter - i + j;
 				if (pixx >= 0 && pixx < chwidth && pixy >= 0 && pixy < chheight) {
-					if (i < 0 || i >= length || j < 0 || j >= lim) {
+					if (i < 0 || i >= length || j < 0 || j > lim) {
 
 					}
 					else {
