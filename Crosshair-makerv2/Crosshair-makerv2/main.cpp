@@ -207,7 +207,7 @@ wxIMPLEMENT_APP(MainApp);
 
 bool MainApp::OnInit()
 {
-    MyFrame* frame = new MyFrame("Crosshair Maker", wxPoint(1, 1), wxSize(1000, 800));
+    MyFrame* frame = new MyFrame("Crosshair Maker", wxPoint(1, 1), wxSize(1000, 600));
 
 	wxMenuBar* menuBar = new wxMenuBar;
 
@@ -365,7 +365,7 @@ void MyFrame::UpdateLayerListPane2() {
 void MyFrame::CreateLayerListPane() {
 	layersizer->Clear(true);
 
-	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 600));
+	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 500));
 	wxSizer* lsizer = new wxBoxSizer(wxVERTICAL);
 	llpanel->SetBackgroundColour(wxColor(150, 150, 150));
 
@@ -373,7 +373,7 @@ void MyFrame::CreateLayerListPane() {
 
 	lsizer->Add(layerListPane, 1, wxEXPAND | wxALL, 5);
 	llpanel->SetSizer(lsizer);
-	layersizer->Add(llpanel, 1, wxEXPAND | wxALL, 5);
+	layersizer->Add(llpanel, 0, wxEXPAND | wxALL, 5);
 
 
 	Layout();
@@ -403,7 +403,7 @@ void MyFrame::UpdateLayerControlPane2() {
 void MyFrame::CreateLayerControlPane() {
 	controlsizer->Clear(true);
 
-	wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
+	wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 500));
 	//wxScrolledWindow* layercontrolpanel = new wxScrolledWindow(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 200));
 	layercontrolpanel->SetBackgroundColour(wxColor(150, 150, 150));
 
@@ -489,9 +489,12 @@ void MyFrame::UpdatePreviewPane2() {
 void MyFrame::CreatePreviewPane() {
 	previewsizer->Clear(true);
 
-	wxPanel* previewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(xhair.GetWidth(), xhair.GetHeight()));
+	wxPanel* previewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300,600));
+	previewpanel->SetBackgroundColour(wxColor(150, 150, 150));
 	wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
 	previewpanel->SetSizer(pvsizer);
+
+	//wxPanel* previewpanel2 = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(xhair.GetWidth(), xhair.GetHeight()));
 
 	previewPanelPane = new PreviewPanelPane(previewpanel, &xhair);
 	pvsizer->Add(previewPanelPane, 0, 0, 1);

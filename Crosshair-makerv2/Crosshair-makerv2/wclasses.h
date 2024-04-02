@@ -766,7 +766,7 @@ public:
         comp = crosshair->layers[layer];
 
         //name, clicking this section will select that layer
-        labelPanel = new wxPanel(this, BUTTON_LAYER, wxDefaultPosition, wxSize(200,40));
+        labelPanel = new wxPanel(this, BUTTON_LAYER, wxDefaultPosition, wxSize(180,40));
         labelPanel->SetBackgroundColour(bgc); // Set panel background color
         labelPanel->Bind(wxEVT_LEFT_DOWN, [this, crosshair](wxMouseEvent& event) {
             OutputDebugString(L"Panel Clicked\n");
@@ -872,7 +872,7 @@ public:
         {
             wxColor bgc;
             //Background darker if selected
-            wxPanel* background = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(268, 40));
+            wxPanel* background = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(255, 40));
             if (crosshair->selectedLayer == id) {
                 background->SetBackgroundColour(wxColor(120, 120, 120));
                 bgc = wxColor(150, 150, 150);
@@ -897,8 +897,6 @@ public:
         this->SetScrollRate(5, 5);
     }
 };
-
-
 
 //Linked slider and text box for uint8_t
 class ColorSlider : public wxPanel {
@@ -996,33 +994,32 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        //wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize);
-        //wxWindow* win = pane->GetPane();
+        wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, label, wxDefaultPosition, wxDefaultSize);
+        wxWindow* win = pane->GetPane();
+        pane->SetBackgroundColour(wxColor(90, 90, 90));
+        //wxWindow* win = this;
 
-        wxWindow* win = this;
-        
+        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
-        //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
-
-        sizer->Add(new wxStaticText(this, wxID_ANY, "Color"), 0, 0, 5);
+        //sizer2->Add(new wxStaticText(this, wxID_ANY, "Color"), 0, 0, 5);
 
         ColorSlider* redSlider = new ColorSlider(win, &(color->red), "R");
-        sizer->Add(redSlider, 0, 0, 1);
+        sizer2->Add(redSlider, 0, 0, 1);
 
         ColorSlider* greenSlider = new ColorSlider(win, &(color->green), "G");
-        sizer->Add(greenSlider, 0, 0, 1);
+        sizer2->Add(greenSlider, 0, 0, 1);
 
         ColorSlider* blueSlider = new ColorSlider(win, &(color->blue), "B");
-        sizer->Add(blueSlider, 0, 0, 1);
+        sizer2->Add(blueSlider, 0, 0, 1);
 
         ColorSlider* alphaSlider = new ColorSlider(win, &(color->alpha), "A");
-        sizer->Add(alphaSlider, 0, 0, 1);
+        sizer2->Add(alphaSlider, 0, 0, 1);
         
-        //win->SetSizer(sizer2);
-        //sizer->Add(pane, 0);
+        win->SetSizer(sizer2);
+        sizer->Add(pane, 0);
 
-        //pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &ColorControl::OnPaneChanged, this);
-        //pane->Collapse(false);
+        pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &ColorControl::OnPaneChanged, this);
+        pane->Collapse(false);
     }
 
     void OnPaneChanged(wxCollapsiblePaneEvent& event) {
@@ -1061,29 +1058,30 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        //wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
-        //wxWindow* win = pane->GetPane();
-        wxWindow* win = this;
+        wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
+        wxWindow* win = pane->GetPane();
+        pane->SetBackgroundColour(wxColor(90, 90, 90));
+        //wxWindow* win = this;
         int max = std::max(x, y);
 
-        //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
-        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
+        //sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
         wxBoxSizer* lengths = new wxBoxSizer(wxHORIZONTAL);
 
-        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", 0, max), 0, 0, 1);
+        sizer2->Add(new IntSlider(win, &(p->GetSize()), "Length", 0, max), 0, 0, 1);
 
         wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", 0, max), 0, 0, 1);
+        sizer2->Add(new IntSlider(win, &(p->GetWidth()), "Width", 0, max), 0, 0, 1);
 
         wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetGap()), "Gap", 0, max), 0, 0, 1);
+        sizer2->Add(new IntSlider(win, &(p->GetGap()), "Gap", 0, max), 0, 0, 1);
 
-        /*win->SetSizer(sizer2);
+        win->SetSizer(sizer2);
         sizer->Add(pane, 0);
 
         pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &PlusControl::OnPaneChanged, this);
-        pane->Collapse(false);*/
+        pane->Collapse(false);
     }
 
     void OnPaneChanged(wxCollapsiblePaneEvent& event) {
@@ -1123,32 +1121,33 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        //wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
-        //wxWindow* win = pane->GetPane();
-        wxWindow* win = this;
+        wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
+        wxWindow* win = pane->GetPane();
+        pane->SetBackgroundColour(wxColor(90, 90, 90));
+        //wxWindow* win = this;
 
         int max = std::max(x, y);
-        //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
-        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
+        //sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
         wxBoxSizer* lengths = new wxBoxSizer(wxHORIZONTAL);
 
-        sizer->Add(new IntSlider(win, &(p->GetSize()), "Length", 0, max), 0, 0, 1);
+        sizer2->Add(new IntSlider(win, &(p->GetSize()), "Length", 0, max), 0, 0, 1);
 
         wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetWidth()), "Width", 0, max), 0, 0, 1);
+        sizer2->Add(new IntSlider(win, &(p->GetWidth()), "Width", 0, max), 0, 0, 1);
 
         wxBoxSizer* xoffs = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetXOffset()), "X offset", -(x/2), x/2), 0, 0, 1);
+        sizer2->Add(new IntSlider(win, &(p->GetXOffset()), "X offset", -(x/2), x/2), 0, 0, 1);
 
         wxBoxSizer* yoffs = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(p->GetYOffset()), "Y offset", -(y/2), y/2), 0, 0, 1);
+        sizer2->Add(new IntSlider(win, &(p->GetYOffset()), "Y offset", -(y/2), y/2), 0, 0, 1);
 
-        /*win->SetSizer(sizer2);
-        sizer->Add(pane, 0);
+        win->SetSizer(sizer2);
+        sizer->Add(pane, 0, 5);
 
-        pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &PlusControl::OnPaneChanged, this);
-        pane->Collapse(false);*/
+        pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &RectangleControl::OnPaneChanged, this);
+        pane->Collapse(false);
     }
 
     void OnPaneChanged(wxCollapsiblePaneEvent& event) {
@@ -1188,30 +1187,31 @@ public:
         sizer = new wxBoxSizer(wxVERTICAL);
         this->SetSizer(sizer);
 
-        //wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
-        //wxWindow* win = pane->GetPane();
-        wxWindow* win = this;
+        wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Dimensions", wxDefaultPosition, wxDefaultSize);
+        wxWindow* win = pane->GetPane();
+        pane->SetBackgroundColour(wxColor(90, 90, 90));
+        //wxWindow* win = this;
 
         int max = std::max(x, y);
 
-        //wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
 
-        sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
+        //sizer->Add(new wxStaticText(this, wxID_ANY, "Dimensions"), 0, 0, 1);
         wxBoxSizer* radiuss = new wxBoxSizer(wxHORIZONTAL);
 
-        sizer->Add(new IntSlider(win, &(c->GetSize()), "Radius", 0, max), 0, 0, 1);
+        sizer2->Add(new IntSlider(win, &(c->GetSize()), "Radius", 0, max), 0, 0, 1);
 
         //wxBoxSizer* widths = new wxBoxSizer(wxHORIZONTAL);
         //sizer->Add(new IntSlider(win, &(c->GetWidth()), "Width", x, y), 1, 0, 1);
 
         wxBoxSizer* gaps = new wxBoxSizer(wxHORIZONTAL);
-        sizer->Add(new IntSlider(win, &(c->GetGap()), "Gap", 0, max), 0, 0, 1);
+        sizer2->Add(new IntSlider(win, &(c->GetGap()), "Gap", 0, max), 0, 0, 1);
 
-        /*win->SetSizer(sizer2);
+        win->SetSizer(sizer2);
         sizer->Add(pane, 0);
 
-        pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &PlusControl::OnPaneChanged, this);
-        pane->Collapse(false);*/
+        pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &CircleControl::OnPaneChanged, this);
+        pane->Collapse(false);
     }
 
     void OnPaneChanged(wxCollapsiblePaneEvent& event) {
@@ -1253,11 +1253,16 @@ public:
 
         int max = std::max(x, y);
 
-        wxWindow* win = this;
-        sizer->Add(new wxStaticText(this, wxID_ANY, "Outline"), 1, wxEXPAND | wxALL, 5);
+        wxCollapsiblePane* pane = new wxCollapsiblePane(this, wxID_ANY, "Outline", wxDefaultPosition, wxDefaultSize);
+        wxWindow* win = pane->GetPane();
+        wxBoxSizer* sizer2 = new wxBoxSizer(wxVERTICAL);
+        pane->SetBackgroundColour(wxColor(90, 90, 90));
+
+        //wxWindow* win = this;
+        //sizer2->Add(new wxStaticText(this, wxID_ANY, "Outline"), 1, wxEXPAND | wxALL, 5);
 
         wxCheckBox* check = new wxCheckBox(win, wxID_ANY, "Show outline");
-        check->SetValue(&(shape->GetOutline()));
+        check->SetValue((shape->GetOutline()));
 
         check->Bind(wxEVT_CHECKBOX, [this, shape, check](wxCommandEvent& event) {
             // Toggle the value of showoutline
@@ -1269,7 +1274,7 @@ public:
             ProcessEvent(evt);
             });
 
-        sizer->Add(check, 1, wxEXPAND | wxALL, 5);
+        sizer2->Add(check, 1, wxEXPAND | wxALL, 5);
 
         if (shape->GetType()==PLUSLAYER) {
             Plus* plus = dynamic_cast<Plus*>(shape);
@@ -1287,7 +1292,7 @@ public:
                 ProcessEvent(evt);
                 });
 
-            sizer->Add(check2, 1, wxEXPAND | wxALL, 5);
+            sizer2->Add(check2, 1, wxEXPAND | wxALL, 5);
         }
         else if (shape->GetType() == XLAYER) {
             xhX* plus = dynamic_cast<xhX*>(shape);
@@ -1305,7 +1310,7 @@ public:
                 ProcessEvent(evt);
                 });
 
-            sizer->Add(check2, 1, wxEXPAND | wxALL, 5);
+            sizer2->Add(check2, 1, wxEXPAND | wxALL, 5);
         }
         else if (shape->GetType() == CIRCLELAYER) {
             Circle* circle = dynamic_cast<Circle*>(shape);
@@ -1323,26 +1328,26 @@ public:
                 ProcessEvent(evt);
                 });
 
-            sizer->Add(check2, 1, wxEXPAND | wxALL, 5);
-            sizer->Add(new wxStaticText(win, wxID_ANY, "Inner Outline Thickness"));
-            sizer->Add(new IntSlider(win, &(circle->GetInnerOutlineThickness()), "", 0, max), 1, 0, 1);
+            sizer2->Add(check2, 1, wxEXPAND | wxALL, 5);
+            sizer2->Add(new wxStaticText(win, wxID_ANY, "Inner Outline Thickness"));
+            sizer2->Add(new IntSlider(win, &(circle->GetInnerOutlineThickness()), "", 0, max), 1, 0, 1);
         }
 
-        sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Thickness"));
-        sizer->Add(new IntSlider(win, &(s->GetOutlineThickness()), "", 0, max), 1, 0, 1);
+        sizer2->Add(new wxStaticText(win, wxID_ANY, "Outline Thickness"));
+        sizer2->Add(new IntSlider(win, &(s->GetOutlineThickness()), "", 0, max), 1, 0, 1);
 
         Pixel* color = &(s->GetOutlineColor());
-        sizer->Add(new wxStaticText(win, wxID_ANY, "Outline Color"));
-        sizer->Add(new ColorSlider(win, &(color->red), "R"), 1, 0, 1);
-        sizer->Add(new ColorSlider(win, &(color->green), "G"), 1, 0, 1);
-        sizer->Add(new ColorSlider(win, &(color->blue), "B"), 1, 0, 1);
-        sizer->Add(new ColorSlider(win, &(color->alpha), "A"), 1, 0, 1);
+        sizer2->Add(new wxStaticText(win, wxID_ANY, "Outline Color"));
+        sizer2->Add(new ColorSlider(win, &(color->red), "R"), 1, 0, 1);
+        sizer2->Add(new ColorSlider(win, &(color->green), "G"), 1, 0, 1);
+        sizer2->Add(new ColorSlider(win, &(color->blue), "B"), 1, 0, 1);
+        sizer2->Add(new ColorSlider(win, &(color->alpha), "A"), 1, 0, 1);
 
-        /*win->SetSizer(sizer2);
+        win->SetSizer(sizer2);
         sizer->Add(pane, 0);
 
         pane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &OutLineControl::OnPaneChanged, this);
-        pane->Collapse(false);*/
+        pane->Collapse(false);
     }
 
     void OnPaneChanged(wxCollapsiblePaneEvent& event) {
@@ -1389,8 +1394,6 @@ public:
         x = c->GetWidth();
         y = c->GetHeight();
 
-        //componentPtr = c;
-
         OutputDebugString(L"Getting component\n");
         Component* component = c->layers[layer];
         type = component->GetType();
@@ -1403,8 +1406,6 @@ public:
             wxCommandEvent evt(wxEVT_COMMAND_TEXT_UPDATED, NAME_UPDATE);
             ProcessEvent(evt);
             });
-
-        //topsizer->Add(name,1, 0, 1);
 
         sizer->Add(name, 0, 0, 1);
 
@@ -1447,17 +1448,17 @@ public:
         //Main Color
         OutputDebugString(L"Creating Color Control\n");
         ColorControl* mainColorControl = new ColorControl(this, &(plus->GetColor()), "Color");
-        sizer->Add(mainColorControl,  1, 0, 1);
+        sizer->Add(mainColorControl,  0, 0, 1);
 
         //Dimensions
         OutputDebugString(L"Creating Cross Control\n");
         PlusControl* dimensionControl = new PlusControl(this, plus, x, y);
-        sizer->Add(dimensionControl, 1, 0, 1);
+        sizer->Add(dimensionControl, 0, 0, 1);
 
         //outline checkbox
         OutputDebugString(L"Creating Outline Control\n");
         OutLineControl* outlineControl = new OutLineControl(this, plus, x, y);
-        sizer->Add(outlineControl, 1, 0, 1);
+        sizer->Add(outlineControl, 0, 0, 1);
 
         //SetSizer(sizer);
         OutputDebugString(L"Controls Updated\n");
@@ -1476,17 +1477,17 @@ public:
         //Main Color
         OutputDebugString(L"Creating Color Control\n");
         ColorControl* mainColorControl = new ColorControl(this, &(plus->GetColor()), "Color");
-        sizer->Add(mainColorControl, 1, 0, 1);
+        sizer->Add(mainColorControl, 0, 0, 1);
 
         //Dimensions
         OutputDebugString(L"Creating Plus Control\n");
         RectangleControl* dimensionControl = new RectangleControl(this, plus, x, y);
-        sizer->Add(dimensionControl, 1, 0, 1);
+        sizer->Add(dimensionControl, 0, 0, 1);
 
         //outline checkbox
         OutputDebugString(L"Creating Outline Control\n");
         OutLineControl* outlineControl = new OutLineControl(this, plus, x, y);
-        sizer->Add(outlineControl, 1, 0, 1);
+        sizer->Add(outlineControl, 0, 0, 1);
 
         //SetSizer(sizer);
         OutputDebugString(L"Controls Updated\n");
@@ -1500,17 +1501,17 @@ public:
         //Main Color
         OutputDebugString(L"Creating Color Control\n");
         ColorControl* mainColorControl = new ColorControl(this, &(circle->GetColor()), "Color");
-        sizer->Add(mainColorControl, 1, 0, 1);
+        sizer->Add(mainColorControl, 0, 0, 1);
 
         //Dimensions
         OutputDebugString(L"Creating Circle Control\n");
         CircleControl* dimensionControl = new CircleControl(this, circle, x, y);
-        sizer->Add(dimensionControl, 1, 0, 1);
+        sizer->Add(dimensionControl, 0, 0, 1);
 
         //outline checkbox
         OutputDebugString(L"Creating Outline Control\n");
         OutLineControl* outlineControl = new OutLineControl(this, circle, x, y);
-        sizer->Add(outlineControl, 1, 0, 1);
+        sizer->Add(outlineControl, 0, 0, 1);
 
         //SetSizer(sizer);
         OutputDebugString(L"Controls Updated\n");
@@ -1650,7 +1651,6 @@ public:
     }
 };
 
-
 //Pane containing the preview render of the crosshair, center outline toggle, and the save and export buttons
 class PreviewPanelPane : public wxPanel {
 private:
@@ -1670,13 +1670,16 @@ public:
 
         // Preview window
         panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(c->GetWidth(), c->GetHeight()));
-        panel->SetBackgroundColour(wxColor(100, 90, 90));
+        panel->SetBackgroundColour(wxColor(90, 90, 90));
         sizer2 = new wxBoxSizer(wxHORIZONTAL);
         panel->SetSizer(sizer2);
 
         ImagePanel* previewimg = new ImagePanel(panel, c, showcenter);
-        sizer2->Add(previewimg, 1, wxEXPAND | wxALL, 5);
-        sizer->Add(panel, 1, 0, 5);
+        sizer2->Add(previewimg, 0, wxEXPAND | wxALL, 5);
+
+        sizer->AddStretchSpacer();
+        sizer->Add(panel, 0, wxCENTER, 5);
+        sizer->AddStretchSpacer();
 
         //center line toggle
         wxCheckBox* check = new wxCheckBox(this, wxID_ANY, "Show center");
