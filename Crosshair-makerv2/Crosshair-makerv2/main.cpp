@@ -358,35 +358,7 @@ void MyFrame::VisibilityButtonClicked(wxCommandEvent& event) {
 }
 
 void MyFrame::UpdateLayerListPane() {
-	layersizer->Clear(true);
 
-	wxPanel* llpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(200, 300));
-	wxSizer* lsizer = new wxBoxSizer(wxVERTICAL);
-	llpanel->SetBackgroundColour(wxColor(100, 100, 100));
-
-	//Layer list
-	layerlist = new ScrolledWidgetsPane(llpanel, wxID_ANY, &xhair);
-	wxBoxSizer* llsizer = new wxBoxSizer(wxVERTICAL);
-	llsizer->Add(layerlist, 1, wxEXPAND | wxALL, 5);
-
-	//Layer Buttons
-	wxBoxSizer* lbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
-	wxButton* deleteLayer = new wxButton(llpanel, BUTTON_DELETELAYER, "Delete");
-	wxButton* newLayer = new wxButton(llpanel, BUTTON_NEWLAYER, "New Layer");
-	lbuttonsizer->Add(deleteLayer, 1, wxEXPAND | wxALL, 5);
-	lbuttonsizer->Add(newLayer, 1, wxEXPAND | wxALL, 5);
-
-	lsizer->Add(llsizer, 1, wxEXPAND | wxALL, 5);
-	lsizer->Add(lbuttonsizer, 1, wxEXPAND | wxALL, 5);
-
-	llpanel->SetSizer(lsizer);
-
-	//MyFrame private member layzersizer
-	layersizer->Add(llpanel, 1, wxEXPAND | wxALL, 5);
-
-	Layout();
-	Refresh();
-	Update();
 }
 
 void MyFrame::UpdateLayerListPane2() {
@@ -424,34 +396,7 @@ void MyFrame::LayerButtonClicked(wxCommandEvent& event) {
 
 // CONTROL PANE
 void MyFrame::UpdateLayerControlPane() {
-	OutputDebugString(L"Entering UpdateLayerControlPane\n");
-	//controlsizer->Clear(true);
-	wxLogDebug(wxT("mainpanel pointer: %p"), mainpanel);
-	wxPanel* layercontrolpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(300, 300));
-	layercontrolpanel->SetBackgroundColour(wxColor(255, 100, 100));
-	wxBoxSizer* layercontrolsizer = new wxBoxSizer(wxVERTICAL);
-
-	OutputDebugString(L"Attempting to Create control panel\n");
-
-	if (xhair.selectedLayer > -1) {
-		ControlPanel* control = new ControlPanel(layercontrolpanel, wxID_ANY, &xhair, xhair.selectedLayer);
-		OutputDebugString(L"Adding control panel to sizer\n");
-		layercontrolsizer->Add(control, 1, wxEXPAND | wxALL, 5);
-	}
-	OutputDebugString(L"setting sizer\n");
-	layercontrolpanel->SetSizer(layercontrolsizer);
-
-	OutputDebugString(L"adding to controlsizer\n");
-	controlsizer->Add(layercontrolpanel, 1, wxEXPAND | wxALL, 5);
-
-	OutputDebugString(L"Attempting Layout()\n");
-	wxLogDebug(wxT("mainpanel pointer: %p"), mainpanel);
-	Layout();
-	OutputDebugString(L"Attempting Refresh()\n");
-	Refresh();
-	OutputDebugString(L"Attempting Update()\n");
-	Update();
-	OutputDebugString(L"Exiting UpdateLayerControlPane\n");
+	
 }
 
 void MyFrame::UpdateLayerControlPane2() {
@@ -537,42 +482,7 @@ void MyFrame::LayerTypeChanged(wxCommandEvent& event) {
 
 // PREVIEW PANE
 void MyFrame::UpdatePreviewPane() {
-	//previewsizer->Clear(true);
-
-	//wxPanel* parentpreviewpanel = new wxPanel(mainpanel, wxID_ANY, wxDefaultPosition, wxSize(400, 500));
-	//wxBoxSizer* pvsizer = new wxBoxSizer(wxVERTICAL);
-
-	//parentpreviewpanel->SetSizer(pvsizer);
-
-	////panel for preview image
-	//wxPanel* previewimgpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(100, 100));
-	//previewimgpanel->SetBackgroundColour(wxColor(90, 90, 90));
-	//previewimg = new ImagePanel(previewimgpanel, &xhair);
-	//wxBoxSizer* previewimgsizer = new wxBoxSizer(wxHORIZONTAL);
-	////previewimgsizer->AddStretchSpacer();
-	//previewimgsizer->Add(previewimg, 1, wxSHAPED | wxCENTER, 5);
-	////previewimgsizer->AddStretchSpacer();
-	//previewimgpanel->SetSizer(previewimgsizer);
-
-	////panel for preview buttons
-	//wxPanel* previewbuttonpanel = new wxPanel(parentpreviewpanel, wxID_ANY, wxDefaultPosition, wxSize(150, 150));
-	//previewbuttonpanel->SetBackgroundColour(wxColor(90, 90, 90));
-	//saveButton = new wxButton(previewbuttonpanel, BUTTON_SAVE, "Save");
-	//testButton = new wxButton(previewbuttonpanel, BUTTON_TEST, "Test");
-
-	//wxBoxSizer* previewbuttonsizer = new wxBoxSizer(wxHORIZONTAL);
-	//previewbuttonsizer->Add(saveButton, 1, 0, 5);
-	//previewbuttonsizer->Add(testButton, 1, 0, 5);
-	//previewbuttonpanel->SetSizer(previewbuttonsizer);
-
-	//pvsizer->Add(previewimgpanel, 1, wxEXPAND | wxALL, 5);
-	//pvsizer->Add(previewbuttonpanel, 1, wxEXPAND | wxALL, 5);
-
-	//previewsizer->Add(parentpreviewpanel, 1, wxEXPAND | wxALL, 5);
-
-	//Layout();
-	//Refresh();
-	//Update();
+	
 }
 
 void MyFrame::UpdatePreviewPane2() {
