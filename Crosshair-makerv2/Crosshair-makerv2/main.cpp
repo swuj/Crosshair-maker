@@ -87,8 +87,10 @@ public:
 		wxButton* newCrosshairButton = new wxButton(mainpanel, BUTTON_NEW, ("New"));
 		wxButton* loadCrosshairButton = new wxButton(mainpanel, BUTTON_LOAD, ("Load"));
 
+		mainsizer2->AddStretchSpacer();
 		mainsizer2->Add(newCrosshairButton, 0, wxCENTER, 5);
 		mainsizer2->Add(loadCrosshairButton, 0, wxCENTER, 5);
+		mainsizer2->AddStretchSpacer();
 
 		//SetSizer(mainsizer);
 	}
