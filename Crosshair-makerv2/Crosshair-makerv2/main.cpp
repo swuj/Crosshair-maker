@@ -125,7 +125,6 @@ public:
 		/***************************************/
 		OutputDebugString(L"Creating PreviewPane\n");
 		previewsizer = new wxBoxSizer(wxHORIZONTAL);
-		//UpdatePreviewPane();
 		CreatePreviewPane();
 		mainsizer2->Add(previewsizer, 1, wxEXPAND | wxALL, 2);
 		OutputDebugString(L"Created PreviewPane\n");
@@ -152,7 +151,6 @@ public:
 		vbox->Add(widthEntry, 1, wxEXPAND | wxALL, 5);
 		vbox->Add(heightEntry, 1, wxEXPAND | wxALL, 5);
 		vbox->Add(confirmNewButton, 1, wxEXPAND | wxALL, 5);
-		//panel->SetSizer(vbox);
 		mainsizer2->Add(vbox);
 
 		Layout();
@@ -241,7 +239,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_BUTTON(BUTTON_NEWLAYER, MyFrame::NewLayerButtonClicked)
 	EVT_BUTTON(BUTTON_DELETELAYER, MyFrame::DeleteLayerButtonClicked)
 	EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
-	//EVT_LEFT_DOWN(MyFrame::LayerButtonClicked)
 	EVT_COMMAND(wxID_ANY, LAYER_PANEL_CLICKED, MyFrame::LayerButtonClicked)
 	EVT_BUTTON(BUTTON_VISIBLE, MyFrame::VisibilityButtonClicked)
 	EVT_BUTTON(BUTTON_EXPORT, MyFrame::ExportButtonClicked)
@@ -255,8 +252,6 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 	EVT_MENU(wxID_SAVE, MyFrame::OnFileSave)
 	EVT_MENU(wxID_EXIT, MyFrame::OnFileExit)
 	EVT_MENU(wxID_NEW, MyFrame::NewButtonClicked)
-	//EVT_SCROLL(SLIDER_CONTROLZ, MyFrame::SliderChanged)
-    //EVT_BUTTON(BUTTON_TEST, MyFrame::TestButtonClicked)
 END_EVENT_TABLE() // The button is pressed
 
 BEGIN_EVENT_TABLE(ImagePanel, wxPanel)
